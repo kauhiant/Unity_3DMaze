@@ -7,7 +7,7 @@ namespace Maze
     class Grid
     {
         public MazeObject obj;
-        public UnityEngine.GameObject shape;
+        public UnityEngine.Sprite shape;
     }
 }
 

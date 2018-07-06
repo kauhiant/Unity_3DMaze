@@ -81,11 +81,13 @@
     <Compile Include="Assets\Maze\Enum.cs" />
     <Compile Include="Assets\Maze\Grid.cs" />
     <Compile Include="Assets\Maze\Int.cs" />
+    <Compile Include="Assets\Maze\Map2D.cs" />
     <Compile Include="Assets\Maze\Map3D.cs" />
     <Compile Include="Assets\Maze\MazeObject.cs" />
     <Compile Include="Assets\Maze\Plain.cs" />
     <Compile Include="Assets\Maze\Point2D.cs" />
     <Compile Include="Assets\Maze\Point3D.cs" />
+    <Compile Include="Assets\Script\GlobalAsset.cs" />
     <Compile Include="Assets\Script\MapManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
