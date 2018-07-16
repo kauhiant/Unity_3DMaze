@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maze
 {
-    class Point3D
+    public class Point3D
     {
         public Int x, y, z;
 

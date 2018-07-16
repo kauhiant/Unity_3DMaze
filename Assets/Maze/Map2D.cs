@@ -7,7 +7,7 @@ namespace Maze
 {
     class Map2D
     {
-        private Map3D binded;
+        public Map3D binded;
 
         public Map2D(Map3D binded)
         {

@@ -7,9 +7,9 @@ namespace Maze
 {
     class Point2D
     {
-        public Point3D binded;
+        public Point3D   binded;
         public Dimention dimen;
-        public Int x, y;
+        public Int       x, y;
 
         public Point2D(Point3D binded, Dimention dimen)
         {

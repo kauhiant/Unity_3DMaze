@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Grid
+    public class Grid
     {
         public MazeObject obj;
         public UnityEngine.Sprite shape;

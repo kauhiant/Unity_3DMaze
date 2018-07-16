@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace Maze
 {
 
-    class MazeObject
+    abstract public class MazeObject
     {
         public Point3D position;
 
@@ -14,6 +15,8 @@ namespace Maze
         {
             this.position = position;
         }
+
+        public abstract Sprite Shape();
     }
 
 }

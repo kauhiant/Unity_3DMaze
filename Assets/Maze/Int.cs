@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maze
 {
-    class Int
+    public class Int
     {
         public int value;
         

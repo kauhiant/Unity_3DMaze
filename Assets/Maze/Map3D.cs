@@ -21,7 +21,7 @@ namespace Maze
                     for(int k=0; k<layers; ++k)
                     {
                         map[i][j][k] = new Grid();
-                     //   map[i][j][k].shape = MapManager.grid.GetComponent<SpriteRenderer>().sprite;
+                        map[i][j][k].shape = GlobalAsset.gridSprite;
                     }
                 }
             }
@@ -61,7 +61,7 @@ namespace Maze
             return true;
         }
 
-        public void EraseAt(Point3D position)
+        public void RemoveAt(Point3D position)
         {
             if (IsInThisMap(position))
                 GetAt(position).obj = null;
@@ -82,7 +82,7 @@ namespace Maze
                     for(int k=0; k<map[0][0].Length; ++k)
                     {
                         if(Random.Range(0f,1f) < 0.4f)
-                            map[i][j][k].obj = new MazeObject(new Point3D(i,j,k));
+                            map[i][j][k].obj = new Stone(new Point3D(i,j,k));
                     }
                 }
             }
