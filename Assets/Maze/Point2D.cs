@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maze
 {
-    class Point2D
+    public class Point2D
     {
         public Point3D   binded;
         public Dimention dimen;
@@ -80,5 +80,7 @@ namespace Maze
                     break;
             }
         }
+
+        
     }
 }

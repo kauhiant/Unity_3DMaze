@@ -8,7 +8,7 @@ namespace Maze
 {
     class Animal : MazeObject
     {
-        private Point2D posit;
+        public Point2D posit;
 
         public Animal(Point3D position) : base(position)
         {
@@ -38,6 +38,11 @@ namespace Maze
             
             return true;
             
+        }
+
+        public void ChangePlain(Dimention dimen)
+        {
+            this.posit.ChangePlain(dimen);
         }
 
         public override Sprite Shape()

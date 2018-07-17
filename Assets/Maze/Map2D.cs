@@ -18,7 +18,7 @@ namespace Maze
         {
             return binded.GetAt(position.binded);
         }
-
+        
 
     }
 }
