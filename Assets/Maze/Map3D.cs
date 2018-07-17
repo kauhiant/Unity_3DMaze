@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Map3D
+    public class Map3D
     {
         private Grid[][][] map;
 
@@ -35,7 +35,10 @@ namespace Maze
         {
             return (position.x.value < map.Length &&
                 position.y.value < map[0].Length &&
-                position.z.value < map[0][0].Length);
+                position.z.value < map[0][0].Length &&
+                position.x.value >= 0 &&
+                position.y.value >= 0 &&
+                position.z.value >= 0);
         }
 
         public Grid GetAt(Point3D position)
@@ -52,11 +55,11 @@ namespace Maze
         public bool InsertAt(Point3D position, MazeObject obj)
         {
             if (!IsInThisMap(position))
-                return false;
+                return false;                
 
-            if (GetAt(position) != null)
+            if (GetAt(position) == null)
                 return false;
-
+            
             GetAt(position).obj = obj;
             return true;
         }
@@ -65,6 +68,19 @@ namespace Maze
         {
             if (IsInThisMap(position))
                 GetAt(position).obj = null;
+        }
+
+        public void Swap(Point3D a, Point3D b)
+        {
+            MazeObject temp = GetAt(a).obj;
+            GetAt(a).obj = GetAt(b).obj;
+            GetAt(b).obj = temp;
+            
+            if (GetAt(a).obj != null)
+                GetAt(a).obj.position.SetBy(a);
+
+            if (GetAt(b).obj != null)
+                GetAt(b).obj.position.SetBy(b);
         }
 
         public void SetBackgroundAt(Point3D position, UnityEngine.Sprite shape)

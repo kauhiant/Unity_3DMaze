@@ -21,6 +21,11 @@ namespace Maze
             return new Point2D(binded.Copy(), dimen);
         }
 
+        public void Bind(Point3D binded)
+        {
+            this.Bind(binded, this.dimen);
+        }
+
         public void Bind(Point3D binded, Dimention dimen)
         {
             this.binded = binded;

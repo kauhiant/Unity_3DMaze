@@ -8,20 +8,29 @@ public class MapManager : MonoBehaviour {
 
     public GameObject grid;
     public GameObject stone;
+    public GameObject animal;
     public GameObject camera;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
+    private Maze.Animal player;
+    private GameObject playerBinded;
 
 	// Use this for initialization
 	void Start () {
 
         GlobalAsset.gridSprite = grid.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.stoneSprite = stone.GetComponent<SpriteRenderer>().sprite;
+        GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
 
-        gameMap = new Maze.Map3D(8, 8, 3);
+        gameMap = new Maze.Map3D(8, 8, 1);
         sceneMap = new Maze.Map2D(gameMap);
+        GlobalAsset.map = gameMap;
 
+        player = new Maze.Animal(new Maze.Point3D(0, 0, 0));
+
+        gameMap.InsertAt(player.position, player);
+        
 	}
 
     // Update is called once per frame
@@ -31,27 +40,24 @@ public class MapManager : MonoBehaviour {
         {
             ShowMap();
         }
-        else if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            camera.transform.Translate(Vector3.up);
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            PlayerMove(Maze.Vector2D.Up);
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            camera.transform.Translate(Vector3.down);
+            PlayerMove(Maze.Vector2D.Down);
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            camera.transform.Translate(Vector3.left);
+            PlayerMove(Maze.Vector2D.Left);
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            camera.transform.Translate(Vector3.right);
+            PlayerMove(Maze.Vector2D.Right);
         }
     }
-
-    /*
-    public void CreateObjAt(int x, int y, GameObject gameObject) {
-        Instantiate(gameObject, new Vector2(x, y), gameObject.transform.rotation);
-    }*/
+    
 
     public void CreateObjAt(int x, int y, Maze.MazeObject obj)
     {
@@ -61,8 +67,10 @@ public class MapManager : MonoBehaviour {
         temp.GetComponent<SpriteRenderer>().sprite = obj.Shape();
         temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
 
-
-        Console.WriteLine("create obj");
+        if(obj == player)
+        {
+            playerBinded = temp;
+        }
     }
 
     public void CreateGridAt(int x, int y, Maze.Grid grid)
@@ -84,14 +92,41 @@ public class MapManager : MonoBehaviour {
             for(int j=0; j<8; ++j)
             {
                 Maze.Grid grid = sceneMap.GetAt(point);
-                CreateGridAt(i, j, grid);
+                CreateGridAt(j, i, grid);
                 if(grid.obj != null)
-                    CreateObjAt(i, j, grid.obj);
+                    CreateObjAt(j, i, grid.obj);
 
                 point.MoveFor(Maze.Vector2D.Right,1);
             }
             point.MoveFor(Maze.Vector2D.Up, 1);
             point.MoveFor(Maze.Vector2D.Left, 8);
+        }
+    }
+
+    private void PlayerMove(Maze.Vector2D vector)
+    {
+        if (player.MoveFor(vector))
+        {
+            playerBinded.transform.Translate(ConvertTo(vector));
+            camera.transform.Translate(ConvertTo(vector));
+        }
+            
+    }
+
+    private Vector2 ConvertTo(Maze.Vector2D vector)
+    {
+        switch (vector)
+        {
+            case Maze.Vector2D.Up:
+                return Vector2.up;
+            case Maze.Vector2D.Down:
+                return Vector2.down;
+            case Maze.Vector2D.Left:
+                return Vector2.left;
+            case Maze.Vector2D.Right:
+                return Vector2.right;
+            default:
+                return Vector2.zero;
         }
     }
 }

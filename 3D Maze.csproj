@@ -78,6 +78,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Maze\Animal.cs" />
     <Compile Include="Assets\Maze\Enum.cs" />
     <Compile Include="Assets\Maze\GlobalAsset.cs" />
     <Compile Include="Assets\Maze\Grid.cs" />

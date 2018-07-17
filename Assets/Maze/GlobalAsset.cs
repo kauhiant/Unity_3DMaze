@@ -6,4 +6,7 @@ public class GlobalAsset
 {
     static public Sprite gridSprite;
     static public Sprite stoneSprite;
+    static public Sprite animalSprite;
+
+    static public Maze.Map3D map;
 }
