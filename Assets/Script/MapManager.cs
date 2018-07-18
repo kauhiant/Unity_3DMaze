@@ -62,17 +62,9 @@ public class MapManager : MonoBehaviour {
         {
             PlayerMove(Maze.Vector2D.Right);
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else if (Input.GetKeyDown(KeyCode.C))
         {
-            ChangePlain(Maze.Dimention.X);
-        }
-        else if (Input.GetKeyDown(KeyCode.Y))
-        {
-            ChangePlain(Maze.Dimention.Y);
-        }
-        else if (Input.GetKeyDown(KeyCode.Z))
-        {
-            ChangePlain(Maze.Dimention.Z);
+            ChangePlain();
         }
 
         UpdateMap();
@@ -107,9 +99,9 @@ public class MapManager : MonoBehaviour {
         grids.Add(temp);
     }
 
-    public void ChangePlain(Maze.Dimention dimention)
+    public void ChangePlain()
     {
-        player.ChangePlain(dimention);
+        player.ChangePlain();
         ClearMap();
         ShowMap();
     }
@@ -161,8 +153,8 @@ public class MapManager : MonoBehaviour {
                 switch (grid.objEvent)
                 {
                     case "move":
-                        playerBinded.transform.Translate(ConvertTo(player.vector));
-                        camera.transform.Translate(ConvertTo(player.vector));
+                        playerBinded.transform.Translate(ConvertTo(player.vect));
+                        camera.transform.Translate(ConvertTo(player.vect));
                         break;
 
                     case "turnTo":

@@ -11,6 +11,8 @@ namespace Maze
         public Dimention dimen;
         public Int       x, y;
 
+        public Plain plain { get { return new Plain(binded, dimen); } }
+
         public Point2D(Point3D binded, Dimention dimen)
         {
             this.Bind(binded, dimen);
@@ -31,8 +33,7 @@ namespace Maze
             this.binded = binded;
             this.ChangePlain(dimen);
         }
-
-
+        
         // X : ( Y,Z )
         // Y : ( Z,X )
         // Z : ( X,Y )

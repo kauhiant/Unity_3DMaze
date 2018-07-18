@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maze
 {
-    class Plain
+    public class Plain
     {
         public Dimention dimen;
         public int value;
