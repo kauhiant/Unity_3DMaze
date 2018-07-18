@@ -11,6 +11,8 @@ public class MapManager : MonoBehaviour {
     public GameObject animal;
     public GameObject camera;
 
+    public Sprite[] animalShapes = new Sprite[6];
+
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
     private Maze.Animal player;
@@ -25,6 +27,7 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.gridSprite = grid.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.stoneSprite = stone.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
+        GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
 
         gameMap = new Maze.Map3D(8, 8, 3);
         sceneMap = new Maze.Map2D(gameMap);
@@ -71,6 +74,8 @@ public class MapManager : MonoBehaviour {
         {
             ChangePlain(Maze.Dimention.Z);
         }
+
+        UpdateMap();
     }
     
 
@@ -140,17 +145,41 @@ public class MapManager : MonoBehaviour {
                     CreateObjAt(point.x.value, point.y.value, grid.obj);
             }
         } while (iter.MoveToNext());
+    }
 
+    public void UpdateMap()
+    {
+        Maze.Iterator iter = new Maze.Iterator(player.posit, 5);
+
+        do
+        {
+            Maze.Point2D point = iter.Iter;
+
+            Maze.Grid grid = sceneMap.GetAt(point);
+            if (grid != null)
+            {
+                switch (grid.objEvent)
+                {
+                    case "move":
+                        playerBinded.transform.Translate(ConvertTo(player.vector));
+                        camera.transform.Translate(ConvertTo(player.vector));
+                        break;
+
+                    case "turnTo":
+                        playerBinded.GetComponent<SpriteRenderer>().sprite = player.Shape();
+                        break;
+
+                    default:
+                        break;
+                }
+                grid.objEvent = null;
+            }
+        } while (iter.MoveToNext());
     }
 
     private void PlayerMove(Maze.Vector2D vector)
     {
-        if (player.MoveFor(vector))
-        {
-            playerBinded.transform.Translate(ConvertTo(vector));
-            camera.transform.Translate(ConvertTo(vector));
-        }
-            
+        player.MoveFor(vector);
     }
 
     private Vector2 ConvertTo(Maze.Vector2D vector)

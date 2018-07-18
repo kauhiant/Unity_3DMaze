@@ -6,18 +6,24 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Shape
+    public class Shape
     {
         private Sprite[] eachVector;
 
-        public Shape()
+        public Shape(Sprite[] sprites)
         {
             eachVector = new Sprite[6];
+            SetShapeAt(Vector2D.Right, sprites[0]);
+            SetShapeAt(Vector2D.Down, sprites[1]);
+            SetShapeAt(Vector2D.Left, sprites[2]);
+            SetShapeAt(Vector2D.Up, sprites[3]);
+            SetShapeAt(Vector2D.In, sprites[4]);
+            SetShapeAt(Vector2D.Out, sprites[5]);
         }
 
         public Shape Copy()
         {
-            Shape temp = new Shape();
+            Shape temp = new Shape(eachVector);
             return temp;
         }
 
