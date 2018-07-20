@@ -29,7 +29,7 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
 
-        gameMap = new Maze.Map3D(8, 8, 3);
+        gameMap = new Maze.Map3D(32, 32, 3);
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
@@ -44,6 +44,7 @@ public class MapManager : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.S))
         {
+            ClearMap();
             ShowMap();
         }
         else if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -67,7 +68,15 @@ public class MapManager : MonoBehaviour {
             ChangePlain();
         }
 
-        UpdateMap();
+        //UpdateMap();
+        Clock();
+    }
+
+    public void Clock()
+    {
+        //UpdateMap();
+        ClearMap();
+        ShowMap();
     }
     
 
@@ -99,6 +108,11 @@ public class MapManager : MonoBehaviour {
         grids.Add(temp);
     }
 
+    public void RemoveGridAt(int x, int y)
+    {
+
+    }
+
     public void ChangePlain()
     {
         player.ChangePlain();
@@ -123,7 +137,7 @@ public class MapManager : MonoBehaviour {
 
     public void ShowMap()
     {
-        Maze.Iterator iter = new Maze.Iterator(player.posit, 5);
+        Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
 
         do
         {
@@ -142,7 +156,6 @@ public class MapManager : MonoBehaviour {
     public void UpdateMap()
     {
         Maze.Iterator iter = new Maze.Iterator(player.posit, 5);
-
         do
         {
             Maze.Point2D point = iter.Iter;
