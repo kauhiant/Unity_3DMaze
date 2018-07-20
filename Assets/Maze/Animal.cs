@@ -70,6 +70,29 @@ namespace Maze
                 
         }
 
+        public void Auto()
+        {
+            int rand = UnityEngine.Random.Range(0, 4);
+            switch (rand)
+            {
+                case 0:
+                    MoveFor(Vector2D.Right);
+                    break;
+
+                case 1:
+                    MoveFor(Vector2D.Down);
+                    break;
+
+                case 2:
+                    MoveFor(Vector2D.Left);
+                    break;
+
+                case 3:
+                    MoveFor(Vector2D.Up);
+                    break;
+            }
+        }
+
         public void Attack()
         {
             Point3D targetPosition = this.position.Copy();

@@ -20,6 +20,13 @@ namespace Maze
             return new Point3D(x.value, y.value, z.value);
         }
 
+        public void Set(int x, int y, int z)
+        {
+            this.x.value = x;
+            this.y.value = y;
+            this.z.value = z;
+        }
+
         public void SetBy(Point3D point)
         {
             this.x.value = point.x.value;

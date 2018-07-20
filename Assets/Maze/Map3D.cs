@@ -92,16 +92,18 @@ namespace Maze
                 GetAt(position).shape = shape;
         }
 
-        public void RandomInsertAt(MazeObject obj, int layer)
+        public bool RandomInsertAt(MazeObject obj, int layer)
         {
             int x = Random.Range(0, widthX);
             int y = Random.Range(0, widthY);
 
             if(layer >= 0 && layer < this.layers)
             {
-                obj.position = new Point3D(x, y, layer);
-                GetAt(obj.position).obj = obj;
+                obj.position.Set(x, y, layer);
+                return this.InsertAt(obj.position, obj);
             }
+
+            return false;
         }
         
 

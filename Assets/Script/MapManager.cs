@@ -20,6 +20,7 @@ public class MapManager : MonoBehaviour {
 
     private List<GameObject> grids = new List<GameObject>();
     private List<GameObject> objs = new List<GameObject>();
+    private List<Maze.Animal> enemys = new List<Maze.Animal>();
 
 	// Use this for initialization
 	void Start () {
@@ -35,7 +36,12 @@ public class MapManager : MonoBehaviour {
 
         for(int i=0; i<10; ++i)
         {
-            GlobalAsset.map.RandomInsertAt(new Maze.Animal(new Maze.Point3D(0,0,0)), 1);
+            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0,0,0));
+            if (GlobalAsset.map.RandomInsertAt(enemy, 1))
+            {
+                enemys.Add(enemy);
+            }
+
         }
 
         player = new Maze.Animal(new Maze.Point3D(0, 3, 0));
@@ -81,6 +87,12 @@ public class MapManager : MonoBehaviour {
         //UpdateMap();
         ClearMap();
         ShowMap();
+
+        foreach(Maze.Animal each in enemys)
+        {
+            if (each != player)
+                each.Auto();
+        }
     }
     
 
@@ -137,6 +149,8 @@ public class MapManager : MonoBehaviour {
             Destroy(objs[0]);
             objs.RemoveAt(0);
         }
+        
+        
     }
 
     public void ShowMap()
@@ -159,7 +173,7 @@ public class MapManager : MonoBehaviour {
 
     public void UpdateMap()
     {
-        Maze.Iterator iter = new Maze.Iterator(player.posit, 5);
+        Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
         do
         {
             Maze.Point2D point = iter.Iter;
