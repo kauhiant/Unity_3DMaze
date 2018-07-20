@@ -33,6 +33,11 @@ public class MapManager : MonoBehaviour {
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
+        for(int i=0; i<10; ++i)
+        {
+            GlobalAsset.map.RandomInsertAt(new Maze.Animal(new Maze.Point3D(0,0,0)), 1);
+        }
+
         player = new Maze.Animal(new Maze.Point3D(0, 3, 0));
 
         gameMap.InsertAt(player.position, player);
@@ -42,12 +47,7 @@ public class MapManager : MonoBehaviour {
     // Update is called once per frame
     int i=0;
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            ClearMap();
-            ShowMap();
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             PlayerMove(Maze.Vector2D.Up);
         }
@@ -66,6 +66,10 @@ public class MapManager : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.C))
         {
             ChangePlain();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            player.Attack();
         }
 
         //UpdateMap();

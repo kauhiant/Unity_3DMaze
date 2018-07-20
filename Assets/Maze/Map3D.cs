@@ -8,6 +8,10 @@ namespace Maze
     {
         private Grid[][][] map;
 
+        public int widthX { get { return map.Length; } }
+        public int widthY { get { return map[0].Length; } }
+        public int layers { get { return map[0][0].Length; } }
+
         public Map3D (int widthX, int widthY, int layers)
         {
 
@@ -28,14 +32,13 @@ namespace Maze
 
             InitMap();
         }
-
-
+        
 
         public bool IsInThisMap(Point3D position)
         {
-            return (position.x.value < map.Length &&
-                position.y.value < map[0].Length &&
-                position.z.value < map[0][0].Length &&
+            return (position.x.value < widthX &&
+                position.y.value < widthY &&
+                position.z.value < layers &&
                 position.x.value >= 0 &&
                 position.y.value >= 0 &&
                 position.z.value >= 0);
@@ -88,6 +91,19 @@ namespace Maze
             if (IsInThisMap(position))
                 GetAt(position).shape = shape;
         }
+
+        public void RandomInsertAt(MazeObject obj, int layer)
+        {
+            int x = Random.Range(0, widthX);
+            int y = Random.Range(0, widthY);
+
+            if(layer >= 0 && layer < this.layers)
+            {
+                obj.position = new Point3D(x, y, layer);
+                GetAt(obj.position).obj = obj;
+            }
+        }
+        
 
         private void InitMap()
         {
