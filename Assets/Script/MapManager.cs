@@ -11,12 +11,16 @@ public class MapManager : MonoBehaviour {
     public GameObject animal;
     public GameObject camera;
 
+    public float clockTime = 0.3f;
+
     public Sprite[] animalShapes = new Sprite[6];
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
     private Maze.Animal player;
     private GameObject playerBinded;
+
+    private string command;
 
     private List<GameObject> grids = new List<GameObject>();
     private List<GameObject> objs = new List<GameObject>();
@@ -51,39 +55,73 @@ public class MapManager : MonoBehaviour {
 	}
 
     // Update is called once per frame
-    int i=0;
+    float time = 0;
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        
+
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            PlayerMove(Maze.Vector2D.Up);
+            command = "moveUp";
         }
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow))
         {
-            PlayerMove(Maze.Vector2D.Down);
+            command = "moveDown";
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            PlayerMove(Maze.Vector2D.Left);
+            command = "moveLeft";
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
-            PlayerMove(Maze.Vector2D.Right);
+            command = "moveRight";
         }
-        else if (Input.GetKeyDown(KeyCode.C))
+        else if (Input.GetKey(KeyCode.C))
         {
-            ChangePlain();
+            command = "changePlain";
         }
-        else if (Input.GetKeyDown(KeyCode.Space))
+        else if (Input.GetKey(KeyCode.Space))
         {
-            player.Attack();
+            command = "attack";
         }
 
         //UpdateMap();
+        time += Time.deltaTime;
+        if (time < clockTime) return;
+        time = 0;
         Clock();
     }
 
     public void Clock()
     {
+        switch (command)
+        {
+            case "moveUp":
+                PlayerMove(Maze.Vector2D.Up);
+                break;
+
+            case "moveDown":
+                PlayerMove(Maze.Vector2D.Down);
+                break;
+
+            case "moveLeft":
+                PlayerMove(Maze.Vector2D.Left);
+                break;
+
+            case "moveRight":
+                PlayerMove(Maze.Vector2D.Right);
+                break;
+
+            case "changePlain":
+                ChangePlain();
+                break;
+
+            case "attack":
+                player.Attack();
+                break;
+        }
+
+        command = null;
+
         //UpdateMap();
         ClearMap();
         ShowMap();
