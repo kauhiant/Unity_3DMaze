@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maze
 {
-    class Map2D
+    public class Map2D
     {
         public Map3D binded;
 

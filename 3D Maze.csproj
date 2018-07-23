@@ -13,12 +13,14 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectGenerator>VSTU</UnityProjectGenerator>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.5.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -83,6 +85,7 @@
     <Compile Include="Assets\Maze\Int.cs" />
     <Compile Include="Assets\Maze\Map2D.cs" />
     <Compile Include="Assets\Maze\Map3D.cs" />
+    <Compile Include="Assets\Maze\MapManager.cs" />
     <Compile Include="Assets\Maze\MazeObject.cs" />
     <Compile Include="Assets\Maze\Plain.cs" />
     <Compile Include="Assets\Maze\Point2D.cs" />
