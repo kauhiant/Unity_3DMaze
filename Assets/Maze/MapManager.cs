@@ -8,8 +8,19 @@ namespace Maze
 {
     public class MapManager
     {
+        class Pair
+        {
+            public GameObject binded;
+            public MazeObject obj;
+            public Pair(MazeObject obj, GameObject binded)
+            {
+                this.obj = obj;
+                this.binded = binded;
+            }
+        }
+
         List<GameObject> grids;
-        List<GameObject> objs;
+        List<Pair> objs;
 
         Map2D map;
         Point2D center;
@@ -43,7 +54,7 @@ namespace Maze
             temp.GetComponent<SpriteRenderer>().sprite = obj.Shape();
             temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
 
-            objs.Add(temp);
+            objs.Add(new Pair(obj,temp));
         }
 
         private void CreateGridAt(int x, int y, Maze.Grid grid)
@@ -73,7 +84,10 @@ namespace Maze
             while(index != grids.Count)
             {
                 if (isOnLine(grids[index], dimention, value))
+                {
+                    GameObject.Destroy(grids[index]);
                     grids.RemoveAt(index);
+                }
                 else
                     ++index;
             }
@@ -81,8 +95,11 @@ namespace Maze
             index = 0;
             while(index != objs.Count)
             {
-                if (isOnLine(objs[index], dimention, value))
+                if (isOnLine(objs[index].binded, dimention, value))
+                {
+                    GameObject.Destroy(objs[index].binded);
                     objs.RemoveAt(index);
+                }
                 else
                     ++index;
 
@@ -104,6 +121,24 @@ namespace Maze
             command = null;
         }
 
+        private void ShowMap()
+        {
+            Maze.Iterator iter = new Maze.Iterator(center, 8);
+
+            do
+            {
+                Maze.Point2D point = iter.Iter;
+
+                Maze.Grid grid = map.GetAt(point);
+                if (grid != null)
+                {
+                    CreateGridAt(point.x.value, point.y.value, grid);
+                    if (grid.obj != null)
+                        CreateObjAt(point.x.value, point.y.value, grid.obj);
+                }
+            } while (iter.MoveToNext());
+        }
+
 
         public MapManager(Map2D map, Point2D center, int extra)
         {
@@ -111,7 +146,9 @@ namespace Maze
             this.center = center;
             this.extra = extra;
             this.grids = new List<GameObject>();
-            this.objs = new List<GameObject>();
+            this.objs = new List<Pair>();
+            ShowMap();
+            
         }
 
         public void moveForward(Vector2D vector)
@@ -153,6 +190,15 @@ namespace Maze
         {
 
         }
-
+        
+        public GameObject FindMazeObject(MazeObject mazeObject)
+        {
+            foreach(Pair each in objs)
+            {
+                if (each.obj == mazeObject)
+                    return each.binded;
+            }
+            return null;
+        }
     }
 }

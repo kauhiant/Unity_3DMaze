@@ -11,7 +11,7 @@ public class MapManager : MonoBehaviour {
     public GameObject animal;
     public GameObject camera;
 
-    public float clockTime = 0.3f;
+    public float clockTime = 0.5f;
 
     public Sprite[] animalShapes = new Sprite[6];
 
@@ -22,6 +22,7 @@ public class MapManager : MonoBehaviour {
 
     private string command;
 
+    private Maze.MapManager manager;
     private List<GameObject> grids = new List<GameObject>();
     private List<GameObject> objs = new List<GameObject>();
     private List<Maze.Animal> enemys = new List<Maze.Animal>();
@@ -42,23 +43,24 @@ public class MapManager : MonoBehaviour {
         {
             Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0,0,0));
             if (GlobalAsset.map.RandomInsertAt(enemy, 1))
-            {
                 enemys.Add(enemy);
-            }
-
         }
 
         player = new Maze.Animal(new Maze.Point3D(0, 3, 0));
 
         gameMap.InsertAt(player.position, player);
         
+        manager = new Maze.MapManager(sceneMap, player.posit, 8);
+
+        playerBinded = manager.FindMazeObject(player);
+        camera.transform.position = playerBinded.transform.position;
+        camera.transform.Translate(Vector3.back);
 	}
 
     // Update is called once per frame
     float time = 0;
-	void Update () {
-        
-
+	void Update ()
+    {
         if (Input.GetKey(KeyCode.UpArrow))
         {
             command = "moveUp";
@@ -91,6 +93,28 @@ public class MapManager : MonoBehaviour {
         Clock();
     }
 
+    private void updateObject(GameObject gameObject, string commamd)
+    {
+        switch (command)
+        {
+            case "moveUp":
+                MoveForward(gameObject, Vector2.up);
+                break;
+
+            case "moveDown":
+                MoveForward(gameObject, Vector2.down);
+                break;
+
+            case "moveLeft":
+                MoveForward(gameObject, Vector2.left);
+                break;
+
+            case "moveRight":
+                MoveForward(gameObject, Vector2.right);
+                break;
+        }
+    }
+
     public void Clock()
     {
         switch (command)
@@ -110,31 +134,33 @@ public class MapManager : MonoBehaviour {
             case "moveRight":
                 PlayerMove(Maze.Vector2D.Right);
                 break;
-
+/*
             case "changePlain":
                 ChangePlain();
                 break;
 
             case "attack":
                 player.Attack();
-                break;
+                break;*/
         }
 
         command = null;
 
         //UpdateMap();
-        ClearMap();
-        ShowMap();
+        //ClearMap();
+        //ShowMap();
 
         foreach(Maze.Animal each in enemys)
         {
             if (each != player)
                 each.Auto();
         }
-    }
-    
 
-    public void CreateObjAt(int x, int y, Maze.MazeObject obj)
+
+    }
+    /*
+
+    private void CreateObjAt(int x, int y, Maze.MazeObject obj)
     {
         GameObject temp = new GameObject();
         temp.transform.position = new Vector3(x, y, 0);
@@ -152,7 +178,7 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    public void CreateGridAt(int x, int y, Maze.Grid grid)
+    private void CreateGridAt(int x, int y, Maze.Grid grid)
     {
         GameObject temp = new GameObject();
         temp.transform.position = new Vector3(x,y,0);
@@ -162,19 +188,19 @@ public class MapManager : MonoBehaviour {
         grids.Add(temp);
     }
 
-    public void RemoveGridAt(int x, int y)
+    private void RemoveGridAt(int x, int y)
     {
 
     }
 
-    public void ChangePlain()
+    private void ChangePlain()
     {
         player.ChangePlain();
         ClearMap();
         ShowMap();
     }
 
-    public void ClearMap()
+    private void ClearMap()
     {
         while(grids.Count != 0)
         {
@@ -191,7 +217,7 @@ public class MapManager : MonoBehaviour {
         
     }
 
-    public void ShowMap()
+    private void ShowMap()
     {
         Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
 
@@ -209,7 +235,7 @@ public class MapManager : MonoBehaviour {
         } while (iter.MoveToNext());
     }
 
-    public void UpdateMap()
+    private void UpdateMap()
     {
         Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
         do
@@ -237,10 +263,14 @@ public class MapManager : MonoBehaviour {
             }
         } while (iter.MoveToNext());
     }
-
+    */
     private void PlayerMove(Maze.Vector2D vector)
     {
         player.MoveFor(vector);
+        manager.moveForward(vector);
+        playerBinded.transform.Translate(ConvertTo(player.vect));
+        camera.transform.Translate(ConvertTo(player.vect));
+
     }
 
     private Vector2 ConvertTo(Maze.Vector2D vector)
@@ -258,5 +288,10 @@ public class MapManager : MonoBehaviour {
             default:
                 return Vector2.zero;
         }
+    }
+
+    private void MoveForward(GameObject gameObject, Vector2 vector)
+    {
+        gameObject.transform.Translate(vector);
     }
 }
