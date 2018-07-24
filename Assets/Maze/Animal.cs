@@ -72,7 +72,7 @@ namespace Maze
 
         public void Auto()
         {
-            int rand = UnityEngine.Random.Range(0, 4);
+            int rand = UnityEngine.Random.Range(0, 10);
             switch (rand)
             {
                 case 0:
@@ -89,6 +89,9 @@ namespace Maze
 
                 case 3:
                     MoveFor(Vector2D.Up);
+                    break;
+                default:
+                    Move();
                     break;
             }
         }
@@ -120,6 +123,9 @@ namespace Maze
 
         private void TurnTo(Vector2D vector)
         {
+            if (this.vect == vector)
+                return;
+
             this.vector = posit.plain.Vector2To3(vector);
             RegisterEvent(ObjEvent.shape);
         }
@@ -141,22 +147,9 @@ namespace Maze
                 return;
             }
 
-            switch (this.vect)
-            {
-                case Vector2D.Up:
-                    RegisterEvent(ObjEvent.moveU);
-                    break;
-                case Vector2D.Down:
-                    RegisterEvent(ObjEvent.moveD);
-                    break;
-                case Vector2D.Left:
-                    RegisterEvent(ObjEvent.moveL);
-                    break;
-                case Vector2D.Right:
-                    RegisterEvent(ObjEvent.moveR);
-                    break;
-            }
+            RegisterEvent(ObjEvent.move);
             GlobalAsset.map.Swap(position, temp.binded);
+
             return;
         }
 

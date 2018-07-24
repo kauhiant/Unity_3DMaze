@@ -82,6 +82,9 @@ namespace Maze
             }
         }
 
-        
+        public string ToString()
+        {
+            return string.Format("{0},{1}", x.value, y.value);
+        }
     }
 }

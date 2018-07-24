@@ -62,6 +62,7 @@ namespace Maze
 
         private void CreateGridAt(int x, int y, Maze.Grid grid)
         {
+            grid.objEvent = ObjEvent.None;
             GameObject temp = new GameObject();
             temp.transform.position = new Vector3(x, y, 0);
             temp.AddComponent<SpriteRenderer>();
@@ -101,6 +102,12 @@ namespace Maze
                 if (isOnLine(objs[index].binded, dimention, value))
                 {
                     GameObject.Destroy(objs[index].binded);
+                    if (objs[index].obj is Animal)
+                    {
+                        Debug.Log("Destroy a animal");
+                        if (objs[index].obj == player)
+                            Debug.Log("destroyed is player");
+                    }
                     objs.RemoveAt(index);
                 }
                 else
@@ -118,15 +125,10 @@ namespace Maze
                 --dist;
             }
         }
-
-        private void updateObj(GameObject obj, string command)
-        {
-            command = null;
-        }
-
+       
         private void ShowMap()
         {
-            Maze.Iterator iter = new Maze.Iterator(center, 8);
+            Maze.Iterator iter = new Maze.Iterator(center, extra);
 
             do
             {
@@ -174,11 +176,108 @@ namespace Maze
             }
         }
 
-        private void GameObjectMove(GameObject gameObject, Vector2D vector)
+        private void GameObjectMove(GameObject gameObject, Vector2 vector)
         {
-            gameObject.transform.Translate(ConvertTo(vector));
+            gameObject.transform.Translate(vector);
         }
 
+        private bool isMove = false;
+        private void GameObjectMove(Pair gameObject)
+        {
+            if(gameObject.obj is Animal)
+            {
+                Vector2D vector = ((Animal)gameObject.obj).vect;
+                gameObject.binded.transform.Translate(ConvertTo(vector));
+
+                if (gameObject.obj == player)
+                    this.isMove = true;
+            }
+            else
+            {
+                Debug.Log("error: Maze.MapManager.GameObjectMove() -> gameObject is not Animal");
+            }
+        }
+
+        private void updateObject(Pair objPair, Grid grid)
+        {
+            switch (grid.objEvent)
+            {
+                case Maze.ObjEvent.move:
+                    GameObjectMove(objPair);
+                    break;
+
+                case Maze.ObjEvent.shape:
+                    objPair.binded.GetComponent<SpriteRenderer>().sprite = objPair.obj.Shape();
+                    break;
+
+                case Maze.ObjEvent.None:
+                    break;
+            }
+
+            if(objPair.obj == player)
+                if(grid.objEvent != ObjEvent.None)
+                    Debug.Log(grid.objEvent);
+
+            grid.objEvent = ObjEvent.None;
+
+            grid = map.GetAt(objPair.obj.position);
+            if (grid.objEvent != ObjEvent.None)
+            {
+                Debug.Log("error: trace not clear");
+            }
+        }
+
+        private Point2D createPoint(int x, int y)
+        {
+            Point2D point = this.center.Copy();
+            point.x.value = x;
+            point.y.value = y;
+            return point;
+        }
+
+        private Point2D ConvertTo(Vector2 vector)
+        {
+            int x = (int)Mathf.Round(vector.x);
+            int y = (int)Mathf.Round(vector.y);
+            return createPoint(x, y);
+        }
+
+        private bool isOutOfBuffer(GameObject gameObject)
+        {
+            Vector2 position = gameObject.transform.position;
+            return (
+                position.x < center.x.value - extra || 
+                position.x > center.x.value + extra ||
+                position.y < center.y.value - extra || 
+                position.y > center.y.value + extra);
+        }
+
+        private bool haveObj(MazeObject obj)
+        {
+            foreach(Pair each in objs)
+            {
+                if (each.obj == obj)
+                    return true;
+            }
+            return false;
+        }
+
+        private void addObjInBuffer()
+        {
+            Maze.Iterator iter = new Maze.Iterator(center, extra);
+
+            do
+            {
+                Maze.Point2D point = iter.Iter;
+
+                Maze.Grid grid = map.GetAt(point);
+                if (grid != null)
+                    if (grid.obj != null)
+                        if(!haveObj(grid.obj))
+                            CreateObjAt(point.x.value, point.y.value, grid.obj);
+                
+            } while (iter.MoveToNext());
+        }
 
 
         public MapManager(Map2D map, Animal player, GameObject camera, int extra)
@@ -221,7 +320,7 @@ namespace Maze
             removeLine(dimention, value);
 
             this.center.MoveFor(vector,1);
-            this.GameObjectMove(this.camera, vector);
+            this.GameObjectMove(this.camera, ConvertTo(vector));
 
             Point2D point = this.center.Copy();
             point.MoveFor(vector, extra);
@@ -231,9 +330,45 @@ namespace Maze
             addLine(point, vector, width);
         }
 
+        public void changePlain()
+        {
+            ClearMap();
+            this.center = player.posit.Copy();
+            camera.transform.position = new Vector3(center.x.value, center.y.value, -1);
+            ShowMap();
+        }
+
         public void updateScene()
         {
+            for(int i=0; i<objs.Count;++i)
+            {
+                Pair each = objs[i];
+                Grid grid = map.GetAt(ConvertTo(each.binded.transform.position));
+                if(grid == null)
+                {
+                    Debug.Log(each.binded.transform.position);
+                }
+                else
+                    updateObject(each, grid);
+            }
 
+            for (int i = 0; i < objs.Count; ++i)
+            {
+                Pair each = objs[i];
+                if (isOutOfBuffer(each.binded))
+                {
+                    GameObject.Destroy(each.binded);
+                    objs.RemoveAt(i);
+                }
+            }
+
+            addObjInBuffer();
+
+            if (isMove)
+            {
+                isMove = false;
+                moveForward(player.vect);
+            }
         }
         
         public GameObject FindMazeObject(MazeObject mazeObject)

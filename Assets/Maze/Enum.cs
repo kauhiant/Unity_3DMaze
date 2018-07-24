@@ -28,7 +28,7 @@ namespace Maze
 
     public enum ObjEvent
     {
-        moveU,moveD,moveL,moveR,shape,None
+        move,shape,None
     }
 
     public class VectorConvert

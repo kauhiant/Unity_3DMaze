@@ -11,7 +11,7 @@ public class MapManager : MonoBehaviour {
     public GameObject animal;
     public GameObject camera;
 
-    public float clockTime = 0.5f;
+    public float clockTime = 0.3f;
 
     public Sprite[] animalShapes = new Sprite[6];
 
@@ -39,14 +39,14 @@ public class MapManager : MonoBehaviour {
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
-        for(int i=0; i<10; ++i)
+        for(int i=0; i<30; ++i)
         {
             Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0,0,0));
             if (GlobalAsset.map.RandomInsertAt(enemy, 1))
                 enemys.Add(enemy);
         }
 
-        player = new Maze.Animal(new Maze.Point3D(0, 3, 0));
+        player = new Maze.Animal(new Maze.Point3D(0, 3, 1));
 
         gameMap.InsertAt(player.position, player);
         
@@ -82,9 +82,9 @@ public class MapManager : MonoBehaviour {
         else if (Input.GetKey(KeyCode.Space))
         {
             command = "attack";
+            Debug.Log(player.posit.ToString());
         }
-
-        //UpdateMap();
+        
         time += Time.deltaTime;
         if (time < clockTime) return;
         time = 0;
@@ -97,24 +97,26 @@ public class MapManager : MonoBehaviour {
         switch (command)
         {
             case "moveUp":
-                PlayerMove(Maze.Vector2D.Up);
+                player.MoveFor(Maze.Vector2D.Up);
                 break;
 
             case "moveDown":
-                PlayerMove(Maze.Vector2D.Down);
+                player.MoveFor(Maze.Vector2D.Down);
                 break;
 
             case "moveLeft":
-                PlayerMove(Maze.Vector2D.Left);
+                player.MoveFor(Maze.Vector2D.Left);
                 break;
 
             case "moveRight":
-                PlayerMove(Maze.Vector2D.Right);
+                player.MoveFor(Maze.Vector2D.Right);
+                break;
+
+            case "changePlain":
+                player.ChangePlain();
+                manager.changePlain();
                 break;
         }
-
-        Maze.Grid grid = sceneMap.GetAt(player.posit);
-        grid.objEvent = Maze.ObjEvent.None;
 
         command = null;
 
@@ -127,50 +129,4 @@ public class MapManager : MonoBehaviour {
         manager.updateScene();
     }
     
-    private void PlayerMove(Maze.Vector2D vector)
-    {
-        Maze.Grid grid = sceneMap.GetAt(player.posit);
-        player.MoveFor(vector);
-        updateObject(playerBinded, grid.objEvent);
-    }
-    
-    private void updateObject(GameObject gameObject, Maze.ObjEvent command)
-    {
-        switch (command)
-        {
-            case Maze.ObjEvent.moveU:
-                MoveForward(gameObject, Vector2.up);
-                break;
-
-            case Maze.ObjEvent.moveD:
-                MoveForward(gameObject, Vector2.down);
-                break;
-
-            case Maze.ObjEvent.moveL:
-                MoveForward(gameObject, Vector2.left);
-                break;
-
-            case Maze.ObjEvent.moveR:
-                MoveForward(gameObject, Vector2.right);
-                break;
-
-            case Maze.ObjEvent.shape:
-                Debug.Log("turn vector");
-                playerBinded.GetComponent<SpriteRenderer>().sprite = player.Shape();
-                break;
-
-            case Maze.ObjEvent.None:
-                Debug.Log("no event");
-                break;
-        }
-    }
-
-    private void MoveForward(GameObject gameObject, Vector2 vector)
-    {
-        if(gameObject == playerBinded)
-        {
-            manager.moveForward(player.vect);
-        }
-        gameObject.transform.Translate(vector);
-    }
 }

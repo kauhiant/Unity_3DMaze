@@ -8,7 +8,7 @@ namespace Maze
     {
         public MazeObject obj;
         public UnityEngine.Sprite shape;
-        public ObjEvent objEvent;
+        public ObjEvent objEvent = ObjEvent.None;
     }
 }
 

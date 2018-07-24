@@ -18,6 +18,11 @@ namespace Maze
         {
             return binded.GetAt(position.binded);
         }
+
+        public Grid GetAt(Point3D position)
+        {
+            return this.binded.GetAt(position);
+        }
         
 
     }
