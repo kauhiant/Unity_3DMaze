@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Animal : MazeObject
+    public class Animal : MazeObject
     {
         public Point2D posit;
         public Vector3D vector;
@@ -121,7 +121,7 @@ namespace Maze
         private void TurnTo(Vector2D vector)
         {
             this.vector = posit.plain.Vector2To3(vector);
-            RegisterEvent("turnTo");
+            RegisterEvent(ObjEvent.shape);
         }
 
         private void Move()
@@ -141,7 +141,21 @@ namespace Maze
                 return;
             }
 
-            RegisterEvent("move");
+            switch (this.vect)
+            {
+                case Vector2D.Up:
+                    RegisterEvent(ObjEvent.moveU);
+                    break;
+                case Vector2D.Down:
+                    RegisterEvent(ObjEvent.moveD);
+                    break;
+                case Vector2D.Left:
+                    RegisterEvent(ObjEvent.moveL);
+                    break;
+                case Vector2D.Right:
+                    RegisterEvent(ObjEvent.moveR);
+                    break;
+            }
             GlobalAsset.map.Swap(position, temp.binded);
             return;
         }
@@ -156,7 +170,7 @@ namespace Maze
             return GlobalAsset.anamalShape.At(this.vect);
         }
 
-        private void RegisterEvent(string eventName)
+        private void RegisterEvent(ObjEvent eventName)
         {
             GlobalAsset.map.GetAt(position).objEvent = eventName;
         }

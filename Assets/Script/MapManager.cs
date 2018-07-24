@@ -50,11 +50,9 @@ public class MapManager : MonoBehaviour {
 
         gameMap.InsertAt(player.position, player);
         
-        manager = new Maze.MapManager(sceneMap, player.posit, 8);
+        manager = new Maze.MapManager(sceneMap, player, camera, 8);
 
         playerBinded = manager.FindMazeObject(player);
-        camera.transform.position = playerBinded.transform.position;
-        camera.transform.Translate(Vector3.back);
 	}
 
     // Update is called once per frame
@@ -92,29 +90,8 @@ public class MapManager : MonoBehaviour {
         time = 0;
         Clock();
     }
-
-    private void updateObject(GameObject gameObject, string commamd)
-    {
-        switch (command)
-        {
-            case "moveUp":
-                MoveForward(gameObject, Vector2.up);
-                break;
-
-            case "moveDown":
-                MoveForward(gameObject, Vector2.down);
-                break;
-
-            case "moveLeft":
-                MoveForward(gameObject, Vector2.left);
-                break;
-
-            case "moveRight":
-                MoveForward(gameObject, Vector2.right);
-                break;
-        }
-    }
-
+    
+    
     public void Clock()
     {
         switch (command)
@@ -134,21 +111,12 @@ public class MapManager : MonoBehaviour {
             case "moveRight":
                 PlayerMove(Maze.Vector2D.Right);
                 break;
-/*
-            case "changePlain":
-                ChangePlain();
-                break;
-
-            case "attack":
-                player.Attack();
-                break;*/
         }
 
-        command = null;
+        Maze.Grid grid = sceneMap.GetAt(player.posit);
+        grid.objEvent = Maze.ObjEvent.None;
 
-        //UpdateMap();
-        //ClearMap();
-        //ShowMap();
+        command = null;
 
         foreach(Maze.Animal each in enemys)
         {
@@ -156,142 +124,53 @@ public class MapManager : MonoBehaviour {
                 each.Auto();
         }
 
-
+        manager.updateScene();
     }
-    /*
-
-    private void CreateObjAt(int x, int y, Maze.MazeObject obj)
-    {
-        GameObject temp = new GameObject();
-        temp.transform.position = new Vector3(x, y, 0);
-        temp.AddComponent<SpriteRenderer>();
-        temp.GetComponent<SpriteRenderer>().sprite = obj.Shape();
-        temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
-
-        objs.Add(temp);
-
-        if(obj == player)
-        {
-            playerBinded = temp;
-            camera.transform.localPosition = (playerBinded.transform.localPosition);
-            camera.transform.Translate(Vector3.back);
-        }
-    }
-
-    private void CreateGridAt(int x, int y, Maze.Grid grid)
-    {
-        GameObject temp = new GameObject();
-        temp.transform.position = new Vector3(x,y,0);
-        temp.AddComponent<SpriteRenderer>();
-        temp.GetComponent<SpriteRenderer>().sprite = grid.shape;
-        temp.GetComponent<SpriteRenderer>().sortingLayerName = "grid";
-        grids.Add(temp);
-    }
-
-    private void RemoveGridAt(int x, int y)
-    {
-
-    }
-
-    private void ChangePlain()
-    {
-        player.ChangePlain();
-        ClearMap();
-        ShowMap();
-    }
-
-    private void ClearMap()
-    {
-        while(grids.Count != 0)
-        {
-            Destroy(grids[0]);
-            grids.RemoveAt(0);
-        }
-
-        while(objs.Count != 0)
-        {
-            Destroy(objs[0]);
-            objs.RemoveAt(0);
-        }
-        
-        
-    }
-
-    private void ShowMap()
-    {
-        Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
-
-        do
-        {
-            Maze.Point2D point = iter.Iter;
-
-            Maze.Grid grid = sceneMap.GetAt(point);
-            if(grid != null)
-            {
-                CreateGridAt(point.x.value, point.y.value, grid);
-                if(grid.obj != null)
-                    CreateObjAt(point.x.value, point.y.value, grid.obj);
-            }
-        } while (iter.MoveToNext());
-    }
-
-    private void UpdateMap()
-    {
-        Maze.Iterator iter = new Maze.Iterator(player.posit, 8);
-        do
-        {
-            Maze.Point2D point = iter.Iter;
-
-            Maze.Grid grid = sceneMap.GetAt(point);
-            if (grid != null)
-            {
-                switch (grid.objEvent)
-                {
-                    case "move":
-                        playerBinded.transform.Translate(ConvertTo(player.vect));
-                        camera.transform.Translate(ConvertTo(player.vect));
-                        break;
-
-                    case "turnTo":
-                        playerBinded.GetComponent<SpriteRenderer>().sprite = player.Shape();
-                        break;
-
-                    default:
-                        break;
-                }
-                grid.objEvent = null;
-            }
-        } while (iter.MoveToNext());
-    }
-    */
+    
     private void PlayerMove(Maze.Vector2D vector)
     {
+        Maze.Grid grid = sceneMap.GetAt(player.posit);
         player.MoveFor(vector);
-        manager.moveForward(vector);
-        playerBinded.transform.Translate(ConvertTo(player.vect));
-        camera.transform.Translate(ConvertTo(player.vect));
-
+        updateObject(playerBinded, grid.objEvent);
     }
-
-    private Vector2 ConvertTo(Maze.Vector2D vector)
+    
+    private void updateObject(GameObject gameObject, Maze.ObjEvent command)
     {
-        switch (vector)
+        switch (command)
         {
-            case Maze.Vector2D.Up:
-                return Vector2.up;
-            case Maze.Vector2D.Down:
-                return Vector2.down;
-            case Maze.Vector2D.Left:
-                return Vector2.left;
-            case Maze.Vector2D.Right:
-                return Vector2.right;
-            default:
-                return Vector2.zero;
+            case Maze.ObjEvent.moveU:
+                MoveForward(gameObject, Vector2.up);
+                break;
+
+            case Maze.ObjEvent.moveD:
+                MoveForward(gameObject, Vector2.down);
+                break;
+
+            case Maze.ObjEvent.moveL:
+                MoveForward(gameObject, Vector2.left);
+                break;
+
+            case Maze.ObjEvent.moveR:
+                MoveForward(gameObject, Vector2.right);
+                break;
+
+            case Maze.ObjEvent.shape:
+                Debug.Log("turn vector");
+                playerBinded.GetComponent<SpriteRenderer>().sprite = player.Shape();
+                break;
+
+            case Maze.ObjEvent.None:
+                Debug.Log("no event");
+                break;
         }
     }
 
     private void MoveForward(GameObject gameObject, Vector2 vector)
     {
+        if(gameObject == playerBinded)
+        {
+            manager.moveForward(player.vect);
+        }
         gameObject.transform.Translate(vector);
     }
 }

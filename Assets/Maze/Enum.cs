@@ -26,6 +26,11 @@ namespace Maze
         Xp, Xn, Yp, Yn, Zp, Zn, Null
     }
 
+    public enum ObjEvent
+    {
+        moveU,moveD,moveL,moveR,shape,None
+    }
+
     public class VectorConvert
     {
         static public Vector2D Rotate(Vector2D vector)

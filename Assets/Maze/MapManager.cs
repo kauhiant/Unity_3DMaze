@@ -19,6 +19,9 @@ namespace Maze
             }
         }
 
+        Animal     player;
+        GameObject camera;
+
         List<GameObject> grids;
         List<Pair> objs;
 
@@ -139,16 +142,57 @@ namespace Maze
             } while (iter.MoveToNext());
         }
 
-
-        public MapManager(Map2D map, Point2D center, int extra)
+        private void ClearMap()
         {
+            while (grids.Count != 0)
+            {
+                GameObject.Destroy(grids[0]);
+                grids.RemoveAt(0);
+            }
+
+            while (objs.Count != 0)
+            {
+                GameObject.Destroy(objs[0].binded);
+                objs.RemoveAt(0);
+            }
+        }
+
+        private Vector2 ConvertTo(Maze.Vector2D vector)
+        {
+            switch (vector)
+            {
+                case Maze.Vector2D.Up:
+                    return Vector2.up;
+                case Maze.Vector2D.Down:
+                    return Vector2.down;
+                case Maze.Vector2D.Left:
+                    return Vector2.left;
+                case Maze.Vector2D.Right:
+                    return Vector2.right;
+                default:
+                    return Vector2.zero;
+            }
+        }
+
+        private void GameObjectMove(GameObject gameObject, Vector2D vector)
+        {
+            gameObject.transform.Translate(ConvertTo(vector));
+        }
+
+
+
+        public MapManager(Map2D map, Animal player, GameObject camera, int extra)
+        {
+            this.player = player;
+            this.camera = camera;
             this.map = map;
-            this.center = center;
+            this.center = player.posit.Copy();
             this.extra = extra;
             this.grids = new List<GameObject>();
             this.objs = new List<Pair>();
+
+            camera.transform.position = new Vector3(center.x.value, center.y.value, -1);
             ShowMap();
-            
         }
 
         public void moveForward(Vector2D vector)
@@ -177,6 +221,7 @@ namespace Maze
             removeLine(dimention, value);
 
             this.center.MoveFor(vector,1);
+            this.GameObjectMove(this.camera, vector);
 
             Point2D point = this.center.Copy();
             point.MoveFor(vector, extra);
