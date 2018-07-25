@@ -82,7 +82,14 @@ namespace Maze
             }
         }
 
-        public string ToString()
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Point2D)) return false;
+            Point2D point = (Point2D)obj;
+            return (point.x.value == this.x.value && point.y.value == this.y.value);
+        }
+
+        public override string ToString()
         {
             return string.Format("{0},{1}", x.value, y.value);
         }

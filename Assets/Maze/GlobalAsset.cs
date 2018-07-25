@@ -10,4 +10,6 @@ public class GlobalAsset
     static public Maze.Shape anamalShape;
 
     static public Maze.Map3D map;
+
+    static public Maze.Animal player;
 }

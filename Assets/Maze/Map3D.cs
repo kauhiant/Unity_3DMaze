@@ -53,7 +53,17 @@ namespace Maze
                 return null;
         }
 
+        public bool HardInsertAt(Point3D position, MazeObject obj)
+        {
+            if (!IsInThisMap(position))
+                return false;
 
+            if (GetAt(position) == null)
+                return false;
+
+            GetAt(position).obj = obj;
+            return true;
+        }
 
         public bool InsertAt(Point3D position, MazeObject obj)
         {
@@ -61,6 +71,9 @@ namespace Maze
                 return false;                
 
             if (GetAt(position) == null)
+                return false;
+
+            if (GetAt(position).obj != null)
                 return false;
             
             GetAt(position).obj = obj;
@@ -115,7 +128,7 @@ namespace Maze
                 {
                     for(int k=0; k<map[0][0].Length; ++k)
                     {
-                        if(Random.Range(0f,1f) < 0.4f)
+                        if(Random.Range(0f,1f) < 0.1f)
                             map[i][j][k].obj = new Stone(new Point3D(i,j,k));
                     }
                 }

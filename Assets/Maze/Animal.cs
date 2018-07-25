@@ -8,16 +8,27 @@ namespace Maze
 {
     public class Animal : MazeObject
     {
-        public Point2D posit;
+        private Point2D posit;
+        private Vector2D vect
+        { get { return this.plain.Vector3To2(vector); } }
+
         public Vector3D vector;
         public int hp;
         public int ep;
         public int hungry;
         public int power;
+        public string lastPosition;
 
-        public bool isDead { get { return this.hp == 0; } }
-        public Plain plain { get { return posit.plain; } }
-        public Vector2D vect { get { return plain.Vector3To2(vector); } }
+        public bool isDead
+        { get { return this.hp == 0; } }
+
+        public Plain plain
+        { get { return posit.plain; } }
+
+        public Vector2D vectorOnScenen
+        { get{return GlobalAsset.player.posit.plain.Vector3To2(vector);} }
+        
+
         public Dimention forwardDimen {
             get {
                 switch (vector) {
@@ -39,12 +50,21 @@ namespace Maze
             }
         }
 
+
+
         public Animal(Point3D position) : base(position)
         {
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
             hp = 100;
         }
+
+        public override Sprite Shape()
+        {
+            return GlobalAsset.anamalShape.At(this.vectorOnScenen);
+        }
+
+
 
         public void MoveFor(Vector2D vector)
         {
@@ -59,20 +79,9 @@ namespace Maze
             ChangePlain(this.forwardDimen);
         }
 
-        public void BeAttack(int power)
+        public void Auto(int arg)
         {
-            this.hp -= power;
-            if (this.hp <= 0)
-            {
-                this.hp = 0;
-                GlobalAsset.map.GetAt(this.position).obj = null;
-            }
-                
-        }
-
-        public void Auto()
-        {
-            int rand = UnityEngine.Random.Range(0, 10);
+            int rand = UnityEngine.Random.Range(0, arg);
             switch (rand)
             {
                 case 0:
@@ -90,6 +99,7 @@ namespace Maze
                 case 3:
                     MoveFor(Vector2D.Up);
                     break;
+
                 default:
                     Move();
                     break;
@@ -109,6 +119,18 @@ namespace Maze
             enemy.BeAttack(100);
         }
 
+
+
+        private void BeAttack(int power)
+        {
+            this.hp -= power;
+            if (this.hp <= 0)
+            {
+                this.hp = 0;
+                GlobalAsset.map.GetAt(this.position).obj = null;
+            }
+        }
+
         private bool ConsumeEP(int val)
         {
             if (this.ep < val)
@@ -117,40 +139,32 @@ namespace Maze
             this.ep -= val;
             return true;
         }
-
-
         
-
         private void TurnTo(Vector2D vector)
         {
-            if (this.vect == vector)
-                return;
-
-            this.vector = posit.plain.Vector2To3(vector);
+            this.vector = this.plain.Vector2To3(vector);
             RegisterEvent(ObjEvent.shape);
         }
 
         private void Move()
         {
-            Point2D temp = this.posit.Copy();
-            temp.binded.MoveFor(vector, 1);
-            Grid targetGrid = GlobalAsset.map.GetAt(temp.binded);
+            Point3D temp = this.position.Copy();
+            temp.MoveFor(vector, 1);
+            Grid targetGrid = GlobalAsset.map.GetAt(temp);
 
             if (targetGrid == null)
-            {
                 return;
-            }
-
-
+            
             if (targetGrid.obj != null)
-            {
                 return;
-            }
 
+            if (temp.Equals(this.position))
+                Debug.Log("WTF");
+
+            lastPosition = this.position.ToString();
+
+            GlobalAsset.map.Swap(position, temp);
             RegisterEvent(ObjEvent.move);
-            GlobalAsset.map.Swap(position, temp.binded);
-
-            return;
         }
 
         private void ChangePlain(Dimention dimen)
@@ -158,14 +172,7 @@ namespace Maze
             this.posit.ChangePlain(dimen);
         }
 
-        public override Sprite Shape()
-        {
-            return GlobalAsset.anamalShape.At(this.vect);
-        }
 
-        private void RegisterEvent(ObjEvent eventName)
-        {
-            GlobalAsset.map.GetAt(position).objEvent = eventName;
-        }
+        
     }
 }

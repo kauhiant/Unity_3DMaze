@@ -18,13 +18,10 @@ public class MapManager : MonoBehaviour {
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
     private Maze.Animal player;
-    private GameObject playerBinded;
 
     private string command;
 
     private Maze.MapManager manager;
-    private List<GameObject> grids = new List<GameObject>();
-    private List<GameObject> objs = new List<GameObject>();
     private List<Maze.Animal> enemys = new List<Maze.Animal>();
 
 	// Use this for initialization
@@ -39,7 +36,7 @@ public class MapManager : MonoBehaviour {
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
-        for(int i=0; i<30; ++i)
+        for(int i=0; i<1000; ++i)
         {
             Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0,0,0));
             if (GlobalAsset.map.RandomInsertAt(enemy, 1))
@@ -47,17 +44,17 @@ public class MapManager : MonoBehaviour {
         }
 
         player = new Maze.Animal(new Maze.Point3D(0, 3, 1));
+        GlobalAsset.player = player;
 
-        gameMap.InsertAt(player.position, player);
+        gameMap.HardInsertAt(player.position, player);
         
         manager = new Maze.MapManager(sceneMap, player, camera, 8);
-
-        playerBinded = manager.FindMazeObject(player);
-	}
+        
+    }
 
     // Update is called once per frame
     float time = 0;
-	void Update ()
+	void FixedUpdate ()
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
@@ -82,7 +79,7 @@ public class MapManager : MonoBehaviour {
         else if (Input.GetKey(KeyCode.Space))
         {
             command = "attack";
-            Debug.Log(player.posit.ToString());
+            Debug.Log(player.positOnScene.ToString());
         }
         
         time += Time.deltaTime;
@@ -91,9 +88,12 @@ public class MapManager : MonoBehaviour {
         Clock();
     }
     
-    
+    private bool clockLock = false;
     public void Clock()
     {
+        if (clockLock) return;
+        clockLock = true;
+        
         switch (command)
         {
             case "moveUp":
@@ -117,16 +117,16 @@ public class MapManager : MonoBehaviour {
                 manager.changePlain();
                 break;
         }
-
         command = null;
-
+        
         foreach(Maze.Animal each in enemys)
         {
-            if (each != player)
-                each.Auto();
+            each.Auto(10);
         }
 
         manager.updateScene();
+
+        clockLock = false;
     }
     
 }

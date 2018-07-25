@@ -62,5 +62,34 @@ namespace Maze
                     break;
             }
         }
+
+        public bool isOnPlain(Plain plain)
+        {
+            switch (plain.dimen)
+            {
+                case Dimention.X:
+                    return this.x.value == plain.value;
+                case Dimention.Y:
+                    return this.y.value == plain.value;
+                case Dimention.Z:
+                    return this.z.value == plain.value;
+                default:
+                    return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0},{1},{2}", x.value, y.value, z.value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Point3D)) return false;
+            Point3D point = (Point3D)obj;
+            return (this.x.value == point.x.value &&
+                this.y.value == point.y.value &&
+                this.z.value == point.z.value);
+        }
     }
 }
