@@ -128,6 +128,7 @@ namespace Maze
             {
                 this.hp = 0;
                 GlobalAsset.map.GetAt(this.position).obj = null;
+                RegisterEvent(ObjEvent.Destroy);
             }
         }
 

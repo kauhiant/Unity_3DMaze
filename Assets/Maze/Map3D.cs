@@ -53,6 +53,7 @@ namespace Maze
                 return null;
         }
 
+        // [danger] maybe create a ghost
         public bool HardInsertAt(Point3D position, MazeObject obj)
         {
             if (!IsInThisMap(position))
@@ -122,17 +123,132 @@ namespace Maze
 
         private void InitMap()
         {
-            for(int i=0; i<map.Length; ++i)
+            for(int i=0; i<layers; ++i)
             {
-                for(int j=0; j<map[0].Length; ++j)
+                makePlain(i);
+            }
+        }
+
+
+        private void makePlain(int layer)
+        {
+            for (int j = 0; j <= widthY; j += 2)
+            {
+                for (int i = 0; i <= widthX; i += 2)
                 {
-                    for(int k=0; k<map[0][0].Length; ++k)
-                    {
-                        if(Random.Range(0f,1f) < 0.1f)
-                            map[i][j][k].obj = new Stone(new Point3D(i,j,k));
-                    }
+                    int x = Random.Range(0, 100);
+
+                    if (x < 85)
+                        createOneStone(i, j, layer);
+                    else if (x >= 85 && x <= 95)
+                        createTwoStone(i, j, layer);
+                    else
+                        createThreeStone(i, j, layer);
                 }
             }
+        }
+
+        private void createOneStone(int x, int y, int layer)
+        {
+            Point3D target = null;
+            switch (Random.Range(0, 3))
+            {
+                case 0:
+                    target = new Point3D(x, y, layer);
+                    break;
+                case 1:
+                    target = new Point3D(x + 1, y, layer);
+                    break;
+                case 2:
+                    target = new Point3D(x, y + 1, layer);
+
+                    break;
+                case 3:
+                    target = new Point3D(x + 1, y + 1, layer);
+                    break;
+            }
+
+            if (target != null && GetAt(target) != null)
+                GetAt(target).obj = new Stone(target);
+        }
+
+        private void createTwoStone(int x, int y, int layer)
+        {
+            Point3D target1 = null;
+            Point3D target2 = null;
+            switch (Random.Range(4, 9))
+            {
+                case 4:
+                    target1 = new Point3D(x, y, layer);
+                    target2 = new Point3D(x, y + 1, layer);
+                    break;
+                case 5:
+                    target1 = new Point3D(x, y, layer);
+                    target2 = new Point3D(x + 1, y, layer);
+                    break;
+                case 6:
+                    target1 = new Point3D(x + 1, y, 0);
+                    target2 = new Point3D(x + 1, y - 1, 0);
+                    break;
+                case 7:
+                    target1 = new Point3D(x, y - 1, 0);
+                    target2 = new Point3D(x + 1, y - 1, 0);
+                    break;
+                case 8:
+                    target1 = new Point3D(x, y, 0);
+                    target2 = new Point3D(x + 1, y - 1, 0);
+                    break;
+                case 9:
+                    target1 = new Point3D(x, y - 1, 0);
+                    target2 = new Point3D(x + 1, y, 0);
+                    break;
+            }
+
+            if (target1 != null && GetAt(target1) != null)
+                GetAt(target1).obj = new Stone(target1);
+            
+            if (target2 != null && GetAt(target2) != null)
+                GetAt(target2).obj = new Stone(target2);
+        }
+
+        private void createThreeStone(int x, int y, int layer)
+        {
+            Point3D target1 = null;
+            Point3D target2 = null;
+            Point3D target3 = null;
+
+            switch (Random.Range(10, 13))
+            {
+                case 10:
+                    target1 = new Point3D(x, y, 0);
+                    target2 = new Point3D(x, y - 1, 0);
+                    target3 = new Point3D(x + 1, y, 0);
+                    break;
+                case 11:
+                    target1 = new Point3D(x, y, 0);
+                    target2 = new Point3D(x + 1, y, 0);
+                    target3 = new Point3D(x + 1, y - 1, 0);
+                    break;
+                case 12:
+                    target1 = new Point3D(x, y, 0);
+                    target2 = new Point3D(x, y - 1, 0);
+                    target3 = new Point3D(x + 1, y - 1, 0);
+                    break;
+                case 13:
+                    target1 = new Point3D(x, y - 1, 0);
+                    target2 = new Point3D(x + 1, y, 0);
+                    target3 = new Point3D(x + 1, y - 1, 0);
+                    break;
+            }
+
+            if (target1 != null && GetAt(target1) != null)
+                GetAt(target1).obj = new Stone(target1);
+
+            if (target2 != null && GetAt(target2) != null)
+                GetAt(target2).obj = new Stone(target2);
+
+            if (target3 != null && GetAt(target3) != null)
+                GetAt(target3).obj = new Stone(target3);
         }
     }
 }

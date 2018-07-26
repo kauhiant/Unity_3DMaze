@@ -198,7 +198,7 @@ namespace Maze
                 Debug.Log("error: Maze.MapManager.GameObjectMove() -> gameObject is not Animal");
             }
         }
-
+        
         private void updateObject(Pair objPair)
         {
             switch (objPair.obj.GetEvent())
@@ -209,6 +209,11 @@ namespace Maze
                     
                 case Maze.ObjEvent.shape:
                     objPair.binded.GetComponent<SpriteRenderer>().sprite = objPair.obj.Shape();
+                    break;
+
+                case ObjEvent.Destroy:
+                    GameObject.Destroy(objPair.binded);
+                    objPair.binded = null;
                     break;
 
                 case Maze.ObjEvent.None:
@@ -272,6 +277,7 @@ namespace Maze
                     ++i;
             }
         }
+        
 
 
         public MapManager(Map2D map, Animal player, GameObject camera, int extra)
@@ -350,9 +356,14 @@ namespace Maze
             
             addObjInBuffer();
             
-            for (int i = 0; i < objs.Count; ++i)
+            for (int i=0; i<objs.Count;++i)
             {
                 updateObject(objs[i]);
+                if(objs[i].binded == null)
+                {
+                    objs.RemoveAt(i);
+                    --i;
+                }
             }
 
             ++count;

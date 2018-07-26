@@ -31,7 +31,7 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
 
-        gameMap = new Maze.Map3D(20, 20, 3);
+        gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
@@ -117,6 +117,9 @@ public class MapManager : MonoBehaviour {
                 player.ChangePlain();
                 manager.changePlain();
                 break;
+            case Command.Attack:
+                player.Attack();
+                break;
         }
         command = Command.None;
         Maze.Point3D playerPosition = player.position.Copy();
@@ -124,6 +127,12 @@ public class MapManager : MonoBehaviour {
         for(int i=0; i< enemys.Count; ++i)
         {
             Maze.Animal each = enemys[i];
+            if (each.isDead)
+            {
+                enemys.RemoveAt(i);
+                --i;
+                continue;
+            }
             each.Auto(10);
         }
         
