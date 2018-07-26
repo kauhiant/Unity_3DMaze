@@ -8,7 +8,7 @@ namespace Maze
 {
     public class MapManager
     {
-        class Pair
+        public class Pair
         {
             public GameObject binded;
             public MazeObject obj;
@@ -59,13 +59,6 @@ namespace Maze
 
             obj.RegisterEvent(ObjEvent.None);
             objs.Add(new Pair(obj,temp));
-
-            if(obj is Animal)
-            {
-                Animal animal = (Animal)obj;
-                if (!animal.positOnScene.Equals(ConvertTo(temp.transform.position)))
-                    Debug.Log("unBinded at Create");
-            }
 
         }
 
@@ -118,13 +111,13 @@ namespace Maze
        
         private void ShowMap()
         {
-            Maze.Iterator iter = new Maze.Iterator(center, extra);
+            Iterator iter = new Iterator(center, extra);
 
             do
             {
-                Maze.Point2D point = iter.Iter;
+                Point2D point = iter.Iter;
+                Grid grid = map.GetAt(point);
 
-                Maze.Grid grid = map.GetAt(point);
                 if (grid != null)
                 {
                     CreateGridAt(point.x.value, point.y.value, grid);
@@ -194,30 +187,8 @@ namespace Maze
                 Animal animal = (Animal)objPair.obj;
                 Vector2D vector = animal.vectorOnScenen;
                 Vector2 vect = ConvertTo(vector);
-
-                Vector2 origin = new Vector2(objPair.binded.transform.position.x, objPair.binded.transform.position.y);
                 
                 objPair.binded.transform.Translate(vect);
-                
-                if (!animal.positOnScene.Equals(ConvertTo(objPair.binded.transform.position)))
-                {
-                    Debug.Log("WARRING: unbinded after move");
-                    Debug.Log(animal.positOnScene.ToString());
-                    Debug.Log(origin);
-                    Debug.Log(animal.lastPosition);
-                    objPair.binded.transform.localScale = new Vector2(2f, 2f);
-                    Time.timeScale = 0f;
-                }
-
-                if (animal.positOnScene.Equals(ConvertTo(origin)))
-                {
-                    Debug.Log("WARRING: obj not move");
-                }
-
-                if(vect == Vector2.zero)
-                {
-                    Debug.Log("WARRING: vect is zero");
-                }
 
                 if (objPair.obj == player)
                     this.isMove = true;
@@ -243,20 +214,6 @@ namespace Maze
                 case Maze.ObjEvent.None:
                     break;
             }
-        }
-
-        private bool isOutOfBuffer(Pair gameObject)
-        {
-            if(!gameObject.obj.position.isOnPlain(this.player.plain))
-            {
-                return true;
-            }
-            Vector2 position = gameObject.binded.transform.position;
-            return (
-                position.x < center.x.value - extra || 
-                position.x > center.x.value + extra ||
-                position.y < center.y.value - extra || 
-                position.y > center.y.value + extra);
         }
 
         private bool isOutOfBuffer(MazeObject obj)
@@ -301,16 +258,18 @@ namespace Maze
 
         private void removeObjOutBuffer()
         {
-            for (int i = 0; i < objs.Count; ++i)
+            int i = 0;
+            while (i < objs.Count)
             {
                 Pair each = objs[i];
 
-                if (isOutOfBuffer(each))
+                if (isOutOfBuffer(each.obj))
                 {
                     GameObject.Destroy(each.binded);
                     objs.RemoveAt(i);
-                    --i;
                 }
+                else
+                    ++i;
             }
         }
 
@@ -376,6 +335,7 @@ namespace Maze
             ShowMap();
         }
 
+        private int count = 0;
         public void updateScene()
         {
             updateObject(FindMazeObject(player));
@@ -385,18 +345,20 @@ namespace Maze
                 isMove = false;
                 moveForward(player.vectorOnScenen);
             }
-
+            
             removeObjOutBuffer();
+            
             addObjInBuffer();
-
+            
             for (int i = 0; i < objs.Count; ++i)
             {
-                Pair each = objs[i];
-                updateObject(each);
+                updateObject(objs[i]);
             }
+
+            ++count;
         }
 
-        private Pair FindMazeObject(MazeObject mazeObject)
+        public Pair FindMazeObject(MazeObject mazeObject)
         {
             foreach(Pair each in objs)
             {

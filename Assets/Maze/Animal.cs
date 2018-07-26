@@ -158,9 +158,6 @@ namespace Maze
             if (targetGrid.obj != null)
                 return;
 
-            if (temp.Equals(this.position))
-                Debug.Log("WTF");
-
             lastPosition = this.position.ToString();
 
             GlobalAsset.map.Swap(position, temp);
