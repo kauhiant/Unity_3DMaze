@@ -36,14 +36,14 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.map = gameMap;
 
 
-        player = new Maze.Animal(new Maze.Point3D(0, 3, 1));
+        player = new Maze.Animal(new Maze.Point3D(0, 3, 1),RandomColor());
         GlobalAsset.player = player;
         gameMap.HardInsertAt(player.position, player);
         manager = new Maze.MapManager(sceneMap, player, camera, 8);
 
         for (int i = 0; i < 100; ++i)
         {
-            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0, 0, 0));
+            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0, 0, 0),RandomColor());
             if (GlobalAsset.map.RandomInsertAt(enemy, 1))
                 enemys.Add(enemy);
         }
@@ -75,7 +75,7 @@ public class MapManager : MonoBehaviour {
         {
             command = Command.Plain;
         }
-        else if (Input.GetKey(KeyCode.Space))
+        else if (Input.GetKey(KeyCode.A))
         {
             command = Command.Attack;
         }
@@ -89,6 +89,7 @@ public class MapManager : MonoBehaviour {
     bool clockLock;
     public void Clock()
     {
+        if (manager.gameOver) return;
         time += Time.deltaTime;
         if (time < clockTime) return;
         if (clockLock) return;
@@ -117,12 +118,12 @@ public class MapManager : MonoBehaviour {
                 player.ChangePlain();
                 manager.changePlain();
                 break;
+
             case Command.Attack:
                 player.Attack();
                 break;
         }
         command = Command.None;
-        Maze.Point3D playerPosition = player.position.Copy();
         
         for(int i=0; i< enemys.Count; ++i)
         {
@@ -139,6 +140,27 @@ public class MapManager : MonoBehaviour {
         manager.updateScene();
         
         clockLock = false;
+    }
+
+    private Color RandomColor()
+    {
+        switch (UnityEngine.Random.Range(0, 6))
+        {
+            case 0:
+                return Color.white;
+            case 1:
+                return Color.red;
+            case 2:
+                return Color.green; 
+            case 3:
+                return Color.blue;
+            case 4:
+                return Color.cyan;
+            case 5:
+                return Color.yellow;
+            default:
+                return Color.magenta;
+        }
     }
     
 

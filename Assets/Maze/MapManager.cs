@@ -198,6 +198,11 @@ namespace Maze
                 Debug.Log("error: Maze.MapManager.GameObjectMove() -> gameObject is not Animal");
             }
         }
+
+        private void AnimalChangeColor(GameObject animal, Color color)
+        {
+            animal.GetComponent<SpriteRenderer>().color = color;
+        }
         
         private void updateObject(Pair objPair)
         {
@@ -290,6 +295,7 @@ namespace Maze
             this.grids = new List<GameObject>();
             this.objs = new List<Pair>();
 
+            gameOver = false;
             camera.transform.position = new Vector3(center.x.value, center.y.value, -1);
             ShowMap();
         }
@@ -341,9 +347,16 @@ namespace Maze
             ShowMap();
         }
 
-        private int count = 0;
+        public bool gameOver
+        {
+            private set { GlobalAsset.gameOver = value; }
+            get { return GlobalAsset.gameOver; }
+        }
+
         public void updateScene()
         {
+            if (gameOver) return;
+
             updateObject(FindMazeObject(player));
             
             if (isMove)
@@ -361,12 +374,19 @@ namespace Maze
                 updateObject(objs[i]);
                 if(objs[i].binded == null)
                 {
+                    if (objs[i].obj == player)
+                        gameOver = true;
                     objs.RemoveAt(i);
                     --i;
+                    continue;
+                }
+
+                if (objs[i].obj is Animal)
+                {
+                    Animal animal = (Animal)objs[i].obj;
+                    AnimalChangeColor(objs[i].binded, animal.GetColor);
                 }
             }
-
-            ++count;
         }
 
         public Pair FindMazeObject(MazeObject mazeObject)

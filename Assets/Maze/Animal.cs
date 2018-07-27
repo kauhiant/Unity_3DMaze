@@ -11,6 +11,7 @@ namespace Maze
         private Point2D posit;
         private Vector2D vect
         { get { return this.plain.Vector3To2(vector); } }
+        private Color color;
 
         public Vector3D vector;
         public int hp;
@@ -50,13 +51,21 @@ namespace Maze
             }
         }
 
+        public Color GetColor
+        {
+            get
+            {
+                float a = this.hp / 200f + 0.5f;
+                return new Color(color.r, color.g, color.b, a);
+            }
+        }
 
-
-        public Animal(Point3D position) : base(position)
+        public Animal(Point3D position, Color color) : base(position)
         {
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
             hp = 100;
+            this.color = color;
         }
 
         public override Sprite Shape()
@@ -100,6 +109,10 @@ namespace Maze
                     MoveFor(Vector2D.Up);
                     break;
 
+                case 4:
+                    Attack();
+                    break;
+
                 default:
                     Move();
                     break;
@@ -116,7 +129,8 @@ namespace Maze
             if (!(targetGrid.obj is Animal)) return;
 
             Animal enemy = (Animal) (targetGrid.obj);
-            enemy.BeAttack(100);
+            if(!enemy.color.Equals(this.color))
+                enemy.BeAttack(10);
         }
 
 
