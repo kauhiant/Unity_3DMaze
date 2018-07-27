@@ -31,6 +31,11 @@ namespace Maze
         move,shape,Destroy,None
     }
 
+    public enum Skill
+    {
+        attack
+    }
+
     public class VectorConvert
     {
         static public Vector2D Rotate(Vector2D vector)

@@ -129,8 +129,11 @@ namespace Maze
             if (!(targetGrid.obj is Animal)) return;
 
             Animal enemy = (Animal) (targetGrid.obj);
-            if(!enemy.color.Equals(this.color))
+            if (!enemy.color.Equals(this.color))
+            {
                 enemy.BeAttack(10);
+                SkillManager.showSkill(Skill.attack,positOnScene,vectorOnScenen);
+            }
         }
 
 

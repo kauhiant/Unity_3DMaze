@@ -14,6 +14,7 @@ public class MapManager : MonoBehaviour {
     public float clockTime = 0.3f;
 
     public Sprite[] animalShapes = new Sprite[6];
+    public Sprite attack;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
@@ -30,6 +31,7 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.stoneSprite = stone.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
+        GlobalAsset.attack = attack;
 
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
@@ -95,6 +97,8 @@ public class MapManager : MonoBehaviour {
         if (clockLock) return;
         clockLock = true;
         time = 0;
+
+        Maze.SkillManager.clear();
 
         switch (command)
         {

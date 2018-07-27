@@ -82,6 +82,11 @@ namespace Maze
             }
         }
 
+        public bool isOnPlain(Plain plain)
+        {
+            return this.binded.isOnPlain(plain);
+        }
+
         public override bool Equals(object obj)
         {
             if (!(obj is Point2D)) return false;
