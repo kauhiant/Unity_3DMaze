@@ -8,7 +8,7 @@ public class GlobalAsset
 
     static public Sprite gridSprite;
     static public Sprite stoneSprite;
-    static public Sprite animalSprite;
+    static public Sprite food;
 
     static public Sprite attack;
     static public Sprite straight;

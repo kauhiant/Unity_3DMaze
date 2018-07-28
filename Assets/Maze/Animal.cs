@@ -14,14 +14,14 @@ namespace Maze
         private Color color;
 
         public Vector3D vector;
-        public int hp;
-        public int ep;
-        public int hungry;
+        public EnergyBar hp;
+        public EnergyBar ep;
+        public EnergyBar hungry;
         public int power;
         public string lastPosition;
 
         public bool isDead
-        { get { return this.hp == 0; } }
+        { get { return this.hp.Value == 0; } }
 
         public Plain plain
         { get { return posit.plain; } }
@@ -55,17 +55,18 @@ namespace Maze
         {
             get
             {
-                float a = this.hp / 200f + 0.5f;
+                float a = hp.Value / (hp.Max * 2f) + 0.5f;
                 return new Color(color.r, color.g, color.b, a);
             }
         }
 
-        public Animal(Point3D position, Color color) : base(position)
+        public Animal(Point3D position, Color color, int power) : base(position)
         {
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
-            hp = 100;
+            hp = new EnergyBar(100);
             this.color = color;
+            this.power = power;
         }
 
         public override Sprite Shape()
@@ -141,7 +142,7 @@ namespace Maze
 
             Animal enemy = (Animal)(targetGrid.obj);
             if (!enemy.color.Equals(this.color))
-                enemy.BeAttack(10);
+                enemy.BeAttack(this);
         }
 
         public void Straight()
@@ -159,7 +160,7 @@ namespace Maze
                 if(targetGrid.obj is Animal){
                     Animal target = (Animal)targetGrid.obj;
                     if(!target.color.Equals(this.color))
-                        target.BeAttack(10);
+                        target.BeAttack(this);
                 }
             }
         }
@@ -169,13 +170,16 @@ namespace Maze
             Point2D targetPosition = this.posit.Copy();
             Vector2D targetVector = this.vect;
             SkillManager.showSkill(Skill.horizon, this.positOnScene, this.vectorOnScenen);
+
             targetPosition.MoveFor(targetVector, 1);
             targetVector = VectorConvert.Rotate(targetVector);
-            targetPosition.MoveFor(targetVector, 1);
+            targetPosition.MoveFor(targetVector, 2);
             targetVector = VectorConvert.Invert(targetVector);
             
             for(int i=0; i<3; ++i)
             {
+                targetPosition.MoveFor(targetVector, 1);
+
                 Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.binded);
                 if (targetGrid == null) continue;
                 if (targetGrid.obj == null) continue;
@@ -183,32 +187,31 @@ namespace Maze
                 {
                     Animal target = (Animal)targetGrid.obj;
                     if (!target.color.Equals(this.color))
-                        target.BeAttack(10);
+                        target.BeAttack(this);
                 }
-                targetPosition.MoveFor(targetVector, 1);
             }
 
         }
 
 
 
-        private void BeAttack(int power)
+        private void BeAttack(Animal enemy)
         {
-            this.hp -= power;
-            if (this.hp <= 0)
+            this.hp.add(-enemy.power);
+
+            if (this.hp.isZero())
             {
-                this.hp = 0;
-                GlobalAsset.map.GetAt(this.position).obj = null;
+                GlobalAsset.map.GetAt(this.position).obj = new Food(this.position, 100);
                 RegisterEvent(ObjEvent.Destroy);
             }
         }
 
         private bool ConsumeEP(int val)
         {
-            if (this.ep < val)
+            if (this.ep.Value < val)
                 return false;
 
-            this.ep -= val;
+            this.ep.add(-val);
             return true;
         }
         
@@ -226,9 +229,18 @@ namespace Maze
 
             if (targetGrid == null)
                 return;
-            
+
             if (targetGrid.obj != null)
-                return;
+            {
+                if (targetGrid.obj is Food)
+                {
+                    eatFood((Food)targetGrid.obj);
+                    targetGrid.obj.RegisterEvent(ObjEvent.Destroy);
+                    targetGrid.obj = null;
+                }
+                else
+                    return;
+            }
 
             lastPosition = this.position.ToString();
 
@@ -241,7 +253,10 @@ namespace Maze
             this.posit.ChangePlain(dimen);
         }
 
-
+        private void eatFood(Food food)
+        {
+            this.hp.add(food.nutrient);
+        }
         
     }
 }

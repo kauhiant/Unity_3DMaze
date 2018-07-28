@@ -4,19 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MapManager : MonoBehaviour {
-
-
-    public GameObject grid;
-    public GameObject stone;
-    public GameObject animal;
     public GameObject camera;
 
     public float clockTime = 0.3f;
 
     public Sprite[] animalShapes = new Sprite[6];
+
     public Sprite attack;
     public Sprite straight;
     public Sprite horizon;
+    public Sprite food;
+    public Sprite grid;
+    public Sprite stone;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
@@ -29,28 +28,28 @@ public class MapManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        GlobalAsset.gridSprite = grid.GetComponent<SpriteRenderer>().sprite;
-        GlobalAsset.stoneSprite = stone.GetComponent<SpriteRenderer>().sprite;
-        GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
+        GlobalAsset.gridSprite = grid;
+        GlobalAsset.stoneSprite = stone;
         GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
 
         GlobalAsset.attack = attack;
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
+        GlobalAsset.food = food;
 
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
 
 
-        player = new Maze.Animal(new Maze.Point3D(0, 3, 1),RandomColor());
+        player = new Maze.Animal(new Maze.Point3D(0, 3, 1),RandomColor(),20);
         GlobalAsset.player = player;
         gameMap.HardInsertAt(player.position, player);
         manager = new Maze.MapManager(sceneMap, player, camera, 8);
 
         for (int i = 0; i < 100; ++i)
         {
-            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0, 0, 0),RandomColor());
+            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0, 0, 0),RandomColor(),10);
             if (GlobalAsset.map.RandomInsertAt(enemy, 1))
                 enemys.Add(enemy);
         }
