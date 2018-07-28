@@ -33,11 +33,12 @@ namespace Maze
 
     public enum Skill
     {
-        attack
+        attack, straight, horizon
     }
 
     public class VectorConvert
     {
+        // 順時針轉90度.
         static public Vector2D Rotate(Vector2D vector)
         {
             switch (vector)
@@ -55,6 +56,7 @@ namespace Maze
             }
         }
 
+        // 反方向.
         static public Vector2D Invert(Vector2D vector)
         {
             switch (vector)

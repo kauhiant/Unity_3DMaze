@@ -27,7 +27,7 @@ namespace Maze
             GameObject skillObj = new GameObject();
             skillObj.transform.position = userPosition;
             skillObj.transform.Translate(userVector * dist);
-            skillObj.transform.localScale = new Vector2(widthScale, depthScale);
+            skillObj.transform.localScale = new Vector2(depthScale, widthScale);
 
             skillObj.AddComponent<SpriteRenderer>().sprite = skill;
             skillObj.GetComponent<SpriteRenderer>().sortingLayerName = "action";
@@ -46,6 +46,14 @@ namespace Maze
             {
                 case Skill.attack:
                     showSkill(convert(userPosition), convert(userVector), 1, 1, GlobalAsset.attack);
+                    break;
+
+                case Skill.straight:
+                    showSkill(convert(userPosition), convert(userVector), 3, 1, GlobalAsset.straight);
+                    break;
+
+                case Skill.horizon:
+                    showSkill(convert(userPosition), convert(userVector), 1, 3, GlobalAsset.horizon);
                     break;
             }
         }

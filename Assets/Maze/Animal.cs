@@ -27,8 +27,8 @@ namespace Maze
         { get { return posit.plain; } }
 
         public Vector2D vectorOnScenen
-        { get{return GlobalAsset.player.posit.plain.Vector3To2(vector);} }
-        
+        { get { return GlobalAsset.player.posit.plain.Vector3To2(vector); } }
+
 
         public Dimention forwardDimen {
             get {
@@ -113,6 +113,14 @@ namespace Maze
                     Attack();
                     break;
 
+                case 5:
+                    Straight();
+                    break;
+
+                case 6:
+                    Horizon();
+                    break;
+
                 default:
                     Move();
                     break;
@@ -122,18 +130,64 @@ namespace Maze
         public void Attack()
         {
             Point3D targetPosition = this.position.Copy();
+            SkillManager.showSkill(Skill.attack, positOnScene, vectorOnScenen);
+
             targetPosition.MoveFor(this.vector, 1);
             Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
             if (targetGrid == null) return;
+            
             if (targetGrid.obj == null) return;
             if (!(targetGrid.obj is Animal)) return;
 
-            Animal enemy = (Animal) (targetGrid.obj);
+            Animal enemy = (Animal)(targetGrid.obj);
             if (!enemy.color.Equals(this.color))
-            {
                 enemy.BeAttack(10);
-                SkillManager.showSkill(Skill.attack,positOnScene,vectorOnScenen);
+        }
+
+        public void Straight()
+        {
+            Point3D targetPosition = this.position.Copy();
+            SkillManager.showSkill(Skill.straight, this.positOnScene, this.vectorOnScenen);
+
+            for (int i = 0; i < 3; ++i)
+            {
+                targetPosition.MoveFor(this.vector, 1);
+                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+                if (targetGrid == null) return;
+                
+                if (targetGrid.obj == null) continue;
+                if(targetGrid.obj is Animal){
+                    Animal target = (Animal)targetGrid.obj;
+                    if(!target.color.Equals(this.color))
+                        target.BeAttack(10);
+                }
             }
+        }
+
+        public void Horizon()
+        {
+            Point2D targetPosition = this.posit.Copy();
+            Vector2D targetVector = this.vect;
+            SkillManager.showSkill(Skill.horizon, this.positOnScene, this.vectorOnScenen);
+            targetPosition.MoveFor(targetVector, 1);
+            targetVector = VectorConvert.Rotate(targetVector);
+            targetPosition.MoveFor(targetVector, 1);
+            targetVector = VectorConvert.Invert(targetVector);
+            
+            for(int i=0; i<3; ++i)
+            {
+                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.binded);
+                if (targetGrid == null) continue;
+                if (targetGrid.obj == null) continue;
+                if (targetGrid.obj is Animal)
+                {
+                    Animal target = (Animal)targetGrid.obj;
+                    if (!target.color.Equals(this.color))
+                        target.BeAttack(10);
+                }
+                targetPosition.MoveFor(targetVector, 1);
+            }
+
         }
 
 

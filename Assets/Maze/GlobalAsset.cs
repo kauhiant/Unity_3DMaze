@@ -9,7 +9,11 @@ public class GlobalAsset
     static public Sprite gridSprite;
     static public Sprite stoneSprite;
     static public Sprite animalSprite;
+
     static public Sprite attack;
+    static public Sprite straight;
+    static public Sprite horizon;
+
     static public Maze.Shape anamalShape;
 
     static public Maze.Map3D map;

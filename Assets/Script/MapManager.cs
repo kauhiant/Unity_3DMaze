@@ -15,6 +15,8 @@ public class MapManager : MonoBehaviour {
 
     public Sprite[] animalShapes = new Sprite[6];
     public Sprite attack;
+    public Sprite straight;
+    public Sprite horizon;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
@@ -31,7 +33,10 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.stoneSprite = stone.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.animalSprite = animal.GetComponent<SpriteRenderer>().sprite;
         GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
+
         GlobalAsset.attack = attack;
+        GlobalAsset.straight = straight;
+        GlobalAsset.horizon = horizon;
 
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
@@ -81,6 +86,14 @@ public class MapManager : MonoBehaviour {
         {
             command = Command.Attack;
         }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            command = Command.Straight;
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            command = Command.Horizon;
+        }
         
         
         Clock();
@@ -126,6 +139,14 @@ public class MapManager : MonoBehaviour {
             case Command.Attack:
                 player.Attack();
                 break;
+
+            case Command.Straight:
+                player.Straight();
+                break;
+
+            case Command.Horizon:
+                player.Horizon();
+                break;
         }
         command = Command.None;
         
@@ -170,6 +191,6 @@ public class MapManager : MonoBehaviour {
 
     enum Command
     {
-        Up,Down,Left,Right,Plain,Attack,None
+        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,None
     }
 }
