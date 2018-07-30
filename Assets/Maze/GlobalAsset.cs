@@ -10,6 +10,7 @@ public class GlobalAsset
     static public Sprite stoneSprite;
     static public Sprite createrSprite;
     static public Sprite food;
+    static public Sprite wall;
 
     static public Sprite attack;
     static public Sprite straight;

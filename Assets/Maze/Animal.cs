@@ -137,11 +137,18 @@ namespace Maze
             if (targetGrid == null) return;
             
             if (targetGrid.obj == null) return;
-            if (!(targetGrid.obj is Animal)) return;
 
-            Animal enemy = (Animal)(targetGrid.obj);
-            if (!enemy.color.Equals(this.color))
-                enemy.BeAttack(this);
+            if (targetGrid.obj is Animal)
+            {
+                Animal enemy = (Animal)(targetGrid.obj);
+                if (!enemy.color.Equals(this.color))
+                    enemy.BeAttack(this);
+            }
+            else if(targetGrid.obj is Wall)
+            {
+                Wall wall = (Wall)targetGrid.obj;
+                wall.beAttack();
+            }
         }
 
         public void Straight()
@@ -194,6 +201,20 @@ namespace Maze
                 }
             }
 
+        }
+
+        public void Build()
+        {
+            Point3D targetPosition = this.position.Copy();
+
+            targetPosition.MoveFor(this.vector, 1);
+            Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+            if (targetGrid == null) return;
+
+            if (targetGrid.obj == null)
+            {
+                targetGrid.obj = new Wall(targetPosition);
+            }
         }
 
 

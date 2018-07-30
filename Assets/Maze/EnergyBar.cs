@@ -13,10 +13,10 @@ namespace Maze
         public int Max { get { return max; } }
         public int Value { get { return value; } }
 
-        public EnergyBar(int max)
+        public EnergyBar(int max, float rate = 1f)
         {
             this.max = max;
-            this.value = max;
+            this.value = (int)(max*rate);
         }
 
         public void add(int value)
@@ -33,6 +33,29 @@ namespace Maze
         public bool isZero()
         {
             return value == 0;
+        }
+
+        public bool isFull()
+        {
+            return value == max;
+        }
+
+        public void set(int value)
+        {
+            this.value = value;
+            if (this.value > max)
+                this.value = max;
+        }
+
+        public void maxExpand(int value)
+        {
+            this.max += value;
+        }
+
+        // return [0.0 , 1.0]
+        public float barRate()
+        {
+            return (float)value / (float)max;
         }
     }
 }

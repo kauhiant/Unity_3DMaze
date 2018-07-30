@@ -17,6 +17,7 @@ public class MapManager : MonoBehaviour {
     public Sprite food;
     public Sprite grid;
     public Sprite stone;
+    public Sprite wall;
     public Sprite createrSprite;
 
     private Maze.Map3D gameMap;
@@ -38,6 +39,7 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.horizon = horizon;
         GlobalAsset.create = createSprite;
         GlobalAsset.food = food;
+        GlobalAsset.wall = wall;
         GlobalAsset.createrSprite = createrSprite;
 
         gameMap = new Maze.Map3D(31, 20, 3);
@@ -53,8 +55,9 @@ public class MapManager : MonoBehaviour {
 
         for (int i = 0; i < 6; ++i)
         {
-            Maze.Creater creater = new Maze.Creater(new Maze.Point3D(0, 0, 0), colorIndex(i));
-            if (GlobalAsset.map.RandomInsertAt(creater, 1))
+            Maze.Point3D position = GlobalAsset.map.getRandomPointOn(1);
+            Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
+            if (GlobalAsset.map.InsertAt(position,creater))
                 GlobalAsset.creaters.Add(creater);
         }
 
@@ -103,6 +106,10 @@ public class MapManager : MonoBehaviour {
         else if (Input.GetKey(KeyCode.D))
         {
             command = Command.Horizon;
+        }
+        else if (Input.GetKey(KeyCode.F))
+        {
+            command = Command.Wall;
         }
         
         
@@ -157,6 +164,10 @@ public class MapManager : MonoBehaviour {
             case Command.Horizon:
                 player.Horizon();
                 break;
+
+            case Command.Wall:
+                player.Build();
+                break;
         }
         command = Command.None;
         
@@ -169,17 +180,19 @@ public class MapManager : MonoBehaviour {
                 --i;
                 continue;
             }
-            each.Auto(10);
+            if(each != player)
+                each.Auto(10);
         }
 
         for(int i=0; i<GlobalAsset.creaters.Count; ++i)
         {
-            GlobalAsset.creaters[i].update();
-            /*if (GlobalAsset.creaters[i].isDead())
+            if (GlobalAsset.creaters[i].isDead())
             {
                 GlobalAsset.creaters.RemoveAt(i);
                 --i;
-            }*/
+                continue;
+            }
+            GlobalAsset.creaters[i].update();
         }
         
         manager.updateScene();
@@ -232,6 +245,6 @@ public class MapManager : MonoBehaviour {
 
     enum Command
     {
-        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,None
+        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,Wall,None
     }
 }

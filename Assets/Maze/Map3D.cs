@@ -87,6 +87,9 @@ namespace Maze
                 GetAt(position).obj = null;
         }
 
+        // if ghost want to move
+        // obj of a and b are null
+        // so ghost cannot move
         public void Swap(Point3D a, Point3D b)
         {
             MazeObject temp = GetAt(a).obj;
@@ -118,6 +121,16 @@ namespace Maze
             }
 
             return false;
+        }
+
+        public Point3D getRandomPointOn(int layer)
+        {
+            if (layer < 0 && layer > this.layers)
+                return null;
+
+            int x = Random.Range(0, widthX);
+            int y = Random.Range(0, widthY);
+            return new Point3D(x,y,layer);
         }
         
 

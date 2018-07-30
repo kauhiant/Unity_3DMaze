@@ -11,9 +11,8 @@ namespace Maze
         private Point2D posit;
         public Color color;
         private int level;
-        private int energy;
+        private EnergyBar energy;
         private int consume;
-        private int grow;
         private float rate;
 
         public Color getColor() { return color; }
@@ -24,10 +23,9 @@ namespace Maze
             this.posit = new Point2D(position, Dimention.Z);
             this.color = color;
             this.level = 0;
-            this.energy = 200;
+            this.energy = new EnergyBar(200);
             this.consume = 50;
-            this.grow = 300;
-            this.rate = 0.01f;
+            this.rate = 0.02f;
 
             levelUp();
         }
@@ -39,17 +37,18 @@ namespace Maze
 
         public bool isDead()
         {
-            return energy <= 0;
+            return energy.isZero();
         }
 
-        public void update()
+        public Animal update()
         {
-            if (isDead()) return;
-            reduceEnergy(1);
+            if (isDead()) return null;
+            energy.add(-1);
 
-            Iterator iter = new Iterator(this.posit, this.level + 1);
+            Iterator iter = new Iterator(this.posit, this.level+1);
 
             int createIndex = -1;
+            Animal animal = null;
             if (UnityEngine.Random.value < rate)
                 createIndex = UnityEngine.Random.Range(0, iter.size());
 
@@ -62,15 +61,17 @@ namespace Maze
                     updateForObj(grid.obj);
 
                 if (createIndex-- == 0)
-                    CreateAnimal(point.binded.Copy());
+                    animal = CreateAnimal(point.binded.Copy());
 
             } while (iter.MoveToNext());
             
-            if (energy > Math.Pow(2,level) * grow)
+            if (energy.isFull())
                 levelUp();
-            
-            if (this.color.Equals(GlobalAsset.player.color))
-                Debug.Log(energy);
+
+            if (isDead())
+                destroy();
+
+            return animal;
         }
 
 
@@ -79,7 +80,8 @@ namespace Maze
         {
             if (level == 10) return;
             ++level;
-            Debug.Log("level up " + color);
+            energy.maxExpand(energy.Value);
+            Debug.Log("level up " + color.ToString());
             RegisterEvent(ObjEvent.Grow);
 
             Iterator iter = new Iterator(this.posit, this.level + 1);
@@ -96,24 +98,28 @@ namespace Maze
                 {
                     grid.obj.RegisterEvent(ObjEvent.Destroy);
                     grid.obj = null;
+                    Debug.Log("destroy stone");
                 }
+
 
             } while (iter.MoveToNext());
 
         }
 
-        private void CreateAnimal(Point3D position)
+        private Animal CreateAnimal(Point3D position)
         {
-            if (energy < consume*(level+1)) return;
+            if (energy.Value < consume*(level+1)) return null;
 
             Grid grid = GlobalAsset.map.GetAt(position);
-            if (grid == null) return;
-            if (grid.obj != null) return;
+            if (grid == null) return null;
+            if (grid.obj != null) return null;
 
-            reduceEnergy(consume);
+            energy.add(-consume);
             grid.obj = new Animal(position, this.color, 10);
             SkillManager.showSkill(Skill.create, new Point2D(position,GlobalAsset.player.plain.dimen), Vector2D.Right);
             GlobalAsset.animals.Add((Animal)grid.obj);
+
+            return (Animal)grid.obj;
         }
 
         private void updateForObj(MazeObject obj)
@@ -124,9 +130,9 @@ namespace Maze
             {
                 Animal animal = (Animal)obj;
                 if (animal.color.Equals(this.color))
-                    ++this.energy;
+                    energy.add(1);
                 else
-                    reduceEnergy(1);
+                    energy.add(-1);
             }
             else if(obj is Creater)
             {
@@ -134,7 +140,7 @@ namespace Maze
                 if (creater.color.Equals(this.color))
                     eatCreater(creater);
                 else
-                    reduceEnergy( creater.level);
+                    energy.add(-creater.level);
             }
         }
 
@@ -142,25 +148,17 @@ namespace Maze
         {
             if (this.level <= creater.level) return;
 
-            this.energy += creater.energy;
-            creater.energy = 0;
+            energy.add(creater.energy.Value);
+            creater.energy.set(0);
             creater.destroy();
-        }
-
-        private void reduceEnergy(int value)
-        {
-            this.energy -= value;
-            if (energy <= 0)
-            {
-                energy = 0;
-                destroy();
-            }
         }
 
         private void destroy()
         {
             GlobalAsset.map.GetAt(this.position).obj = null;
             this.RegisterEvent(ObjEvent.Destroy);
+            if (color.Equals(GlobalAsset.player.color))
+                Debug.Log("create destroy");
         }
     }
 }
