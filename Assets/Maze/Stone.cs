@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Stone : MazeObject
+    public class Stone : MazeObject
     {
         public Stone(Point3D position) : base(position)
         {

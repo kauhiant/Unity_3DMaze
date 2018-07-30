@@ -11,14 +11,13 @@ namespace Maze
         private Point2D posit;
         private Vector2D vect
         { get { return this.plain.Vector3To2(vector); } }
-        private Color color;
+        public Color color;
 
         public Vector3D vector;
         public EnergyBar hp;
         public EnergyBar ep;
         public EnergyBar hungry;
         public int power;
-        public string lastPosition;
 
         public bool isDead
         { get { return this.hp.Value == 0; } }
@@ -71,7 +70,7 @@ namespace Maze
 
         public override Sprite Shape()
         {
-            return GlobalAsset.anamalShape.At(this.vectorOnScenen);
+            return GlobalAsset.animalShape.At(this.vectorOnScenen);
         }
 
 
@@ -241,8 +240,6 @@ namespace Maze
                 else
                     return;
             }
-
-            lastPosition = this.position.ToString();
 
             GlobalAsset.map.Swap(position, temp);
             RegisterEvent(ObjEvent.move);

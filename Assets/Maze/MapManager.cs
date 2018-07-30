@@ -60,6 +60,11 @@ namespace Maze
             obj.RegisterEvent(ObjEvent.None);
             objs.Add(new Pair(obj,temp));
 
+            if(obj is Creater)
+            {
+                temp.GetComponent<SpriteRenderer>().color = ((Creater)obj).color;
+            }
+
         }
 
         private void CreateGridAt(int x, int y, Maze.Grid grid)
@@ -219,6 +224,11 @@ namespace Maze
                 case ObjEvent.Destroy:
                     GameObject.Destroy(objPair.binded);
                     objPair.binded = null;
+                    break;
+
+                case ObjEvent.Grow:
+                    float scale = ((Creater)objPair.obj).getLeval() / 10f + 1;
+                    objPair.binded.transform.localScale = new Vector2(scale,scale);
                     break;
 
                 case Maze.ObjEvent.None:

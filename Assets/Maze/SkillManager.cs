@@ -37,6 +37,18 @@ namespace Maze
             return skillObj;
         }
 
+        private static GameObject showSkill(Vector2 position, Sprite skill)
+        {
+            GameObject skillObj = new GameObject();
+            skillObj.transform.position = position;
+            
+            skillObj.AddComponent<SpriteRenderer>().sprite = skill;
+            skillObj.GetComponent<SpriteRenderer>().sortingLayerName = "action";
+          
+            skillObjs.Add(skillObj);
+            return skillObj;
+        }
+
         public static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
         {
             if (!userPosition.isOnPlain(GlobalAsset.player.plain))
@@ -54,6 +66,10 @@ namespace Maze
 
                 case Skill.horizon:
                     showSkill(convert(userPosition), convert(userVector), 1, 3, GlobalAsset.horizon);
+                    break;
+
+                case Skill.create:
+                    showSkill(convert(userPosition), GlobalAsset.create);
                     break;
             }
         }

@@ -28,12 +28,12 @@ namespace Maze
 
     public enum ObjEvent
     {
-        move,shape,Destroy,None
+        move,shape,Destroy,Grow,None
     }
 
     public enum Skill
     {
-        attack, straight, horizon
+        attack, straight, horizon, create
     }
 
     public class VectorConvert

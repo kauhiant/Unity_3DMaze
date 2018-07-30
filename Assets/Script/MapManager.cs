@@ -13,9 +13,11 @@ public class MapManager : MonoBehaviour {
     public Sprite attack;
     public Sprite straight;
     public Sprite horizon;
+    public Sprite createSprite;
     public Sprite food;
     public Sprite grid;
     public Sprite stone;
+    public Sprite createrSprite;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
@@ -24,18 +26,19 @@ public class MapManager : MonoBehaviour {
     private Command command = Command.None;
 
     private Maze.MapManager manager;
-    private List<Maze.Animal> enemys = new List<Maze.Animal>();
 
 	// Use this for initialization
 	void Start () {
         GlobalAsset.gridSprite = grid;
         GlobalAsset.stoneSprite = stone;
-        GlobalAsset.anamalShape = new Maze.Shape(animalShapes);
+        GlobalAsset.animalShape = new Maze.Shape(animalShapes);
 
         GlobalAsset.attack = attack;
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
+        GlobalAsset.create = createSprite;
         GlobalAsset.food = food;
+        GlobalAsset.createrSprite = createrSprite;
 
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
@@ -46,12 +49,20 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.player = player;
         gameMap.HardInsertAt(player.position, player);
         manager = new Maze.MapManager(sceneMap, player, camera, 8);
+        
 
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < 6; ++i)
         {
-            Maze.Animal enemy = new Maze.Animal(new Maze.Point3D(0, 0, 0),RandomColor(),10);
-            if (GlobalAsset.map.RandomInsertAt(enemy, 1))
-                enemys.Add(enemy);
+            Maze.Creater creater = new Maze.Creater(new Maze.Point3D(0, 0, 0), colorIndex(i));
+            if (GlobalAsset.map.RandomInsertAt(creater, 1))
+                GlobalAsset.creaters.Add(creater);
+        }
+
+        for(int i = 0; i< 0; ++i)
+        {
+            Maze.Animal animal = new Maze.Animal(new Maze.Point3D(0, 0, 0), RandomColor(), 10);
+            if (GlobalAsset.map.RandomInsertAt(animal, 1))
+                GlobalAsset.animals.Add(animal);
         }
         
         time = 0;
@@ -149,16 +160,26 @@ public class MapManager : MonoBehaviour {
         }
         command = Command.None;
         
-        for(int i=0; i< enemys.Count; ++i)
+        for(int i=0; i< GlobalAsset.animals.Count; ++i)
         {
-            Maze.Animal each = enemys[i];
+            Maze.Animal each = GlobalAsset.animals[i];
             if (each.isDead)
             {
-                enemys.RemoveAt(i);
+                GlobalAsset.animals.RemoveAt(i);
                 --i;
                 continue;
             }
             each.Auto(10);
+        }
+
+        for(int i=0; i<GlobalAsset.creaters.Count; ++i)
+        {
+            GlobalAsset.creaters[i].update();
+            /*if (GlobalAsset.creaters[i].isDead())
+            {
+                GlobalAsset.creaters.RemoveAt(i);
+                --i;
+            }*/
         }
         
         manager.updateScene();
@@ -176,6 +197,27 @@ public class MapManager : MonoBehaviour {
                 return Color.red;
             case 2:
                 return Color.green; 
+            case 3:
+                return Color.blue;
+            case 4:
+                return Color.cyan;
+            case 5:
+                return Color.yellow;
+            default:
+                return Color.magenta;
+        }
+    }
+
+    private Color colorIndex(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return Color.white;
+            case 1:
+                return Color.red;
+            case 2:
+                return Color.green;
             case 3:
                 return Color.blue;
             case 4:

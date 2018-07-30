@@ -8,15 +8,20 @@ public class GlobalAsset
 
     static public Sprite gridSprite;
     static public Sprite stoneSprite;
+    static public Sprite createrSprite;
     static public Sprite food;
 
     static public Sprite attack;
     static public Sprite straight;
     static public Sprite horizon;
+    static public Sprite create;
 
-    static public Maze.Shape anamalShape;
+    static public Maze.Shape animalShape;
 
     static public Maze.Map3D map;
 
     static public Maze.Animal player;
+
+    static public List<Maze.Animal> animals = new List<Maze.Animal>();
+    static public List<Maze.Creater> creaters = new List<Maze.Creater>();
 }
