@@ -62,7 +62,10 @@ namespace Maze
 
             if(obj is Creater)
             {
+                temp.GetComponent<SpriteRenderer>().sortingLayerName = "creater";
                 temp.GetComponent<SpriteRenderer>().color = ((Creater)obj).color;
+                float scale = ((Creater)obj).getLevel() / 10f + 1;
+                temp.transform.localScale = new Vector2(scale, scale);
             }
 
         }
@@ -227,7 +230,7 @@ namespace Maze
                     break;
 
                 case ObjEvent.Grow:
-                    float scale = ((Creater)objPair.obj).getLeval() / 10f + 1;
+                    float scale = ((Creater)objPair.obj).getLevel() / 10f + 1;
                     objPair.binded.transform.localScale = new Vector2(scale,scale);
                     break;
 

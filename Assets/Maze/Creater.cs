@@ -17,17 +17,19 @@ namespace Maze
         private float rate;
 
         public Color getColor() { return color; }
-        public int getLeval() { return level; }
+        public int getLevel() { return level; }
 
         public Creater(Point3D position, Color color) : base(position)
         {
             this.posit = new Point2D(position, Dimention.Z);
             this.color = color;
-            this.level = 1;
+            this.level = 0;
             this.energy = 200;
             this.consume = 50;
             this.grow = 300;
-            this.rate = 0.1f;
+            this.rate = 0.01f;
+
+            levelUp();
         }
 
         public override Sprite Shape()
@@ -46,7 +48,10 @@ namespace Maze
             reduceEnergy(1);
 
             Iterator iter = new Iterator(this.posit, this.level + 1);
-            int createIndex = UnityEngine.Random.Range(0, iter.size());
+
+            int createIndex = -1;
+            if (UnityEngine.Random.value < rate)
+                createIndex = UnityEngine.Random.Range(0, iter.size());
 
             do
             {
@@ -57,13 +62,15 @@ namespace Maze
                     updateForObj(grid.obj);
 
                 if (createIndex-- == 0)
-                    CreateAnimal(point.Copy());
+                    CreateAnimal(point.binded.Copy());
 
             } while (iter.MoveToNext());
             
-
-            if (energy > Math.Pow(level,2) * grow)
+            if (energy > Math.Pow(2,level) * grow)
                 levelUp();
+            
+            if (this.color.Equals(GlobalAsset.player.color))
+                Debug.Log(energy);
         }
 
 
@@ -74,19 +81,38 @@ namespace Maze
             ++level;
             Debug.Log("level up " + color);
             RegisterEvent(ObjEvent.Grow);
+
+            Iterator iter = new Iterator(this.posit, this.level + 1);
+
+            do
+            {
+                Point2D point = iter.Iter;
+                Grid grid = GlobalAsset.map.GetAt(point.binded);
+
+                if (grid == null || grid.obj == null)
+                    continue;
+
+                if (grid.obj is Stone && !(grid.obj is Creater))
+                {
+                    grid.obj.RegisterEvent(ObjEvent.Destroy);
+                    grid.obj = null;
+                }
+
+            } while (iter.MoveToNext());
+
         }
 
-        private void CreateAnimal(Point2D position)
+        private void CreateAnimal(Point3D position)
         {
             if (energy < consume*(level+1)) return;
 
-            Grid grid = GlobalAsset.map.GetAt(position.binded);
+            Grid grid = GlobalAsset.map.GetAt(position);
             if (grid == null) return;
             if (grid.obj != null) return;
 
             reduceEnergy(consume);
-            grid.obj = new Animal(position.binded, this.color, 10);
-            SkillManager.showSkill(Skill.create, position, Vector2D.Right);
+            grid.obj = new Animal(position, this.color, 10);
+            SkillManager.showSkill(Skill.create, new Point2D(position,GlobalAsset.player.plain.dimen), Vector2D.Right);
             GlobalAsset.animals.Add((Animal)grid.obj);
         }
 
@@ -135,8 +161,6 @@ namespace Maze
         {
             GlobalAsset.map.GetAt(this.position).obj = null;
             this.RegisterEvent(ObjEvent.Destroy);
-            
-             Debug.Log("destroyed " + this.color);
         }
     }
 }

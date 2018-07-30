@@ -168,7 +168,11 @@ namespace Maze
         {
             Point2D targetPosition = this.posit.Copy();
             Vector2D targetVector = this.vect;
-            SkillManager.showSkill(Skill.horizon, this.positOnScene, this.vectorOnScenen);
+
+            if(this.plain.dimen == GlobalAsset.player.plain.dimen)
+                SkillManager.showSkill(Skill.horizon, positOnScene, vectorOnScenen);
+            else
+                SkillManager.showSkill(Skill.attack, positOnScene, vectorOnScenen);
 
             targetPosition.MoveFor(targetVector, 1);
             targetVector = VectorConvert.Rotate(targetVector);

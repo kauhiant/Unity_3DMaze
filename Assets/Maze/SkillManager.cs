@@ -49,6 +49,9 @@ namespace Maze
             return skillObj;
         }
 
+
+
+
         public static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
         {
             if (!userPosition.isOnPlain(GlobalAsset.player.plain))
@@ -73,6 +76,9 @@ namespace Maze
                     break;
             }
         }
+
+
+
 
         private static Vector3 angle(Vector2 vector)
         {
