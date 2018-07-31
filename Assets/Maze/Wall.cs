@@ -8,20 +8,29 @@ namespace Maze
 {
     class Wall : MazeObject,Attackable
     {
-        public Wall(Point3D position) : base(position)
+        private int hp;
+        public Wall(Point3D position, int hp) : base(position)
         {
-
+            this.hp = hp;
         }
 
         public void BeAttack(Animal animal)
         {
-            GlobalAsset.map.GetAt(this.position).RemoveObj();
-            RegisterEvent(ObjEvent.Destroy);
+            hp -= animal.power;
+            if (hp < 0)
+                Destroy();
         }
 
-        public override Sprite Shape()
+        public override Sprite GetSprite()
         {
             return GlobalAsset.wall;
+        }
+
+
+        private void Destroy()
+        {
+            GlobalAsset.map.GetAt(this.position).RemoveObj();
+            RegisterEvent(ObjEvent.Destroy);
         }
     }
 }

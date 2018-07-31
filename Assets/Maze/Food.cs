@@ -15,7 +15,7 @@ namespace Maze
             this.Nutrient = nutrient;
         }
 
-        public override Sprite Shape()
+        public override Sprite GetSprite()
         {
             return GlobalAsset.food;
         }

@@ -9,14 +9,19 @@ namespace Maze
     public class Creater : Stone
     {
         private Point2D posit;
-        public Color color;
+        private Color color;
         private int level;
         private EnergyBar energy;
         private int consume;
         private float rate;
 
-        public Color getColor() { return color; }
-        public int getLevel() { return level; }
+        public override Color GetColor() { return color; }
+        public override Vector2 GetScale()
+        {
+            float scale = GetLevel() / 10f + 1;
+            return new Vector2(scale, scale);
+        }
+        public int GetLevel() { return level; }
 
         public Creater(Point3D position, Color color) : base(position)
         {
@@ -30,7 +35,7 @@ namespace Maze
             levelUp();
         }
 
-        public override Sprite Shape()
+        public override Sprite GetSprite()
         {
             return GlobalAsset.createrSprite;
         }

@@ -12,7 +12,7 @@ namespace Maze
         {
         }
 
-        public override Sprite Shape()
+        public override Sprite GetSprite()
         {
             return GlobalAsset.stoneSprite;
         }

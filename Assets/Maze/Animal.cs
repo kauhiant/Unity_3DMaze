@@ -50,14 +50,12 @@ namespace Maze
             }
         }
 
-        public Color GetColor
+        public override Color GetColor()
         {
-            get
-            {
-                float a = hp.Value / (hp.Max * 2f) + 0.5f;
-                return new Color(color.r, color.g, color.b, a);
-            }
+            float a = hp.Value / (hp.Max * 2f) + 0.5f;
+            return new Color(color.r, color.g, color.b, a);
         }
+
 
         public Animal(Point3D position, Color color, int power) : base(position)
         {
@@ -68,7 +66,7 @@ namespace Maze
             this.power = power;
         }
 
-        public override Sprite Shape()
+        public override Sprite GetSprite()
         {
             return GlobalAsset.animalShape.GetAt(this.vectorOnScenen);
         }
@@ -215,7 +213,7 @@ namespace Maze
 
             if (targetGrid.IsEmpty())
             {
-                targetGrid.InsertObj(new Wall(targetPosition));
+                targetGrid.InsertObj(new Wall(targetPosition, 100));
             }
         }
 

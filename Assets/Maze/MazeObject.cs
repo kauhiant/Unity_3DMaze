@@ -21,7 +21,15 @@ namespace Maze
             this.objEvent = ObjEvent.None;
         }
 
-        public abstract Sprite Shape();
+        public abstract Sprite GetSprite();
+        public virtual  Color GetColor()
+        {
+            return Color.white;
+        }
+        public virtual  Vector2 GetScale()
+        {
+            return Vector2.one;
+        }
 
         public void RegisterEvent(ObjEvent eventName)
         {

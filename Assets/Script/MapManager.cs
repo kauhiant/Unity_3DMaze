@@ -66,7 +66,7 @@ public class MapManager : MonoBehaviour {
 
         player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
         GlobalAsset.player = player;
-        manager = new Maze.MapManager(sceneMap, player, camera, 8);
+        manager = new Maze.MapManager(sceneMap, camera, 8);
 
         time = 0;
         clockLock = false;
@@ -121,7 +121,7 @@ public class MapManager : MonoBehaviour {
     bool clockLock;
     public void Clock()
     {
-        if (manager.gameOver) return;
+        if (manager.GameOver) return;
         time += Time.deltaTime;
         if (time < clockTime) return;
         if (clockLock) return;
@@ -150,7 +150,7 @@ public class MapManager : MonoBehaviour {
 
             case Command.Plain:
                 player.ChangePlain();
-                manager.changePlain();
+                manager.ChangePlain();
                 break;
 
             case Command.Attack:
@@ -195,7 +195,7 @@ public class MapManager : MonoBehaviour {
             GlobalAsset.creaters[i].update();
         }
         
-        manager.updateScene();
+        manager.UpdateScene();
         
         clockLock = false;
     }
