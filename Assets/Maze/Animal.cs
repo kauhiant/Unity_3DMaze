@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    public class Animal : MazeObject
+    public class Animal : MazeObject,Attackable
     {
         private Point2D posit;
         private Vector2D vect
@@ -23,10 +23,10 @@ namespace Maze
         { get { return this.hp.Value == 0; } }
 
         public Plain plain
-        { get { return posit.plain; } }
+        { get { return posit.Plain; } }
 
         public Vector2D vectorOnScenen
-        { get { return GlobalAsset.player.posit.plain.Vector3To2(vector); } }
+        { get { return GlobalAsset.player.posit.Plain.Vector3To2(vector); } }
 
 
         public Dimention forwardDimen {
@@ -70,7 +70,7 @@ namespace Maze
 
         public override Sprite Shape()
         {
-            return GlobalAsset.animalShape.At(this.vectorOnScenen);
+            return GlobalAsset.animalShape.GetAt(this.vectorOnScenen);
         }
 
 
@@ -127,34 +127,36 @@ namespace Maze
             }
         }
 
+
+
         public void Attack()
         {
             Point3D targetPosition = this.position.Copy();
-            SkillManager.showSkill(Skill.attack, positOnScene, vectorOnScenen);
+            SkillManager.showSkill(Skill.attack, PositOnScene, vectorOnScenen);
 
             targetPosition.MoveFor(this.vector, 1);
             Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
             if (targetGrid == null) return;
             
-            if (targetGrid.obj == null) return;
+            if (targetGrid.Obj == null) return;
 
-            if (targetGrid.obj is Animal)
+            if (targetGrid.Obj is Animal)
             {
-                Animal enemy = (Animal)(targetGrid.obj);
+                Animal enemy = (Animal)(targetGrid.Obj);
                 if (!enemy.color.Equals(this.color))
                     enemy.BeAttack(this);
             }
-            else if(targetGrid.obj is Wall)
+            else if(targetGrid.Obj is Wall)
             {
-                Wall wall = (Wall)targetGrid.obj;
-                wall.beAttack();
+                Wall wall = (Wall)targetGrid.Obj;
+                wall.BeAttack(this);
             }
         }
 
         public void Straight()
         {
             Point3D targetPosition = this.position.Copy();
-            SkillManager.showSkill(Skill.straight, this.positOnScene, this.vectorOnScenen);
+            SkillManager.showSkill(Skill.straight, this.PositOnScene, this.vectorOnScenen);
 
             for (int i = 0; i < 3; ++i)
             {
@@ -162,9 +164,9 @@ namespace Maze
                 Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
                 if (targetGrid == null) return;
                 
-                if (targetGrid.obj == null) continue;
-                if(targetGrid.obj is Animal){
-                    Animal target = (Animal)targetGrid.obj;
+                if (targetGrid.Obj == null) continue;
+                if(targetGrid.Obj is Animal){
+                    Animal target = (Animal)targetGrid.Obj;
                     if(!target.color.Equals(this.color))
                         target.BeAttack(this);
                 }
@@ -176,10 +178,10 @@ namespace Maze
             Point2D targetPosition = this.posit.Copy();
             Vector2D targetVector = this.vect;
 
-            if(this.plain.dimen == GlobalAsset.player.plain.dimen)
-                SkillManager.showSkill(Skill.horizon, positOnScene, vectorOnScenen);
+            if(this.plain.Dimention == GlobalAsset.player.plain.Dimention)
+                SkillManager.showSkill(Skill.horizon, PositOnScene, vectorOnScenen);
             else
-                SkillManager.showSkill(Skill.attack, positOnScene, vectorOnScenen);
+                SkillManager.showSkill(Skill.attack, PositOnScene, vectorOnScenen);
 
             targetPosition.MoveFor(targetVector, 1);
             targetVector = VectorConvert.Rotate(targetVector);
@@ -190,12 +192,12 @@ namespace Maze
             {
                 targetPosition.MoveFor(targetVector, 1);
 
-                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.binded);
+                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.Binded);
                 if (targetGrid == null) continue;
-                if (targetGrid.obj == null) continue;
-                if (targetGrid.obj is Animal)
+                if (targetGrid.Obj == null) continue;
+                if (targetGrid.Obj is Animal)
                 {
-                    Animal target = (Animal)targetGrid.obj;
+                    Animal target = (Animal)targetGrid.Obj;
                     if (!target.color.Equals(this.color))
                         target.BeAttack(this);
                 }
@@ -211,21 +213,23 @@ namespace Maze
             Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
             if (targetGrid == null) return;
 
-            if (targetGrid.obj == null)
+            if (targetGrid.IsEmpty())
             {
-                targetGrid.obj = new Wall(targetPosition);
+                targetGrid.InsertObj(new Wall(targetPosition));
             }
         }
 
 
 
-        private void BeAttack(Animal enemy)
+        public void BeAttack(Animal enemy)
         {
-            this.hp.add(-enemy.power);
+            this.hp.Add(-enemy.power);
 
-            if (this.hp.isZero())
+            if (this.hp.IsZero)
             {
-                GlobalAsset.map.GetAt(this.position).obj = new Food(this.position, 100);
+                Grid grid = GlobalAsset.map.GetAt(this.position);
+                grid.RemoveObj();
+                grid.InsertObj(new Food(this.position, 100));
                 RegisterEvent(ObjEvent.Destroy);
             }
         }
@@ -235,7 +239,7 @@ namespace Maze
             if (this.ep.Value < val)
                 return false;
 
-            this.ep.add(-val);
+            this.ep.Add(-val);
             return true;
         }
         
@@ -254,13 +258,13 @@ namespace Maze
             if (targetGrid == null)
                 return;
 
-            if (targetGrid.obj != null)
+            if (targetGrid.Obj != null)
             {
-                if (targetGrid.obj is Food)
+                if (targetGrid.Obj is Food)
                 {
-                    eatFood((Food)targetGrid.obj);
-                    targetGrid.obj.RegisterEvent(ObjEvent.Destroy);
-                    targetGrid.obj = null;
+                    eatFood((Food)targetGrid.Obj);
+                    targetGrid.Obj.RegisterEvent(ObjEvent.Destroy);
+                    targetGrid.RemoveObj();
                 }
                 else
                     return;
@@ -277,7 +281,7 @@ namespace Maze
 
         private void eatFood(Food food)
         {
-            this.hp.add(food.nutrient);
+            this.hp.Add(food.Nutrient);
         }
         
     }

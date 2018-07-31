@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace Maze
 {
-
     abstract public class MazeObject
     {
-        public Point3D position;
-        public Point2D positOnScene
-        { get { return new Point2D(this.position, GlobalAsset.player.plain.dimen); } }
-
         private ObjEvent objEvent;
+
+        public Point3D position;
+        public Point2D PositOnScene
+        { get { return new Point2D(this.position, GlobalAsset.player.plain.Dimention); } }
+
 
         public MazeObject(Point3D position)
         {

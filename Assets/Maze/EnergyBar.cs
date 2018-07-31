@@ -7,55 +7,83 @@ namespace Maze
 {
     public class EnergyBar
     {
-        private int max;
-        private int value;
+        public int Max      { get; private set; }
+        public int Value    { get; private set; }
+        
+        public bool IsZero
+        {
+            get
+            {
+                return Value == 0;
+            }
+        }
 
-        public int Max { get { return max; } }
-        public int Value { get { return value; } }
+        public bool IsFull
+        {
+            get
+            {
+                return Value == Max;
+            }
+        }
+
+        /// <summary>
+        /// return [0f - 1f]
+        /// </summary>
+        /// <returns></returns>
+        public float BarRate
+        {
+            get
+            {
+                return (float)Value / (float)Max;
+            }
+        }
+
 
         public EnergyBar(int max, float rate = 1f)
         {
-            this.max = max;
-            this.value = (int)(max*rate);
+            this.Max    = max;
+            this.Value  = (int)(max * rate);
         }
 
-        public void add(int value)
+
+        /// <summary>
+        /// add or reduce value , and not out of range[ 0 , max ].
+        /// </summary>
+        /// <param name="value"></param>
+        public void Add(int value)
         {
-            this.value += value;
+            this.Value += value;
 
-            if (this.value < 0)
-                this.value = 0;
+            if (this.Value < 0)
+                this.Value = 0;
 
-            if (this.value > max)
-                this.value = max;
+            if (this.Value > Max)
+                this.Value = Max;
         }
 
-        public bool isZero()
+        /// <summary>
+        /// set value, and it not out of range [ 0 , max ].
+        /// </summary>
+        /// <param name="value"></param>
+        public void Set(int value)
         {
-            return value == 0;
+            this.Value = value;
+
+            if (this.Value > Max)
+                this.Value = Max;
+
+            if (this.Value < 0)
+                this.Value = 0;
         }
 
-        public bool isFull()
+        /// <summary>
+        /// expand max, and no change value
+        /// </summary>
+        /// <param name="value"></param>
+        public void MaxExpand(int value)
         {
-            return value == max;
+            this.Max += value;
         }
 
-        public void set(int value)
-        {
-            this.value = value;
-            if (this.value > max)
-                this.value = max;
-        }
-
-        public void maxExpand(int value)
-        {
-            this.max += value;
-        }
-
-        // return [0.0 , 1.0]
-        public float barRate()
-        {
-            return (float)value / (float)max;
-        }
     }
 }

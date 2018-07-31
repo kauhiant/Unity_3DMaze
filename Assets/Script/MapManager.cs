@@ -45,29 +45,29 @@ public class MapManager : MonoBehaviour {
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
         GlobalAsset.map = gameMap;
-
-
-        player = new Maze.Animal(new Maze.Point3D(0, 3, 1),RandomColor(),20);
-        GlobalAsset.player = player;
-        gameMap.HardInsertAt(player.position, player);
-        manager = new Maze.MapManager(sceneMap, player, camera, 8);
         
 
         for (int i = 0; i < 6; ++i)
         {
-            Maze.Point3D position = GlobalAsset.map.getRandomPointOn(1);
+            Maze.Point3D position = GlobalAsset.map.GetRandomPointOn(1);
             Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
             if (GlobalAsset.map.InsertAt(position,creater))
                 GlobalAsset.creaters.Add(creater);
         }
 
-        for(int i = 0; i< 0; ++i)
+        for(int i = 0; i< 50; ++i)
         {
-            Maze.Animal animal = new Maze.Animal(new Maze.Point3D(0, 0, 0), RandomColor(), 10);
-            if (GlobalAsset.map.RandomInsertAt(animal, 1))
+            Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(1);
+            Maze.Animal animal = new Maze.Animal(point, RandomColor(), 10);
+            if (GlobalAsset.map.InsertAt(point,animal))
                 GlobalAsset.animals.Add(animal);
         }
-        
+
+
+        player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
+        GlobalAsset.player = player;
+        manager = new Maze.MapManager(sceneMap, player, camera, 8);
+
         time = 0;
         clockLock = false;
     }

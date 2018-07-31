@@ -86,7 +86,7 @@ namespace Maze
             Grid grid = map.GetAt(point);
             if (grid != null)
             {
-                CreateGridAt(point.x.value, point.y.value, grid);
+                CreateGridAt(point.X.value, point.Y.value, grid);
             }
         }
 
@@ -128,9 +128,9 @@ namespace Maze
 
                 if (grid != null)
                 {
-                    CreateGridAt(point.x.value, point.y.value, grid);
-                    if (grid.obj != null)
-                        CreateObjAt(point.x.value, point.y.value, grid.obj);
+                    CreateGridAt(point.X.value, point.Y.value, grid);
+                    if (grid.Obj != null)
+                        CreateObjAt(point.X.value, point.Y.value, grid.Obj);
                 }
             } while (iter.MoveToNext());
         }
@@ -153,8 +153,8 @@ namespace Maze
         private Point2D createPoint(int x, int y)
         {
             Point2D point = this.center.Copy();
-            point.x.value = x;
-            point.y.value = y;
+            point.X.value = x;
+            point.Y.value = y;
             return point;
         }
 
@@ -177,7 +177,7 @@ namespace Maze
 
         private Vector2 ConvertTo(Point2D point)
         {
-            return new Vector2(point.x.value, point.y.value);
+            return new Vector2(point.X.value, point.Y.value);
         }
 
         private Point2D ConvertTo(Vector2 vector)
@@ -241,16 +241,16 @@ namespace Maze
 
         private bool isOutOfBuffer(MazeObject obj)
         {
-            if (!obj.position.isOnPlain(this.player.plain))
+            if (!obj.position.IsOnPlain(this.player.plain))
             {
                 return true;
             }
-            Point2D position = obj.positOnScene;
+            Point2D position = obj.PositOnScene;
             return (
-                position.x.value < center.x.value - extra ||
-                position.x.value > center.x.value + extra ||
-                position.y.value < center.y.value - extra ||
-                position.y.value > center.y.value + extra);
+                position.X.value < center.X.value - extra ||
+                position.X.value > center.X.value + extra ||
+                position.Y.value < center.Y.value - extra ||
+                position.Y.value > center.Y.value + extra);
         }
 
         private bool haveObj(MazeObject obj)
@@ -271,10 +271,10 @@ namespace Maze
             {
                 Point2D point = iter.Iter;
                 Grid grid = map.GetAt(point);
-                if (grid != null && grid.obj != null)
+                if (grid != null && grid.Obj != null)
                 {
-                    if (!haveObj(grid.obj))
-                        CreateObjAt(point.x.value, point.y.value, grid.obj);
+                    if (!haveObj(grid.Obj))
+                        CreateObjAt(point.X.value, point.Y.value, grid.Obj);
                 }
             } while (iter.MoveToNext());
         }
@@ -303,13 +303,13 @@ namespace Maze
             this.player = player;
             this.camera = camera;
             this.map = map;
-            this.center = player.positOnScene.Copy();
+            this.center = player.PositOnScene.Copy();
             this.extra = extra;
             this.grids = new List<GameObject>();
             this.objs = new List<Pair>();
 
             gameOver = false;
-            camera.transform.position = new Vector3(center.x.value, center.y.value, -1);
+            camera.transform.position = new Vector3(center.X.value, center.Y.value, -1);
             ShowMap();
         }
 
@@ -322,19 +322,19 @@ namespace Maze
             {
                 case Vector2D.Up:
                     dimention = Dimention.Y;
-                    value = center.y.value - extra;
+                    value = center.Y.value - extra;
                     break;
                 case Vector2D.Down:
                     dimention = Dimention.Y;
-                    value = center.y.value + extra;
+                    value = center.Y.value + extra;
                     break;
                 case Vector2D.Left:
                     dimention = Dimention.X;
-                    value = center.x.value + extra;
+                    value = center.X.value + extra;
                     break;
                 case Vector2D.Right:
                     dimention = Dimention.X;
-                    value = center.x.value - extra;
+                    value = center.X.value - extra;
                     break;
             }
 
@@ -355,8 +355,8 @@ namespace Maze
         public void changePlain()
         {
             ClearMap();
-            this.center = player.positOnScene.Copy();
-            camera.transform.position = new Vector3(center.x.value, center.y.value, -1);
+            this.center = player.PositOnScene.Copy();
+            camera.transform.position = new Vector3(center.X.value, center.Y.value, -1);
             ShowMap();
         }
 

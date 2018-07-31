@@ -8,9 +8,10 @@ namespace Maze
     {
         private Grid[][][] map;
 
-        public int widthX { get { return map.Length; } }
-        public int widthY { get { return map[0].Length; } }
-        public int layers { get { return map[0][0].Length; } }
+        public int WidthX { get { return map.Length; } }
+        public int WidthY { get { return map[0].Length; } }
+        public int Layers { get { return map[0][0].Length; } }
+
 
         public Map3D (int widthX, int widthY, int layers)
         {
@@ -34,57 +35,31 @@ namespace Maze
         }
         
 
-        public bool IsInThisMap(Point3D position)
-        {
-            return (position.x.value < widthX &&
-                position.y.value < widthY &&
-                position.z.value < layers &&
-                position.x.value >= 0 &&
-                position.y.value >= 0 &&
-                position.z.value >= 0);
-        }
 
         public Grid GetAt(Point3D position)
         {
             if (IsInThisMap(position))
-                return map[position.x.value][position.y.value][position.z.value];
+                return map[position.X.value][position.Y.value][position.Z.value];
 
             else
                 return null;
         }
 
-        // [danger] maybe create a ghost
-        public bool HardInsertAt(Point3D position, MazeObject obj)
-        {
-            if (!IsInThisMap(position))
-                return false;
-
-            if (GetAt(position) == null)
-                return false;
-
-            GetAt(position).obj = obj;
-            return true;
-        }
-
+        /// <summary>
+        /// return false : the grid of position is not empty, cannot insert
+        /// </summary>
         public bool InsertAt(Point3D position, MazeObject obj)
         {
-            if (!IsInThisMap(position))
-                return false;                
-
             if (GetAt(position) == null)
                 return false;
 
-            if (GetAt(position).obj != null)
-                return false;
-            
-            GetAt(position).obj = obj;
-            return true;
+            return GetAt(position).InsertObj(obj);
         }
 
         public void RemoveAt(Point3D position)
         {
             if (IsInThisMap(position))
-                GetAt(position).obj = null;
+                GetAt(position).RemoveObj();
         }
 
         // if ghost want to move
@@ -92,62 +67,53 @@ namespace Maze
         // so ghost cannot move
         public void Swap(Point3D a, Point3D b)
         {
-            MazeObject temp = GetAt(a).obj;
-            GetAt(a).obj = GetAt(b).obj;
-            GetAt(b).obj = temp;
+            MazeObject temp = GetAt(a).TakeOutObj();
+            GetAt(a).InsertObj(GetAt(b).TakeOutObj());
+            GetAt(b).InsertObj(temp);
             
-            if (GetAt(a).obj != null)
-                GetAt(a).obj.position.SetBy(a);
+            if (GetAt(a).Obj != null)
+                GetAt(a).Obj.position.SetBy(a);
 
-            if (GetAt(b).obj != null)
-                GetAt(b).obj.position.SetBy(b);
+            if (GetAt(b).Obj != null)
+                GetAt(b).Obj.position.SetBy(b);
         }
 
-        public void SetBackgroundAt(Point3D position, UnityEngine.Sprite shape)
+        public Point3D GetRandomPointOn(int layer)
         {
-            if (IsInThisMap(position))
-                GetAt(position).shape = shape;
-        }
-
-        public bool RandomInsertAt(MazeObject obj, int layer)
-        {
-            int x = Random.Range(0, widthX);
-            int y = Random.Range(0, widthY);
-
-            if(layer >= 0 && layer < this.layers)
-            {
-                obj.position.Set(x, y, layer);
-                return this.InsertAt(obj.position, obj);
-            }
-
-            return false;
-        }
-
-        public Point3D getRandomPointOn(int layer)
-        {
-            if (layer < 0 && layer > this.layers)
+            if (layer < 0 && layer > this.Layers)
                 return null;
 
-            int x = Random.Range(0, widthX);
-            int y = Random.Range(0, widthY);
+            int x = Random.Range(0, WidthX);
+            int y = Random.Range(0, WidthY);
+
             return new Point3D(x,y,layer);
         }
         
 
+
+        private bool IsInThisMap(Point3D position)
+        {
+            return (position.X.value < WidthX &&
+                position.Y.value < WidthY &&
+                position.Z.value < Layers &&
+                position.X.value >= 0 &&
+                position.Y.value >= 0 &&
+                position.Z.value >= 0);
+        }
+
         private void InitMap()
         {
-            for(int i=0; i<layers; ++i)
+            for(int i=0; i<Layers; ++i)
             {
                 makePlain(i);
             }
         }
 
-
         private void makePlain(int layer)
         {
-            for (int j = 0; j <= widthY; j += 2)
+            for (int j = 0; j <= WidthY; j += 2)
             {
-                for (int i = 0; i <= widthX; i += 2)
+                for (int i = 0; i <= WidthX; i += 2)
                 {
                     int x = Random.Range(0, 100);
 
@@ -182,7 +148,7 @@ namespace Maze
             }
 
             if (target != null && GetAt(target) != null)
-                GetAt(target).obj = new Stone(target);
+                GetAt(target).InsertObj(new Stone(target));
         }
 
         private void createTwoStone(int x, int y, int layer)
@@ -218,10 +184,10 @@ namespace Maze
             }
 
             if (target1 != null && GetAt(target1) != null)
-                GetAt(target1).obj = new Stone(target1);
+                GetAt(target1).InsertObj(new Stone(target1));
             
             if (target2 != null && GetAt(target2) != null)
-                GetAt(target2).obj = new Stone(target2);
+                GetAt(target2).InsertObj(new Stone(target2));
         }
 
         private void createThreeStone(int x, int y, int layer)
@@ -255,13 +221,13 @@ namespace Maze
             }
 
             if (target1 != null && GetAt(target1) != null)
-                GetAt(target1).obj = new Stone(target1);
+                GetAt(target1).InsertObj(new Stone(target1));
 
             if (target2 != null && GetAt(target2) != null)
-                GetAt(target2).obj = new Stone(target2);
+                GetAt(target2).InsertObj(new Stone(target2));
 
             if (target3 != null && GetAt(target3) != null)
-                GetAt(target3).obj = new Stone(target3);
+                GetAt(target3).InsertObj(new Stone(target3));
         }
     }
 }

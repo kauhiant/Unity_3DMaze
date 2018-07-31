@@ -5,30 +5,35 @@ using System.Text;
 
 namespace Maze
 {
-    public class Iterator {
+    public class Iterator
+    {
+        private int extra;
 
-        Point2D iter;
-        int extra;
-
-        int countX = 0;
-        int countY = 0;
-
-        public Point2D Iter { get { return iter.Copy(); } }
+        public Point2D Iter { get; private set; }
+        public int Size
+        {
+            get
+            {
+                return (int)Math.Pow(extra * 2 + 1, 2);
+            }
+        }
 
         public Iterator(Point2D center, int extra)
         {
             this.extra = extra;
-            this.iter = center.Copy();
-            this.iter.MoveFor(Vector2D.Left, extra);
-            this.iter.MoveFor(Vector2D.Down, extra);
+            this.Iter = center.Copy();
+            this.Iter.MoveFor(Vector2D.Left, extra);
+            this.Iter.MoveFor(Vector2D.Down, extra);
         }
         
+        private int countX = 0;
+        private int countY = 0;
         public bool MoveToNext()
             {
                 if (countX == extra * 2)
                 {
-                    iter.MoveFor(Vector2D.Left, countX);
-                    iter.MoveFor(Vector2D.Up, 1);
+                    Iter.MoveFor(Vector2D.Left, countX);
+                    Iter.MoveFor(Vector2D.Up, 1);
                     countX = 0;
                     ++countY;
 
@@ -41,16 +46,11 @@ namespace Maze
                 }
 
 
-                iter.MoveFor(Vector2D.Right,1);
+                Iter.MoveFor(Vector2D.Right,1);
                 ++countX;
                 return true;
             }
-
-        public int size()
-        {
-            return (int)Math.Pow(extra * 2 + 1, 2);
-        }
-
+        
     }    
     
 }

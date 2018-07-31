@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Maze\Animal.cs" />
+    <Compile Include="Assets\Maze\Attackable.cs" />
     <Compile Include="Assets\Maze\Creater.cs" />
     <Compile Include="Assets\Maze\EnergyBar.cs" />
     <Compile Include="Assets\Maze\Enum.cs" />

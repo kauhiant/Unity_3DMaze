@@ -5,57 +5,61 @@ using System.Text;
 
 namespace Maze
 {
+    // binded : (X,Y,Z) 
+    // dimention : ( x,y )
+    // X         : ( Y,Z )
+    // Y         : ( Z,X )
+    // Z         : ( X,Y )
     public class Point2D
     {
-        public Point3D   binded;
-        public Dimention dimen;
-        public Int       x, y;
+        public Int X { get; private set; }
+        public Int Y { get; private set; }
+        public Point3D Binded { get; private set; }
+        public Dimention Dimention { get; private set; }
 
-        public Plain plain { get { return new Plain(binded, dimen); } }
+        public Plain Plain{
+            get{
+                return new Plain(Binded, Dimention);
+            }
+        }
 
-        public Point2D(Point3D binded, Dimention dimen)
+
+        public Point2D(Point3D binded, Dimention dimention)
         {
-            this.Bind(binded, dimen);
+            this.Bind(binded, dimention);
         }
 
         public Point2D Copy()
         {
-            return new Point2D(binded.Copy(), dimen);
-        }
-
-        public void Bind(Point3D binded)
-        {
-            this.Bind(binded, this.dimen);
-        }
-
-        public void Bind(Point3D binded, Dimention dimen)
-        {
-            this.binded = binded;
-            this.ChangePlain(dimen);
+            return new Point2D(Binded.Copy(), Dimention);
         }
         
-        // X : ( Y,Z )
-        // Y : ( Z,X )
-        // Z : ( X,Y )
-        public void ChangePlain(Dimention dimen)
-        {
-            this.dimen = dimen;
 
-            switch (dimen)
+        public void Bind(Point3D binded, Dimention dimention)
+        {
+            this.Binded = binded;
+            this.ChangePlain(dimention);
+        }
+        
+        public void ChangePlain(Dimention dimention)
+        {
+            this.Dimention = dimention;
+
+            switch (dimention)
             {
                 case Dimention.X:
-                    this.x = binded.y;
-                    this.y = binded.z;
+                    this.X = Binded.Y;
+                    this.Y = Binded.Z;
                     break;
 
                 case Dimention.Y:
-                    this.x = binded.z;
-                    this.y = binded.x;
+                    this.X = Binded.Z;
+                    this.Y = Binded.X;
                     break;
 
                 case Dimention.Z:
-                    this.x = binded.x;
-                    this.y = binded.y;
+                    this.X = Binded.X;
+                    this.Y = Binded.Y;
                     break;
             }
         }
@@ -65,38 +69,43 @@ namespace Maze
             switch (vector)
             {
                 case Vector2D.Up:
-                    this.y.Add(1 * distance);
+                    this.Y.Add(1 * distance);
                     break;
 
                 case Vector2D.Down:
-                    this.y.Add(-1 * distance);
+                    this.Y.Add(-1 * distance);
                     break;
 
                 case Vector2D.Left:
-                    this.x.Add(-1 * distance);
+                    this.X.Add(-1 * distance);
                     break;
 
                 case Vector2D.Right:
-                    this.x.Add(1 * distance);
+                    this.X.Add(1 * distance);
                     break;
             }
         }
 
-        public bool isOnPlain(Plain plain)
+        /// <summary>
+        /// is this.binded on the plain ?
+        /// </summary>
+        /// <param name="plain"></param>
+        /// <returns></returns>
+        public bool IsOnPlain(Plain plain)
         {
-            return this.binded.isOnPlain(plain);
+            return this.Binded.IsOnPlain(plain);
         }
 
-        public override bool Equals(object obj)
+        public bool Equals(Point2D point)
         {
-            if (!(obj is Point2D)) return false;
-            Point2D point = (Point2D)obj;
-            return (point.x.value == this.x.value && point.y.value == this.y.value);
+            return (point.X.value == this.X.value 
+                 && point.Y.value == this.Y.value);
         }
+
 
         public override string ToString()
         {
-            return string.Format("{0},{1}", x.value, y.value);
+            return string.Format("({0},{1})", X.value, Y.value);
         }
     }
 }

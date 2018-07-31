@@ -7,23 +7,16 @@ namespace Maze
 {
     public class Map2D
     {
-        public Map3D binded;
+        public Map3D Binded { get; private set; }
 
         public Map2D(Map3D binded)
         {
-            this.binded = binded;
+            this.Binded = binded;
         }
 
         public Grid GetAt(Point2D position)
         {
-            return binded.GetAt(position.binded);
+            return Binded.GetAt(position.Binded);
         }
-
-        public Grid GetAt(Point3D position)
-        {
-            return this.binded.GetAt(position);
-        }
-        
-
     }
 }

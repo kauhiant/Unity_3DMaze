@@ -7,36 +7,40 @@ namespace Maze
 {
     public class Plain
     {
-        public Dimention dimen;
-        public int value;
+        public Dimention Dimention { get; private set; }
+        public int Value { get; private set; }
 
-        public Plain(Point3D point, Dimention dimen)
+
+        public Plain(Point3D point, Dimention dimention)
         {
-            this.dimen = dimen;
-            switch (dimen)
+            this.Dimention = dimention;
+            switch (dimention)
             {
                 case Dimention.X:
-                    this.value = point.x.value;
+                    this.Value = point.X.value;
                     break;
 
                 case Dimention.Y:
-                    this.value = point.y.value;
+                    this.Value = point.Y.value;
                     break;
 
                 case Dimention.Z:
-                    this.value = point.z.value;
+                    this.Value = point.Z.value;
                     break;
             }
         }
 
+
         public bool IsEqual(Plain plain)
         {
-            return this.dimen == plain.dimen && this.value == plain.value;
+            return this.Dimention == plain.Dimention
+                && this.Value == plain.Value;
         }
+        
 
         public Vector2D Vector3To2(Vector3D vector)
         {
-            switch (dimen)
+            switch (Dimention)
             {
                 case Dimention.X:
                     switch (vector)
@@ -48,6 +52,7 @@ namespace Maze
                         case Vector3D.Zp: return Vector2D.Up;
                         case Vector3D.Zn: return Vector2D.Down;
                     }break;
+
                 case Dimention.Y:
                     switch (vector)
                     {
@@ -58,6 +63,7 @@ namespace Maze
                         case Vector3D.Zp: return Vector2D.Right;
                         case Vector3D.Zn: return Vector2D.Left;
                     }break;
+
                 case Dimention.Z:
                     switch (vector)
                     {
@@ -74,7 +80,7 @@ namespace Maze
 
         public Vector3D Vector2To3(Vector2D vector)
         {
-            switch (dimen)
+            switch (Dimention)
             {
                 case Dimention.X:
                     switch (vector)
@@ -86,6 +92,7 @@ namespace Maze
                         case Vector2D.In:    return Vector3D.Xn;
                         case Vector2D.Out:   return Vector3D.Xp;
                     }break;
+
                 case Dimention.Y:
                     switch (vector)
                     {
@@ -96,6 +103,7 @@ namespace Maze
                         case Vector2D.In:    return Vector3D.Yn;
                         case Vector2D.Out:   return Vector3D.Yp;
                     }break;
+
                 case Dimention.Z:
                     switch (vector)
                     {

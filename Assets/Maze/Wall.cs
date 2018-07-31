@@ -6,16 +6,16 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Wall : MazeObject
+    class Wall : MazeObject,Attackable
     {
         public Wall(Point3D position) : base(position)
         {
 
         }
 
-        public void beAttack()
+        public void BeAttack(Animal animal)
         {
-            GlobalAsset.map.GetAt(this.position).obj = null;
+            GlobalAsset.map.GetAt(this.position).RemoveObj();
             RegisterEvent(ObjEvent.Destroy);
         }
 

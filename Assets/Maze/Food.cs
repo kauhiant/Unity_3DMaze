@@ -8,11 +8,11 @@ namespace Maze
 {
     class Food:MazeObject
     {
-        public int nutrient;
+        public int Nutrient { get; private set; }
 
         public Food(Point3D position, int nutrient):base(position)
         {
-            this.nutrient = nutrient;
+            this.Nutrient = nutrient;
         }
 
         public override Sprite Shape()

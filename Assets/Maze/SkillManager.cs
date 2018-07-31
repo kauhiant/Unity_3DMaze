@@ -54,7 +54,7 @@ namespace Maze
 
         public static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
         {
-            if (!userPosition.isOnPlain(GlobalAsset.player.plain))
+            if (!userPosition.IsOnPlain(GlobalAsset.player.plain))
                 return;
 
             switch (skill)
@@ -96,7 +96,7 @@ namespace Maze
 
         private static Vector2 convert(Point2D point)
         {
-            return new Vector2(point.x.value, point.y.value);
+            return new Vector2(point.X.value, point.Y.value);
         }
 
         private static Vector2 convert(Vector2D vector)

@@ -17,7 +17,6 @@ namespace Maze
         Up, Down, Left, Right, In, Out, Null
     }
 
-
     // X,Y,Z 三個軸.
     // p : 正向.
     // n : 負向.

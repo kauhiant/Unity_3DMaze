@@ -10,24 +10,23 @@ namespace Maze
     {
         private Sprite[] eachVector;
 
+        /// <summary>
+        /// sprites.index: right, down, left, up, in, out
+        /// </summary>
+        /// <param name="sprites"></param>
         public Shape(Sprite[] sprites)
         {
             eachVector = new Sprite[6];
-            SetShapeAt(Vector2D.Right, sprites[0]);
-            SetShapeAt(Vector2D.Down, sprites[1]);
-            SetShapeAt(Vector2D.Left, sprites[2]);
-            SetShapeAt(Vector2D.Up, sprites[3]);
-            SetShapeAt(Vector2D.In, sprites[4]);
-            SetShapeAt(Vector2D.Out, sprites[5]);
+            SetAt(Vector2D.Right, sprites[0]);
+            SetAt(Vector2D.Down, sprites[1]);
+            SetAt(Vector2D.Left, sprites[2]);
+            SetAt(Vector2D.Up, sprites[3]);
+            SetAt(Vector2D.In, sprites[4]);
+            SetAt(Vector2D.Out, sprites[5]);
         }
 
-        public Shape Copy()
-        {
-            Shape temp = new Shape(eachVector);
-            return temp;
-        }
 
-        public void SetShapeAt(Vector2D vector, Sprite sprite)
+        public void SetAt(Vector2D vector, Sprite sprite)
         {
             switch (vector)
             {
@@ -51,7 +50,7 @@ namespace Maze
             }
         }
 
-        public Sprite At(Vector2D vector)
+        public Sprite GetAt(Vector2D vector)
         {
             switch (vector)
             {
