@@ -134,8 +134,8 @@ namespace Maze
 
             targetPosition.MoveFor(this.vector, 1);
             Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+
             if (targetGrid == null) return;
-            
             if (targetGrid.Obj == null) return;
 
             if (targetGrid.Obj is Animal)
@@ -160,13 +160,19 @@ namespace Maze
             {
                 targetPosition.MoveFor(this.vector, 1);
                 Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+
                 if (targetGrid == null) return;
-                
                 if (targetGrid.Obj == null) continue;
+
                 if(targetGrid.Obj is Animal){
                     Animal target = (Animal)targetGrid.Obj;
                     if(!target.color.Equals(this.color))
                         target.BeAttack(this);
+                }
+                else if (targetGrid.Obj is Wall)
+                {
+                    Wall wall = (Wall)targetGrid.Obj;
+                    wall.BeAttack(this);
                 }
             }
         }
@@ -189,15 +195,21 @@ namespace Maze
             for(int i=0; i<3; ++i)
             {
                 targetPosition.MoveFor(targetVector, 1);
-
                 Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.Binded);
+
                 if (targetGrid == null) continue;
                 if (targetGrid.Obj == null) continue;
+
                 if (targetGrid.Obj is Animal)
                 {
                     Animal target = (Animal)targetGrid.Obj;
                     if (!target.color.Equals(this.color))
                         target.BeAttack(this);
+                }
+                else if (targetGrid.Obj is Wall)
+                {
+                    Wall wall = (Wall)targetGrid.Obj;
+                    wall.BeAttack(this);
                 }
             }
 
@@ -260,7 +272,7 @@ namespace Maze
             {
                 if (targetGrid.Obj is Food)
                 {
-                    eatFood((Food)targetGrid.Obj);
+                    EatFood((Food)targetGrid.Obj);
                     targetGrid.Obj.RegisterEvent(ObjEvent.Destroy);
                     targetGrid.RemoveObj();
                 }
@@ -277,7 +289,7 @@ namespace Maze
             this.posit.ChangePlain(dimen);
         }
 
-        private void eatFood(Food food)
+        private void EatFood(Food food)
         {
             this.hp.Add(food.Nutrient);
         }
