@@ -30,7 +30,7 @@ namespace Maze
             this.level = 0;
             this.energy = new EnergyBar(200);
             this.consume = 50;
-            this.rate = 0.02f;
+            this.rate = 0.05f;
 
             levelUp();
         }

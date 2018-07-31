@@ -28,6 +28,8 @@ public class MapManager : MonoBehaviour {
 
     private Maze.MapManager manager;
 
+    private bool isAuto = false;
+
 	// Use this for initialization
 	void Start () {
         GlobalAsset.gridSprite = grid;
@@ -57,7 +59,7 @@ public class MapManager : MonoBehaviour {
 
         for(int i = 0; i< 50; ++i)
         {
-            Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(1);
+            Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(i%3);
             Maze.Animal animal = new Maze.Animal(point, RandomColor(), 10);
             if (GlobalAsset.map.InsertAt(point,animal))
                 GlobalAsset.animals.Add(animal);
@@ -111,6 +113,10 @@ public class MapManager : MonoBehaviour {
         {
             command = Command.Wall;
         }
+        else if (Input.GetKey(KeyCode.Space))
+        {
+            SwitchAuto();
+        }
         
         
         Clock();
@@ -129,59 +135,29 @@ public class MapManager : MonoBehaviour {
         time = 0;
 
         Maze.SkillManager.clear();
-
-        switch (command)
-        {
-            case Command.Up:
-                player.MoveFor(Maze.Vector2D.Up);
-                break;
-
-            case Command.Down:
-                player.MoveFor(Maze.Vector2D.Down);
-                break;
-
-            case Command.Left:
-                player.MoveFor(Maze.Vector2D.Left);
-                break;
-
-            case Command.Right:
-                player.MoveFor(Maze.Vector2D.Right);
-                break;
-
-            case Command.Plain:
-                player.ChangePlain();
-                manager.ChangePlain();
-                break;
-
-            case Command.Attack:
-                player.Attack();
-                break;
-
-            case Command.Straight:
-                player.Straight();
-                break;
-
-            case Command.Horizon:
-                player.Horizon();
-                break;
-
-            case Command.Wall:
-                player.Build();
-                break;
-        }
-        command = Command.None;
+        
         
         for(int i=0; i< GlobalAsset.animals.Count; ++i)
         {
             Maze.Animal each = GlobalAsset.animals[i];
+
             if (each.isDead)
             {
                 GlobalAsset.animals.RemoveAt(i);
                 --i;
                 continue;
             }
-            if(each != player)
+
+            if (each == player)
+            {
+                if(isAuto)
+                    each.Auto(10);
+                else
+                    PlayerAction();
+            }
+            else
                 each.Auto(10);
+            
         }
 
         for(int i=0; i<GlobalAsset.creaters.Count; ++i)
@@ -242,6 +218,63 @@ public class MapManager : MonoBehaviour {
         }
     }
     
+
+    private void SwitchAuto()
+    {
+        if (isAuto)
+        {
+            isAuto = !isAuto;
+            command = Command.None;
+        }
+        else
+        {
+            isAuto = !isAuto;
+        }
+    }
+
+    private void PlayerAction()
+    {
+        switch (command)
+        {
+            case Command.Up:
+                player.MoveFor(Maze.Vector2D.Up);
+                break;
+
+            case Command.Down:
+                player.MoveFor(Maze.Vector2D.Down);
+                break;
+
+            case Command.Left:
+                player.MoveFor(Maze.Vector2D.Left);
+                break;
+
+            case Command.Right:
+                player.MoveFor(Maze.Vector2D.Right);
+                break;
+
+            case Command.Plain:
+                player.ChangePlain();
+                manager.ChangePlain();
+                break;
+
+            case Command.Attack:
+                player.Attack();
+                break;
+
+            case Command.Straight:
+                player.Straight();
+                break;
+
+            case Command.Horizon:
+                player.Horizon();
+                break;
+
+            case Command.Wall:
+                player.Build();
+                break;
+        }
+        command = Command.None;
+    }
 
     enum Command
     {
