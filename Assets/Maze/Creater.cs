@@ -123,12 +123,10 @@ namespace Maze
                 energy.Add(-consume);
                 SkillManager.showSkill(Skill.create, new Point2D(position, GlobalAsset.player.plain.Dimention), Vector2D.Right);
                 GlobalAsset.animals.Add((Animal)grid.Obj);
+                return (Animal)grid.Obj;
             }
 
-            if (grid.Obj != null)
-                return (Animal)grid.Obj;
-            else
-                return null;
+            return null;
         }
 
         private void updateForObj(MazeObject obj)
