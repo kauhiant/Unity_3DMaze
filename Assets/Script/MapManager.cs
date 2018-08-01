@@ -2,9 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour {
     public GameObject camera;
+    public GameObject UI_HP;
+    public GameObject UI_EP;
+    public GameObject UI_Hungry;
 
     public float clockTime = 0.3f;
 
@@ -134,6 +138,7 @@ public class MapManager : MonoBehaviour {
         clockLock = true;
         time = 0;
 
+
         Maze.SkillManager.clear();
         
         
@@ -148,16 +153,19 @@ public class MapManager : MonoBehaviour {
                 continue;
             }
 
+
             if (each == player)
             {
-                if(isAuto)
-                    each.Clock();
+                if (isAuto)
+                    each.Auto();
                 else
                     PlayerAction();
             }
             else
-                each.Clock();
+                each.Auto();
+
             
+            each.Clock();
         }
 
         for(int i=0; i<GlobalAsset.creaters.Count; ++i)
@@ -172,7 +180,9 @@ public class MapManager : MonoBehaviour {
         }
         
         manager.UpdateScene();
-        
+
+        UpdataUI();
+
         clockLock = false;
     }
 
@@ -274,6 +284,13 @@ public class MapManager : MonoBehaviour {
                 break;
         }
         command = Command.None;
+    }
+
+    private void UpdataUI()
+    {
+        UI_HP.GetComponent<Slider>().value = GlobalAsset.player.hp.BarRate;
+        UI_EP.GetComponent<Slider>().value = GlobalAsset.player.ep.BarRate;
+        UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
     }
 
     enum Command

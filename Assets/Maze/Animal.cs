@@ -74,6 +74,8 @@ namespace Maze
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
             hp = new EnergyBar(100);
+            ep = new EnergyBar(50);
+            hungry = new EnergyBar(100);
             this.color = hometown.GetColor();
             this.power = power;
             this.hometown = hometown;
@@ -99,58 +101,39 @@ namespace Maze
         {
             ChangePlain(this.forwardDimen);
         }
+        
 
-        /*public void Auto(int arg)
+        public void Auto()
         {
-            int rand = UnityEngine.Random.Range(0, arg);
-            switch (rand)
-            {
-                case 0:
-                    MoveFor(Vector2D.Right);
-                    break;
-
-                case 1:
-                    MoveFor(Vector2D.Down);
-                    break;
-
-                case 2:
-                    MoveFor(Vector2D.Left);
-                    break;
-
-                case 3:
-                    MoveFor(Vector2D.Up);
-                    break;
-
-                case 4:
-                    Attack();
-                    break;
-
-                case 5:
-                    Straight();
-                    break;
-
-                case 6:
-                    Horizon();
-                    break;
-
-                default:
-                    Move();
-                    break;
-            }
-        }*/
+            Survey();
+            Action();
+        }
 
 
         public void Clock()
         {
             if (isDead) return;
+            hungry.Add(-1);
+            if (hungry.BarRate < 0.3f)
+                hp.Add(-1);
+            else
+                ep.Add(1);
 
-            Survey();
-            Action();
-
+            if (this.hp.IsZero)
+            {
+                Grid grid = GlobalAsset.map.GetAt(this.position);
+                grid.RemoveObj();
+                grid.InsertObj(new Food(this.position, 100));
+                RegisterEvent(ObjEvent.Destroy);
+            }
         }
 
         public void Attack()
         {
+            ep.Add(-5);
+            if (ep.IsZero)
+                return;
+
             Point3D targetPosition = this.position.Copy();
             SkillManager.showSkill(Skill.attack, PositOnScene, vectorOnScenen);
 
@@ -175,6 +158,10 @@ namespace Maze
 
         public void Straight()
         {
+            ep.Add(-20);
+            if (ep.IsZero)
+                return;
+
             Point3D targetPosition = this.position.Copy();
             SkillManager.showSkill(Skill.straight, this.PositOnScene, this.vectorOnScenen);
 
@@ -201,6 +188,10 @@ namespace Maze
 
         public void Horizon()
         {
+            ep.Add(-20);
+            if (ep.IsZero)
+                return;
+
             Point2D targetPosition = this.posit.Copy();
             Vector2D targetVector = this.Vect;
 
@@ -239,6 +230,10 @@ namespace Maze
 
         public void Build()
         {
+            ep.Add(-10);
+            if (ep.IsZero)
+                return;
+
             Point3D targetPosition = this.position.Copy();
 
             targetPosition.MoveFor(this.vector, 1);
@@ -314,6 +309,8 @@ namespace Maze
         private void EatFood(Food food)
         {
             this.hp.Add(food.Nutrient);
+            this.ep.Add(food.Nutrient);
+            this.hungry.Add(food.Nutrient);
         }
 
 
