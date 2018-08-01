@@ -52,5 +52,44 @@ namespace Maze
             }
         
     }    
+
+    public class Range2D
+    {
+        public Point2D Center { get; private set; }
+        public int XWidth { get; private set; }
+        public int YWidth { get; private set; }
+
+        public Range2D(Point2D center, int xWidth, int yWidth)
+        {
+            this.Center = center;
+            this.XWidth = xWidth;
+            this.YWidth = yWidth;
+        }
+
+        /// <summary>
+        /// width,depth have to be odd number.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="vector"></param>
+        /// <param name="width"></param>
+        /// <param name="depth"></param>
+        public Range2D(Point2D start, Vector2D vector, int width, int depth)
+        {
+            this.Center = start;
+            this.Center.MoveFor(vector, depth / 2);
+
+            if(vector == Vector2D.Up || vector == Vector2D.Down)
+            {
+                this.XWidth = width;
+                this.YWidth = depth;
+            }
+            else
+            {
+                this.XWidth = depth;
+                this.YWidth = width;
+            }
+        }
+
+    }
     
 }

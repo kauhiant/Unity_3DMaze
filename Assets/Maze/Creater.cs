@@ -118,7 +118,7 @@ namespace Maze
             Grid grid = GlobalAsset.map.GetAt(position);
             if (grid == null) return null;
 
-            if(grid.InsertObj(new Animal(position, this.color, 10)))
+            if(grid.InsertObj(new Animal(position, this, 10)))
             {
                 energy.Add(-consume);
                 SkillManager.showSkill(Skill.create, new Point2D(position, GlobalAsset.player.plain.Dimention), Vector2D.Right);

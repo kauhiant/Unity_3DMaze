@@ -83,6 +83,17 @@ namespace Maze
             }
         }
 
+        public bool IsOnRange(Range2D range)
+        {
+            Point2D point = new Point2D(this, range.Center.Plain.Dimention);
+
+            if (!point.IsOnPlain(range.Center.Plain))
+                return false;
+
+            return Math.Abs(point.X.value - range.Center.X.value) <= range.XWidth / 2
+                && Math.Abs(point.Y.value - range.Center.Y.value) <= range.YWidth / 2;
+        }
+
         public bool Equals(Point3D point)
         {
             return (this.X.value == point.X.value &&

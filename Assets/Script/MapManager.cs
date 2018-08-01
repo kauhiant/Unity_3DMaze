@@ -60,7 +60,7 @@ public class MapManager : MonoBehaviour {
         for(int i = 0; i< 50; ++i)
         {
             Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(i%3);
-            Maze.Animal animal = new Maze.Animal(point, RandomColor(), 10);
+            Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i%GlobalAsset.creaters.Count], 10);
             if (GlobalAsset.map.InsertAt(point,animal))
                 GlobalAsset.animals.Add(animal);
         }
@@ -151,12 +151,12 @@ public class MapManager : MonoBehaviour {
             if (each == player)
             {
                 if(isAuto)
-                    each.Auto(10);
+                    each.Clock();
                 else
                     PlayerAction();
             }
             else
-                each.Auto(10);
+                each.Clock();
             
         }
 

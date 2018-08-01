@@ -96,6 +96,24 @@ namespace Maze
             return this.Binded.IsOnPlain(plain);
         }
 
+        /// <summary>
+        /// return far distance on Plain
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public int DistanceTo(Point3D point)
+        {
+            if (!point.IsOnPlain(this.Plain))
+                return int.MaxValue;
+
+            Point2D pointOnSamePlain = new Point2D(point.Copy(), this.Plain.Dimention);
+
+            int xDist = Math.Abs(this.X.value - pointOnSamePlain.X.value);
+            int yDist = Math.Abs(this.Y.value - pointOnSamePlain.Y.value);
+
+            return (xDist > yDist) ? xDist : yDist;
+        }
+
         public bool Equals(Point2D point)
         {
             return (point.X.value == this.X.value 
