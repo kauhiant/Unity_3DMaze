@@ -6,14 +6,15 @@ using UnityEngine;
 
 namespace Maze
 {
-    public class Creater : Stone
+    public class Creater : MazeObject
     {
         private Point2D posit;
         private Color color;
         private int level;
         private EnergyBar energy;
         private int consume;
-        private float rate;
+        private float rateOdAnimal;
+        private float rateOfFood;
 
         public override Color GetColor() { return color; }
         public override Vector2 GetScale()
@@ -29,10 +30,11 @@ namespace Maze
             this.color = color;
             this.level = 0;
             this.energy = new EnergyBar(200);
-            this.consume = 50;
-            this.rate = 0.05f;
+            this.consume = 40;
+            this.rateOdAnimal = 0.05f;
+            this.rateOfFood = 0.1f;
 
-            levelUp();
+            LevelUp();
         }
 
         public override Sprite GetSprite()
@@ -40,22 +42,26 @@ namespace Maze
             return GlobalAsset.createrSprite;
         }
 
-        public bool isDead()
+        public bool IsDead()
         {
             return energy.IsZero;
         }
 
-        public Animal update()
+        public Animal Clock()
         {
-            if (isDead()) return null;
+            if (IsDead()) return null;
             energy.Add(-1);
 
             Iterator iter = new Iterator(this.posit, this.level+1);
 
-            int createIndex = -1;
+            int createAnimalIndex = -1;
             Animal animal = null;
-            if (UnityEngine.Random.value < rate)
-                createIndex = UnityEngine.Random.Range(0, iter.Size);
+            if (UnityEngine.Random.value < rateOdAnimal)
+                createAnimalIndex = UnityEngine.Random.Range(0, iter.Size);
+
+            int createFoodIndex = -1;
+            if (UnityEngine.Random.value < rateOfFood)
+                createFoodIndex = UnityEngine.Random.Range(0, iter.Size);
 
             do
             {
@@ -63,17 +69,20 @@ namespace Maze
                 Grid grid = GlobalAsset.map.GetAt(point.Binded);
 
                 if(grid != null)
-                    updateForObj(grid.Obj);
+                    updateByObj(grid.Obj);
 
-                if (createIndex-- == 0)
+                if (createAnimalIndex-- == 0)
                     animal = CreateAnimal(point.Binded.Copy());
+
+                if (createFoodIndex-- == 0)
+                    CreateFood(point.Binded.Copy(), 1);
 
             } while (iter.MoveToNext());
             
             if (energy.IsFull)
-                levelUp();
+                LevelUp();
 
-            if (isDead())
+            if (IsDead())
                 destroy();
 
             return animal;
@@ -81,12 +90,11 @@ namespace Maze
 
 
 
-        private void levelUp()
+        private void LevelUp()
         {
             if (level == 10) return;
             ++level;
             energy.MaxExpand(energy.Value);
-            Debug.Log("level up " + color.ToString());
             RegisterEvent(ObjEvent.Grow);
 
             Iterator iter = new Iterator(this.posit, this.level + 1);
@@ -99,11 +107,16 @@ namespace Maze
                 if (grid == null || grid.Obj == null)
                     continue;
 
-                if (grid.Obj is Stone && !(grid.Obj is Creater))
+                if (grid.Obj is Stone)
                 {
                     grid.Obj.RegisterEvent(ObjEvent.Destroy);
                     grid.RemoveObj();
-                    Debug.Log("destroy stone");
+                }
+                else if(grid.Obj is Animal)
+                {
+                    Animal animal = (Animal)grid.Obj;
+                    if ((animal.Color.Equals(this.color)))
+                        animal.ChangeHomeTown(this);
                 }
 
 
@@ -118,7 +131,7 @@ namespace Maze
             Grid grid = GlobalAsset.map.GetAt(position);
             if (grid == null) return null;
 
-            if(grid.InsertObj(new Animal(position, this, 10)))
+            if(grid.InsertObj(new Animal(position, this, 20)))
             {
                 energy.Add(-consume);
                 SkillManager.showSkill(Skill.create, new Point2D(position, GlobalAsset.player.plain.Dimention), Vector2D.Right);
@@ -129,14 +142,27 @@ namespace Maze
             return null;
         }
 
-        private void updateForObj(MazeObject obj)
+        private void CreateFood(Point3D position, int nutrientBase)
+        {
+            if (energy.Value < consume * (level + 1)) return;
+
+            Grid grid = GlobalAsset.map.GetAt(position);
+            if (grid == null) return;
+
+            if (grid.InsertObj(new Food(position, nutrientBase*20)))
+            {
+                energy.Add(-nutrientBase);
+            }
+        }
+
+        private void updateByObj(MazeObject obj)
         {
             if (obj == null || obj == this) return;
 
             if(obj is Animal)
             {
                 Animal animal = (Animal)obj;
-                if (animal.color.Equals(this.color))
+                if (animal.Color.Equals(this.color))
                     energy.Add(1);
                 else
                     energy.Add(-1);
@@ -164,8 +190,6 @@ namespace Maze
         {
             GlobalAsset.map.GetAt(this.position).RemoveObj();
             this.RegisterEvent(ObjEvent.Destroy);
-            if (color.Equals(GlobalAsset.player.color))
-                Debug.Log("create destroy");
         }
     }
 }

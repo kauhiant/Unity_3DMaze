@@ -17,7 +17,7 @@ namespace Maze
 
         public override Sprite GetSprite()
         {
-            return GlobalAsset.food;
+            return GlobalAsset.foodSprite;
         }
     }
 }

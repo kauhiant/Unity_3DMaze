@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour {
+
     public GameObject camera;
     public GameObject UI_HP;
     public GameObject UI_EP;
@@ -12,17 +13,21 @@ public class MapManager : MonoBehaviour {
 
     public float clockTime = 0.3f;
 
+    /// <summary>
+    /// 6 : right, down, left, up, in, out.
+    /// </summary>
     public Sprite[] animalShapes = new Sprite[6];
 
     public Sprite attack;
     public Sprite straight;
     public Sprite horizon;
-    public Sprite createSprite;
-    public Sprite food;
-    public Sprite grid;
-    public Sprite stone;
-    public Sprite wall;
+    public Sprite create;
+
+    public Sprite gridSprite;
+    public Sprite stoneSprite;
     public Sprite createrSprite;
+    public Sprite foodSprite;
+    public Sprite wallSprite;
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
@@ -36,17 +41,19 @@ public class MapManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        GlobalAsset.gridSprite = grid;
-        GlobalAsset.stoneSprite = stone;
+
         GlobalAsset.animalShape = new Maze.Shape(animalShapes);
 
         GlobalAsset.attack = attack;
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
-        GlobalAsset.create = createSprite;
-        GlobalAsset.food = food;
-        GlobalAsset.wall = wall;
+        GlobalAsset.create = create;
+
+        GlobalAsset.gridSprite = gridSprite;
+        GlobalAsset.stoneSprite = stoneSprite;
         GlobalAsset.createrSprite = createrSprite;
+        GlobalAsset.foodSprite = foodSprite;
+        GlobalAsset.wallSprite = wallSprite;
 
         gameMap = new Maze.Map3D(31, 20, 3);
         sceneMap = new Maze.Map2D(gameMap);
@@ -61,12 +68,16 @@ public class MapManager : MonoBehaviour {
                 GlobalAsset.creaters.Add(creater);
         }
 
-        for(int i = 0; i< 50; ++i)
+        
+        for(int layer=0; layer<3; ++layer)
         {
-            Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(i%3);
-            Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i%GlobalAsset.creaters.Count], 10);
-            if (GlobalAsset.map.InsertAt(point,animal))
-                GlobalAsset.animals.Add(animal);
+            for (int i = 0; i < 50; ++i)
+            {
+                Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(layer);
+                Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i % GlobalAsset.creaters.Count], 20);
+                if (GlobalAsset.map.InsertAt(point, animal))
+                    GlobalAsset.animals.Add(animal);
+            }
         }
 
 
@@ -170,17 +181,17 @@ public class MapManager : MonoBehaviour {
 
         for(int i=0; i<GlobalAsset.creaters.Count; ++i)
         {
-            if (GlobalAsset.creaters[i].isDead())
+            if (GlobalAsset.creaters[i].IsDead())
             {
                 GlobalAsset.creaters.RemoveAt(i);
                 --i;
                 continue;
             }
-            GlobalAsset.creaters[i].update();
+            GlobalAsset.creaters[i].Clock();
         }
         
         manager.UpdateScene();
-
+        gameMap.Clock();
         UpdataUI();
 
         clockLock = false;

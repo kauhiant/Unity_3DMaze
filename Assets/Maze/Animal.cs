@@ -15,15 +15,16 @@ namespace Maze
         }
         private Command command = Command.None;
         private Creater hometown = null;
-        private Animal leader = null;
+        private Animal friend = null;
         private int patrolDist = 0;
         private int followDist = 0;
+        private float leaveHomeRate = 0.03f;
 
 
         private Point2D posit;
         private Vector2D Vect
         { get { return this.plain.Vector3To2(vector); } }
-        public Color color;
+        public Color Color { get; private set; }
 
         public Vector3D vector;
         public EnergyBar hp;
@@ -65,7 +66,7 @@ namespace Maze
         public override Color GetColor()
         {
             float a = hp.Value / (hp.Max * 2f) + 0.5f;
-            return new Color(color.r, color.g, color.b, a);
+            return new Color(Color.r, Color.g, Color.b, a);
         }
 
 
@@ -73,10 +74,10 @@ namespace Maze
         {
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
-            hp = new EnergyBar(100);
-            ep = new EnergyBar(50);
-            hungry = new EnergyBar(100);
-            this.color = hometown.GetColor();
+            hp = new EnergyBar(200);
+            ep = new EnergyBar(100);
+            hungry = new EnergyBar(200);
+            this.Color = hometown.GetColor();
             this.power = power;
             this.hometown = hometown;
             this.patrolDist = hometown.GetLevel() + 1;
@@ -87,29 +88,23 @@ namespace Maze
             return GlobalAsset.animalShape.GetAt(this.vectorOnScenen);
         }
 
-
-
-        public void MoveFor(Vector2D vector)
+        public void ChangeHomeTown(Creater creater)
         {
-            if (this.Vect == vector)
-                Move();
-            else
-                TurnTo(vector);
+            if (creater.GetColor().Equals(this.Color))
+                this.hometown = creater;
         }
 
-        public void ChangePlain()
-        {
-            ChangePlain(this.forwardDimen);
-        }
         
 
+        /// <summary>
+        /// after Clock()
+        /// </summary>
         public void Auto()
         {
             Survey();
             Action();
         }
-
-
+        
         public void Clock()
         {
             if (isDead) return;
@@ -126,6 +121,29 @@ namespace Maze
                 grid.InsertObj(new Food(this.position, 100));
                 RegisterEvent(ObjEvent.Destroy);
             }
+
+            if (UnityEngine.Random.value < leaveHomeRate)
+                ++patrolDist;
+
+            if (patrolDist > 10)
+                hometown = null;
+
+            FindNewHome();
+        }
+
+
+
+        public void MoveFor(Vector2D vector)
+        {
+            if (this.Vect == vector)
+                Move();
+            else
+                TurnTo(vector);
+        }
+        
+        public void ChangePlain()
+        {
+            ChangePlain(this.forwardDimen);
         }
 
         public void Attack()
@@ -146,7 +164,7 @@ namespace Maze
             if (targetGrid.Obj is Animal)
             {
                 Animal enemy = (Animal)(targetGrid.Obj);
-                if (!enemy.color.Equals(this.color))
+                if (!enemy.Color.Equals(this.Color))
                     enemy.BeAttack(this);
             }
             else if(targetGrid.Obj is Wall)
@@ -175,7 +193,7 @@ namespace Maze
 
                 if(targetGrid.Obj is Animal){
                     Animal target = (Animal)targetGrid.Obj;
-                    if(!target.color.Equals(this.color))
+                    if(!target.Color.Equals(this.Color))
                         target.BeAttack(this);
                 }
                 else if (targetGrid.Obj is Wall)
@@ -216,7 +234,7 @@ namespace Maze
                 if (targetGrid.Obj is Animal)
                 {
                     Animal target = (Animal)targetGrid.Obj;
-                    if (!target.color.Equals(this.color))
+                    if (!target.Color.Equals(this.Color))
                         target.BeAttack(this);
                 }
                 else if (targetGrid.Obj is Wall)
@@ -256,7 +274,7 @@ namespace Maze
             {
                 Grid grid = GlobalAsset.map.GetAt(this.position);
                 grid.RemoveObj();
-                grid.InsertObj(new Food(this.position, 100));
+                grid.InsertObj(new Food(this.position, (int)((hp.Max+ep.Max)*(hungry.BarRate+0.1f))));
                 RegisterEvent(ObjEvent.Destroy);
             }
         }
@@ -319,6 +337,7 @@ namespace Maze
         private void Survey()
         {
             Iterator iter = new Iterator(this.posit, 3);
+            Animal animal = null;
 
             do
             {
@@ -328,19 +347,30 @@ namespace Maze
                 if (grid == null || grid.Obj == null)
                     continue;
 
-                if(grid.Obj is Food)
+                /*if(grid.Obj is Food)
                 {
                     FeedOn((Food)grid.Obj);
                     return;
-                }
+                }*/
 
                 if (grid.Obj is Animal)
                 {
-                    if (((Animal)(grid.Obj)).color.Equals(this.color))
-                        continue;
+                    if (((Animal)(grid.Obj)).Color.Equals(this.Color))
+                        animal = (Animal)grid.Obj;
+                    else if(ep.BarRate > 0.3f)
+                    {
+                        Battle((Animal)grid.Obj);
+                        return;
+                    }
+                }
 
-                    Battle((Animal)grid.Obj);
-                    return;
+                if(grid.Obj is Creater)
+                {
+                    if (this.hometown == null && grid.Obj.GetColor().Equals(this.Color))
+                    {
+                        this.hometown = (Creater)grid.Obj;
+                        this.patrolDist = 3;
+                    }
                 }
 
             } while (iter.MoveToNext());
@@ -350,8 +380,18 @@ namespace Maze
             {
                 Patrol(hometown);
 
-                if (hometown.isDead())
+                if (hometown.IsDead())
                     hometown = null;
+            }
+            else if(friend != null)
+            {
+                Follow();
+            }
+            else if(animal != null)
+            {
+                this.friend = animal;
+                followDist = 3;
+                Follow();
             }
             else
             {
@@ -402,9 +442,78 @@ namespace Maze
             }
             command = Command.None;
         }
+        
 
+        // 招集附近的流浪夥伴一起蓋新家.
+        private void FindNewHome()
+        {
+            if (this.hometown != null)
+                return;
 
+            Point3D position = this.position.Copy();
+            position.MoveFor(this.vector, 1);
 
+            Grid targetGrid = GlobalAsset.map.GetAt(position);
+            if (targetGrid == null || targetGrid.Obj != null) return;
+
+            Point2D positOnPlain = new Point2D(position, Dimention.Z);
+            int stoneCount = 0;
+            int wallCount = 0;
+            int animalCount = 0;
+            bool sameColorOfAllAnimal = true;
+
+            Iterator iter = new Iterator(positOnPlain, 2);
+
+            do
+            {
+                Point2D point = iter.Iter;
+                Grid grid = GlobalAsset.map.GetAt(point.Binded);
+
+                if (grid == null || grid.Obj == null)
+                    continue;
+
+                else if (grid.Obj is Stone)
+                    ++stoneCount;
+
+                else if (grid.Obj is Wall)
+                    ++wallCount;
+
+                else if (grid.Obj is Animal && grid.Obj != this)
+                {
+                    Animal animal = (Animal)grid.Obj;
+
+                    if (animal.Color.Equals(this.Color))
+                    {
+                        if(animal.hometown == null)
+                            ++animalCount;
+                    }
+                    else
+                    {
+                        sameColorOfAllAnimal = false;
+                        break;
+                    }
+                }
+
+                else if (grid.Obj is Creater)
+                {
+                    Creater creater = (Creater)grid.Obj;
+                    this.ChangeHomeTown(creater);
+                    return;
+                }
+                
+            } while (iter.MoveToNext());
+
+            if(sameColorOfAllAnimal && animalCount > 1)
+            {
+                Creater newHome = new Creater(position, this.Color);
+                targetGrid.InsertObj(newHome);
+                this.hometown = newHome;
+                GlobalAsset.creaters.Add(newHome);
+
+                Debug.Log(String.Format("create new home at {0}", newHome.position));
+            }
+        }
+        
         // 在家附近巡邏.不會離太遠.
         private void Patrol(Creater home)
         {
@@ -446,7 +555,7 @@ namespace Maze
         }
 
         // 跟隨某個同伴.
-        private void Follow(Animal friend)
+        private void Follow()
         {
             Point2D temp = this.posit.Copy();
             Vector2D target = RandomVector(10);

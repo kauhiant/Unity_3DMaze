@@ -7,6 +7,7 @@ namespace Maze
     public class Map3D
     {
         private Grid[][][] map;
+        private float createFoodRate = 0.1f;
 
         public int WidthX { get { return map.Length; } }
         public int WidthY { get { return map[0].Length; } }
@@ -87,6 +88,25 @@ namespace Maze
             int y = Random.Range(0, WidthY);
 
             return new Point3D(x,y,layer);
+        }
+
+
+
+        public void Clock()
+        {
+            for(int layer=0; layer<this.Layers; ++layer)
+            {
+                Point3D point = GetRandomPointOn(layer);
+                CreateFoodAt(point);
+            }
+        }
+
+        public void CreateFoodAt(Point3D position)
+        {
+            if (UnityEngine.Random.value > createFoodRate)
+                return;
+
+            InsertAt(position, new Food(position, 100));
         }
         
 

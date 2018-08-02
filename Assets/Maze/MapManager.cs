@@ -369,10 +369,6 @@ namespace Maze
                 if (objPair.obj == Player)
                     this.isMove = true;
             }
-            else
-            {
-                Debug.Log("error: Maze.MapManager.GameObjectMove() -> gameObject is not Animal");
-            }
         }
 
         private void GameObkectMove(GameObject gameObject, Vector2D vector)
