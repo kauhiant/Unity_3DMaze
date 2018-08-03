@@ -82,6 +82,7 @@ public class MapManager : MonoBehaviour {
 
 
         player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
+        player.Strong(10000);
         GlobalAsset.player = player;
         manager = new Maze.MapManager(sceneMap, camera, 8);
 

@@ -8,6 +8,7 @@ namespace Maze
     {
         private Grid[][][] map;
         private float createFoodRate = 0.1f;
+        private float createStoneRate = 0.1f;
 
         public int WidthX { get { return map.Length; } }
         public int WidthY { get { return map[0].Length; } }
@@ -57,10 +58,12 @@ namespace Maze
             return GetAt(position).InsertObj(obj);
         }
 
-        public void RemoveAt(Point3D position)
+        public Grid RemoveAt(Point3D position)
         {
             if (IsInThisMap(position))
-                GetAt(position).RemoveObj();
+                return GetAt(position).RemoveObj();
+            else
+                return null;
         }
 
         // if ghost want to move
@@ -97,19 +100,56 @@ namespace Maze
             for(int layer=0; layer<this.Layers; ++layer)
             {
                 Point3D point = GetRandomPointOn(layer);
-                CreateFoodAt(point);
+                UpdateGridAt(point);
             }
         }
 
-        public void CreateFoodAt(Point3D position)
+        public void UpdateGridAt(Point3D position)
         {
-            if (UnityEngine.Random.value > createFoodRate)
-                return;
+            if (UnityEngine.Random.value < createFoodRate)
+            {
+                InsertAt(position, new Food(position, 100));
+            }
+            else
+            {
+                Grid grid = GetAt(position);
+                if (grid == null) return;
 
-            InsertAt(position, new Food(position, 100));
+                if (grid.Obj == null)
+                    CreateStoneAtIfStoneLessThan(position, 2);
+
+                else if (grid.Obj is Food)
+                    RemoveAt(position);
+            }
         }
         
 
+        private void CreateStoneAtIfStoneLessThan(Point3D position, int stoneLessThan)
+        {
+            if (GetAt(position) == null || !GetAt(position).IsEmpty())
+                return;
+
+            int stoneCount = 0;
+            Iterator iter = new Iterator(new Point2D(position, Dimention.Z), 1);
+
+            do
+            {
+                Point2D point = iter.Iter;
+                Grid grid = GetAt(point.Binded);
+
+                if (grid == null) continue;
+                if (grid.Obj == null) continue;
+
+                if (grid.Obj is Stone)
+                    ++stoneCount;
+                
+            } while (iter.MoveToNext());
+
+
+            if (stoneCount < stoneLessThan)
+                InsertAt(position, new Stone(position));
+
+        }
 
         private bool IsInThisMap(Point3D position)
         {

@@ -19,5 +19,6 @@ namespace Maze
         {
             return GlobalAsset.foodSprite;
         }
+        
     }
 }

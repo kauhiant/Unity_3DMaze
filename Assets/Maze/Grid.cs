@@ -32,9 +32,11 @@ namespace Maze
             return ret;
         }
 
-        public void RemoveObj()
+        public Grid RemoveObj()
         {
+            this.Obj.RegisterEvent(ObjEvent.Destroy);
             this.Obj = null;
+            return this;
         }
 
     }

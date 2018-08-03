@@ -16,5 +16,6 @@ namespace Maze
         {
             return GlobalAsset.stoneSprite;
         }
+        
     }
 }

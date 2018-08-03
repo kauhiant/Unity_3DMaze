@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Maze
 {
-    public class Animal : MazeObject,Attackable
+    public class Animal : MazeObject, Attackable
     {
         // for auto action
         enum Command
@@ -14,7 +14,6 @@ namespace Maze
             Up, Down, Left, Right, Plain, Attack, Straight, Horizon, Wall, None
         }
         private Command command = Command.None;
-        private Creater hometown = null;
         private Animal friend = null;
         private int patrolDist = 0;
         private int followDist = 0;
@@ -69,6 +68,7 @@ namespace Maze
             return new Color(Color.r, Color.g, Color.b, a);
         }
 
+        public Creater Hometown{ get; private set; }
 
         public Animal(Point3D position, Creater hometown, int power) : base(position)
         {
@@ -79,7 +79,7 @@ namespace Maze
             hungry = new EnergyBar(200);
             this.Color = hometown.GetColor();
             this.power = power;
-            this.hometown = hometown;
+            this.Hometown = hometown;
             this.patrolDist = hometown.GetLevel() + 1;
         }
 
@@ -91,13 +91,24 @@ namespace Maze
         public void ChangeHomeTown(Creater creater)
         {
             if (creater.GetColor().Equals(this.Color))
-                this.hometown = creater;
+            {
+                this.Hometown = creater;
+                this.patrolDist = creater.GetLevel() +1 ;
+            }
+        }
+
+        public override void Destroy()
+        {
+            base.Destroy();
+            Grid grid = GlobalAsset.map.GetAt(position); 
+            if(hungry.BarRate != 0)
+                grid.InsertObj(new Food(this.position, (int)((hp.Max + ep.Max) * hungry.BarRate)));
         }
 
         
 
         /// <summary>
-        /// after Clock()
+        /// use it after Clock()
         /// </summary>
         public void Auto()
         {
@@ -108,29 +119,54 @@ namespace Maze
         public void Clock()
         {
             if (isDead) return;
+
             hungry.Add(-1);
             if (hungry.BarRate < 0.3f)
                 hp.Add(-1);
             else
-                ep.Add(1);
+            {
+                if (!hp.IsFull)
+                {
+                    hp.Add(1);
+                    hungry.Add(-1);
+                }
+                if (!ep.IsFull)
+                {
+                    ep.Add(1);
+                    hungry.Add(-1);
+                }
+            }
 
             if (this.hp.IsZero)
             {
-                Grid grid = GlobalAsset.map.GetAt(this.position);
-                grid.RemoveObj();
-                grid.InsertObj(new Food(this.position, 100));
-                RegisterEvent(ObjEvent.Destroy);
+                Destroy();
             }
 
-            if (UnityEngine.Random.value < leaveHomeRate)
-                ++patrolDist;
+            if(Hometown != null)
+            {
+                if (UnityEngine.Random.value < leaveHomeRate)
+                    ++patrolDist;
 
-            if (patrolDist > 10)
-                hometown = null;
+                if (!Hometown.position.IsOnPlain(this.plain) || this.posit.DistanceTo(Hometown.position) > patrolDist)
+                    Hometown = null;
+
+                if (patrolDist > 12)
+                    Hometown = null;
+            }
 
             FindNewHome();
         }
 
+
+        public void Strong(int value)
+        {
+            this.hp.MaxExpand(value);
+            this.hp.Set(value);
+            this.ep.MaxExpand(value);
+            this.ep.Set(value);
+            this.hungry.MaxExpand(value);
+            this.hungry.Set(value);
+        }
 
 
         public void MoveFor(Vector2D vector)
@@ -272,20 +308,8 @@ namespace Maze
 
             if (this.hp.IsZero)
             {
-                Grid grid = GlobalAsset.map.GetAt(this.position);
-                grid.RemoveObj();
-                grid.InsertObj(new Food(this.position, (int)((hp.Max+ep.Max)*(hungry.BarRate+0.1f))));
-                RegisterEvent(ObjEvent.Destroy);
+                Destroy();
             }
-        }
-
-        private bool ConsumeEP(int val)
-        {
-            if (this.ep.Value < val)
-                return false;
-
-            this.ep.Add(-val);
-            return true;
         }
         
         private void TurnTo(Vector2D vector)
@@ -308,8 +332,6 @@ namespace Maze
                 if (targetGrid.Obj is Food)
                 {
                     EatFood((Food)targetGrid.Obj);
-                    targetGrid.Obj.RegisterEvent(ObjEvent.Destroy);
-                    targetGrid.RemoveObj();
                 }
                 else
                     return;
@@ -329,6 +351,8 @@ namespace Maze
             this.hp.Add(food.Nutrient);
             this.ep.Add(food.Nutrient);
             this.hungry.Add(food.Nutrient);
+
+            food.Destroy();
         }
 
 
@@ -366,22 +390,21 @@ namespace Maze
 
                 if(grid.Obj is Creater)
                 {
-                    if (this.hometown == null && grid.Obj.GetColor().Equals(this.Color))
+                    if (this.Hometown == null && grid.Obj.GetColor().Equals(this.Color))
                     {
-                        this.hometown = (Creater)grid.Obj;
-                        this.patrolDist = 3;
+                        this.ChangeHomeTown((Creater)grid.Obj);
                     }
                 }
 
             } while (iter.MoveToNext());
 
 
-            if (hometown != null)
+            if (Hometown != null)
             {
-                Patrol(hometown);
+                Patrol(Hometown);
 
-                if (hometown.IsDead())
-                    hometown = null;
+                if (Hometown.IsDead())
+                    Hometown = null;
             }
             else if(friend != null)
             {
@@ -447,7 +470,7 @@ namespace Maze
         // 招集附近的流浪夥伴一起蓋新家.
         private void FindNewHome()
         {
-            if (this.hometown != null)
+            if (this.Hometown != null)
                 return;
 
             Point3D position = this.position.Copy();
@@ -455,6 +478,7 @@ namespace Maze
 
             Grid targetGrid = GlobalAsset.map.GetAt(position);
             if (targetGrid == null || targetGrid.Obj != null) return;
+
 
             Point2D positOnPlain = new Point2D(position, Dimention.Z);
             int stoneCount = 0;
@@ -484,7 +508,7 @@ namespace Maze
 
                     if (animal.Color.Equals(this.Color))
                     {
-                        if(animal.hometown == null)
+                        if(animal.Hometown == null)
                             ++animalCount;
                     }
                     else
@@ -507,7 +531,7 @@ namespace Maze
             {
                 Creater newHome = new Creater(position, this.Color);
                 targetGrid.InsertObj(newHome);
-                this.hometown = newHome;
+                this.Hometown = newHome;
                 GlobalAsset.creaters.Add(newHome);
 
                 Debug.Log(String.Format("create new home at {0}", newHome.position));
@@ -576,7 +600,7 @@ namespace Maze
             }
 
             command = Command.None;
-            patrolDist = this.posit.DistanceTo(friend.position);
+            followDist = this.posit.DistanceTo(friend.position);
         }
 
         // 漫無目的亂走.

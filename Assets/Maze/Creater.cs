@@ -69,7 +69,7 @@ namespace Maze
                 Grid grid = GlobalAsset.map.GetAt(point.Binded);
 
                 if(grid != null)
-                    updateByObj(grid.Obj);
+                    UpdateByObj(grid.Obj);
 
                 if (createAnimalIndex-- == 0)
                     animal = CreateAnimal(point.Binded.Copy());
@@ -83,7 +83,7 @@ namespace Maze
                 LevelUp();
 
             if (IsDead())
-                destroy();
+                Destroy();
 
             return animal;
         }
@@ -155,41 +155,45 @@ namespace Maze
             }
         }
 
-        private void updateByObj(MazeObject obj)
+        private void UpdateByObj(MazeObject obj)
         {
             if (obj == null || obj == this) return;
 
             if(obj is Animal)
             {
                 Animal animal = (Animal)obj;
-                if (animal.Color.Equals(this.color))
+                if (animal.Hometown == this)
                     energy.Add(1);
-                else
+                else if (!animal.Color.Equals(this.color))
                     energy.Add(-1);
+                else
+                    animal.ChangeHomeTown(this);
             }
             else if(obj is Creater)
             {
                 Creater creater = (Creater)obj;
                 if (creater.color.Equals(this.color))
-                    eatCreater(creater);
+                    EatCreater(creater);
                 else
                     energy.Add(-creater.level);
             }
+            else if(obj is Stone)
+            {
+                obj.Destroy();
+            }
         }
 
-        private void eatCreater(Creater creater)
+        private void EatCreater(Creater creater)
         {
-            if (this.level <= creater.level) return;
+            if (this.level < creater.level)
+                return;
+            else if (this.level == creater.level && this.energy.Value < creater.energy.Value)
+                return;
 
             energy.Add(creater.energy.Value);
             creater.energy.Set(0);
-            creater.destroy();
+            creater.Destroy();
         }
-
-        private void destroy()
-        {
-            GlobalAsset.map.GetAt(this.position).RemoveObj();
-            this.RegisterEvent(ObjEvent.Destroy);
-        }
+        
     }
 }

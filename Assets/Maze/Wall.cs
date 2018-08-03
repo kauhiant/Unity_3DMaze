@@ -26,11 +26,6 @@ namespace Maze
             return GlobalAsset.wallSprite;
         }
 
-
-        private void Destroy()
-        {
-            GlobalAsset.map.GetAt(this.position).RemoveObj();
-            RegisterEvent(ObjEvent.Destroy);
-        }
+        
     }
 }
