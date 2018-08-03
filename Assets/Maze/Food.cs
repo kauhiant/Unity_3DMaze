@@ -6,8 +6,15 @@ using UnityEngine;
 
 namespace Maze
 {
-    class Food:MazeObject
+    class Food : MazeObject
     {
+        static private Sprite Sprite;
+        static public void SetSprite(Sprite sprite)
+        {
+            Food.Sprite = sprite;
+        }
+
+
         public int Nutrient { get; private set; }
 
         public Food(Point3D position, int nutrient):base(position)
@@ -17,7 +24,7 @@ namespace Maze
 
         public override Sprite GetSprite()
         {
-            return GlobalAsset.foodSprite;
+            return Food.Sprite;
         }
         
     }

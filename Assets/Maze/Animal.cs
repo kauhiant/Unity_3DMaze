@@ -8,6 +8,13 @@ namespace Maze
 {
     public class Animal : MazeObject, Attackable
     {
+        static private Shape Shape;
+        static public void SetShape(Shape shape)
+        {
+            Animal.Shape = shape;
+        }
+
+
         // for auto action
         enum Command
         {
@@ -22,7 +29,7 @@ namespace Maze
 
         private Point2D posit;
         private Vector2D Vect
-        { get { return this.plain.Vector3To2(vector); } }
+        { get { return this.Plain.Vector3To2(vector); } }
         public Color Color { get; private set; }
 
         public Vector3D vector;
@@ -34,7 +41,7 @@ namespace Maze
         public bool isDead
         { get { return this.hp.Value == 0; } }
 
-        public Plain plain
+        public Plain Plain
         { get { return posit.Plain; } }
 
         public Vector2D vectorOnScenen
@@ -85,7 +92,7 @@ namespace Maze
 
         public override Sprite GetSprite()
         {
-            return GlobalAsset.animalShape.GetAt(this.vectorOnScenen);
+            return Animal.Shape.GetAt(this.vectorOnScenen);
         }
 
         public void ChangeHomeTown(Creater creater)
@@ -100,7 +107,7 @@ namespace Maze
         public override void Destroy()
         {
             base.Destroy();
-            Grid grid = GlobalAsset.map.GetAt(position); 
+            Grid grid = World.GetAt(position); 
             if(hungry.BarRate != 0)
                 grid.InsertObj(new Food(this.position, (int)((hp.Max + ep.Max) * hungry.BarRate)));
         }
@@ -147,7 +154,7 @@ namespace Maze
                 if (UnityEngine.Random.value < leaveHomeRate)
                     ++patrolDist;
 
-                if (!Hometown.position.IsOnPlain(this.plain) || this.posit.DistanceTo(Hometown.position) > patrolDist)
+                if (!Hometown.position.IsOnPlain(this.Plain) || this.posit.DistanceTo(Hometown.position) > patrolDist)
                     Hometown = null;
 
                 if (patrolDist > 12)
@@ -189,10 +196,10 @@ namespace Maze
                 return;
 
             Point3D targetPosition = this.position.Copy();
-            SkillManager.showSkill(Skill.attack, PositOnScene, vectorOnScenen);
+            SkillManager.showSkill(Skill.attack, this.position, this.vector);
 
             targetPosition.MoveFor(this.vector, 1);
-            Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+            Grid targetGrid = World.GetAt(targetPosition);
 
             if (targetGrid == null) return;
             if (targetGrid.Obj == null) return;
@@ -217,12 +224,12 @@ namespace Maze
                 return;
 
             Point3D targetPosition = this.position.Copy();
-            SkillManager.showSkill(Skill.straight, this.PositOnScene, this.vectorOnScenen);
+            SkillManager.showSkill(Skill.straight, this.position, this.vector);
 
             for (int i = 0; i < 3; ++i)
             {
                 targetPosition.MoveFor(this.vector, 1);
-                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+                Grid targetGrid = World.GetAt(targetPosition);
 
                 if (targetGrid == null) return;
                 if (targetGrid.Obj == null) continue;
@@ -249,10 +256,10 @@ namespace Maze
             Point2D targetPosition = this.posit.Copy();
             Vector2D targetVector = this.Vect;
 
-            if(this.plain.Dimention == GlobalAsset.player.plain.Dimention)
-                SkillManager.showSkill(Skill.horizon, PositOnScene, vectorOnScenen);
+            if(GlobalAsset.player != null && this.Plain.Dimention == GlobalAsset.player.Plain.Dimention)
+                SkillManager.showSkill(Skill.horizon, this.position, this.vector);
             else
-                SkillManager.showSkill(Skill.attack, PositOnScene, vectorOnScenen);
+                SkillManager.showSkill(Skill.attack, this.position, this.vector);
 
             targetPosition.MoveFor(targetVector, 1);
             targetVector = VectorConvert.Rotate(targetVector);
@@ -262,7 +269,7 @@ namespace Maze
             for(int i=0; i<3; ++i)
             {
                 targetPosition.MoveFor(targetVector, 1);
-                Grid targetGrid = GlobalAsset.map.GetAt(targetPosition.Binded);
+                Grid targetGrid = World.GetAt(targetPosition.Binded);
 
                 if (targetGrid == null) continue;
                 if (targetGrid.Obj == null) continue;
@@ -291,7 +298,7 @@ namespace Maze
             Point3D targetPosition = this.position.Copy();
 
             targetPosition.MoveFor(this.vector, 1);
-            Grid targetGrid = GlobalAsset.map.GetAt(targetPosition);
+            Grid targetGrid = World.GetAt(targetPosition);
             if (targetGrid == null) return;
 
             if (targetGrid.IsEmpty())
@@ -314,7 +321,7 @@ namespace Maze
         
         private void TurnTo(Vector2D vector)
         {
-            this.vector = this.plain.Vector2To3(vector);
+            this.vector = this.Plain.Vector2To3(vector);
             RegisterEvent(ObjEvent.shape);
         }
 
@@ -322,7 +329,7 @@ namespace Maze
         {
             Point3D temp = this.position.Copy();
             temp.MoveFor(vector, 1);
-            Grid targetGrid = GlobalAsset.map.GetAt(temp);
+            Grid targetGrid = World.GetAt(temp);
 
             if (targetGrid == null)
                 return;
@@ -337,7 +344,7 @@ namespace Maze
                     return;
             }
 
-            GlobalAsset.map.Swap(position, temp);
+            World.Swap(position, temp);
             RegisterEvent(ObjEvent.move);
         }
 
@@ -366,7 +373,7 @@ namespace Maze
             do
             {
                 Point2D point = iter.Iter;
-                Grid grid = GlobalAsset.map.GetAt(point.Binded);
+                Grid grid = World.GetAt(point.Binded);
 
                 if (grid == null || grid.Obj == null)
                     continue;
@@ -476,7 +483,7 @@ namespace Maze
             Point3D position = this.position.Copy();
             position.MoveFor(this.vector, 1);
 
-            Grid targetGrid = GlobalAsset.map.GetAt(position);
+            Grid targetGrid = World.GetAt(position);
             if (targetGrid == null || targetGrid.Obj != null) return;
 
 
@@ -491,7 +498,7 @@ namespace Maze
             do
             {
                 Point2D point = iter.Iter;
-                Grid grid = GlobalAsset.map.GetAt(point.Binded);
+                Grid grid = World.GetAt(point.Binded);
 
                 if (grid == null || grid.Obj == null)
                     continue;

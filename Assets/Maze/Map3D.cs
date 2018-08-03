@@ -17,6 +17,7 @@ namespace Maze
 
         public Map3D (int widthX, int widthY, int layers)
         {
+            MazeObject.SetMaze(this);
 
             map = new Grid[widthX][][];
             for(int i=0; i<widthX; ++i)
@@ -28,7 +29,6 @@ namespace Maze
                     for(int k=0; k<layers; ++k)
                     {
                         map[i][j][k] = new Grid();
-                        map[i][j][k].shape = GlobalAsset.gridSprite;
                     }
                 }
             }
@@ -43,25 +43,6 @@ namespace Maze
             if (IsInThisMap(position))
                 return map[position.X.value][position.Y.value][position.Z.value];
 
-            else
-                return null;
-        }
-
-        /// <summary>
-        /// return false : the grid of position is not empty, cannot insert
-        /// </summary>
-        public bool InsertAt(Point3D position, MazeObject obj)
-        {
-            if (GetAt(position) == null)
-                return false;
-
-            return GetAt(position).InsertObj(obj);
-        }
-
-        public Grid RemoveAt(Point3D position)
-        {
-            if (IsInThisMap(position))
-                return GetAt(position).RemoveObj();
             else
                 return null;
         }
@@ -106,27 +87,29 @@ namespace Maze
 
         public void UpdateGridAt(Point3D position)
         {
+            Grid grid = GetAt(position);
+            if (grid == null) return;
+
             if (UnityEngine.Random.value < createFoodRate)
             {
-                InsertAt(position, new Food(position, 100));
+                grid.InsertObj(new Food(position, 100));
             }
             else
             {
-                Grid grid = GetAt(position);
-                if (grid == null) return;
-
                 if (grid.Obj == null)
                     CreateStoneAtIfStoneLessThan(position, 2);
 
                 else if (grid.Obj is Food)
-                    RemoveAt(position);
+                    grid.Obj.Destroy();
             }
         }
         
 
+
         private void CreateStoneAtIfStoneLessThan(Point3D position, int stoneLessThan)
         {
-            if (GetAt(position) == null || !GetAt(position).IsEmpty())
+            Grid targetGrid = GetAt(position);
+            if (targetGrid == null || !targetGrid.IsEmpty())
                 return;
 
             int stoneCount = 0;
@@ -147,7 +130,7 @@ namespace Maze
 
 
             if (stoneCount < stoneLessThan)
-                InsertAt(position, new Stone(position));
+                targetGrid.InsertObj(new Stone(position));
 
         }
 
@@ -161,6 +144,8 @@ namespace Maze
                 position.Z.value >= 0);
         }
 
+
+        // [以下] 迷宮生成.
         private void InitMap()
         {
             for(int i=0; i<Layers; ++i)

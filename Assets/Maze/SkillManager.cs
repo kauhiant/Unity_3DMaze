@@ -84,9 +84,9 @@ namespace Maze
         // skill        技能名稱.
         // userPosition 施術者位置.
         // userVector   施術者面向方位.
-        public static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
+        private static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
         {
-            if (!userPosition.IsOnPlain(GlobalAsset.player.plain))
+            if (!userPosition.IsOnPlain(GlobalAsset.player.Plain))
                 return;
 
             switch (skill)
@@ -109,6 +109,12 @@ namespace Maze
             }
         }
 
+
+        public static void showSkill(Skill skill, Point3D userPosition, Vector3D userVector)
+        {
+            if (GlobalAsset.player == null) return;
+            showSkill(skill, positionOnScene(userPosition), vectorOnScene(userVector));
+        }
 
 
         // GameObject 轉向用.
@@ -149,5 +155,16 @@ namespace Maze
                     return Vector2.zero;
             }
         }
+
+        private static Point2D positionOnScene(Point3D position)
+        {
+            return new Point2D(position, GlobalAsset.player.Plain.Dimention);
+        }
+
+        private static Vector2D vectorOnScene(Vector3D vector)
+        {
+            return GlobalAsset.player.Plain.Vector3To2(vector);
+        }
+
     }
 }

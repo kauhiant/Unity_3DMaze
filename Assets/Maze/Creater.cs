@@ -8,6 +8,13 @@ namespace Maze
 {
     public class Creater : MazeObject
     {
+        static private Sprite Sprite;
+        static public void SetSprite(Sprite sprite)
+        {
+            Creater.Sprite = sprite;
+        }
+
+
         private Point2D posit;
         private Color color;
         private int level;
@@ -39,8 +46,9 @@ namespace Maze
 
         public override Sprite GetSprite()
         {
-            return GlobalAsset.createrSprite;
+            return Creater.Sprite;
         }
+
 
         public bool IsDead()
         {
@@ -66,7 +74,7 @@ namespace Maze
             do
             {
                 Point2D point = iter.Iter;
-                Grid grid = GlobalAsset.map.GetAt(point.Binded);
+                Grid grid = World.GetAt(point.Binded);
 
                 if(grid != null)
                     UpdateByObj(grid.Obj);
@@ -102,15 +110,14 @@ namespace Maze
             do
             {
                 Point2D point = iter.Iter;
-                Grid grid = GlobalAsset.map.GetAt(point.Binded);
+                Grid grid = World.GetAt(point.Binded);
 
                 if (grid == null || grid.Obj == null)
                     continue;
 
                 if (grid.Obj is Stone)
                 {
-                    grid.Obj.RegisterEvent(ObjEvent.Destroy);
-                    grid.RemoveObj();
+                    grid.Obj.Destroy();
                 }
                 else if(grid.Obj is Animal)
                 {
@@ -128,13 +135,13 @@ namespace Maze
         {
             if (energy.Value < consume*(level+1)) return null;
 
-            Grid grid = GlobalAsset.map.GetAt(position);
+            Grid grid = World.GetAt(position);
             if (grid == null) return null;
 
             if(grid.InsertObj(new Animal(position, this, 20)))
             {
                 energy.Add(-consume);
-                SkillManager.showSkill(Skill.create, new Point2D(position, GlobalAsset.player.plain.Dimention), Vector2D.Right);
+                SkillManager.showSkill(Skill.create, position, Vector3D.Null);
                 GlobalAsset.animals.Add((Animal)grid.Obj);
                 return (Animal)grid.Obj;
             }
@@ -146,7 +153,7 @@ namespace Maze
         {
             if (energy.Value < consume * (level + 1)) return;
 
-            Grid grid = GlobalAsset.map.GetAt(position);
+            Grid grid = World.GetAt(position);
             if (grid == null) return;
 
             if (grid.InsertObj(new Food(position, nutrientBase*20)))

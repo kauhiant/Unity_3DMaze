@@ -8,6 +8,13 @@ namespace Maze
 {
     class Wall : MazeObject,Attackable
     {
+        static private Sprite Sprite;
+        static public void SetSprite(Sprite sprite)
+        {
+            Wall.Sprite = sprite;
+        }
+
+
         private int hp;
         public Wall(Point3D position, int hp) : base(position)
         {
@@ -23,7 +30,7 @@ namespace Maze
 
         public override Sprite GetSprite()
         {
-            return GlobalAsset.wallSprite;
+            return Wall.Sprite;
         }
 
         

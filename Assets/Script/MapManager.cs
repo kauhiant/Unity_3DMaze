@@ -39,55 +39,52 @@ public class MapManager : MonoBehaviour {
 
     private bool isAuto = false;
 
-	// Use this for initialization
+	// Use this for initialization.
 	void Start () {
 
-        GlobalAsset.animalShape = new Maze.Shape(animalShapes);
-
+        Maze.Animal.SetShape(new Maze.Shape(animalShapes));
+        Maze.Grid.SetSprite(gridSprite);
         GlobalAsset.attack = attack;
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
         GlobalAsset.create = create;
-
-        GlobalAsset.gridSprite = gridSprite;
-        GlobalAsset.stoneSprite = stoneSprite;
-        GlobalAsset.createrSprite = createrSprite;
-        GlobalAsset.foodSprite = foodSprite;
-        GlobalAsset.wallSprite = wallSprite;
-
-        gameMap = new Maze.Map3D(31, 20, 3);
-        sceneMap = new Maze.Map2D(gameMap);
-        GlobalAsset.map = gameMap;
         
+        Maze.Stone.SetSprite(stoneSprite);
+        Maze.Creater.SetSprite(createrSprite);
+        Maze.Food.SetSprite(foodSprite);
+        Maze.Wall.SetSprite(wallSprite);
 
-        for (int i = 0; i < 6; ++i)
-        {
-            Maze.Point3D position = GlobalAsset.map.GetRandomPointOn(1);
-            Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
-            if (GlobalAsset.map.InsertAt(position,creater))
-                GlobalAsset.creaters.Add(creater);
-        }
+        gameMap = new Maze.Map3D(64, 64, 3);
+        sceneMap = new Maze.Map2D(gameMap);
+        Maze.MazeObject.SetMaze(gameMap);
+
+
+        
 
         
         for(int layer=0; layer<3; ++layer)
         {
-            for (int i = 0; i < 50; ++i)
+            for (int i = 0; i < 6; ++i)
             {
-                Maze.Point3D point = GlobalAsset.map.GetRandomPointOn(layer);
+                Maze.Point3D position = gameMap.GetRandomPointOn(layer);
+                Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
+                if (gameMap.GetAt(position).InsertObj(creater))
+                {
+                    GlobalAsset.creaters.Add(creater);
+                }
+            }
+
+            for (int i = 0; i < 200; ++i)
+            {
+                Maze.Point3D point = gameMap.GetRandomPointOn(layer);
                 Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i % GlobalAsset.creaters.Count], 20);
-                if (GlobalAsset.map.InsertAt(point, animal))
+                if (gameMap.GetAt(point).InsertObj(animal))
                     GlobalAsset.animals.Add(animal);
             }
         }
-
-
-        player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
-        player.Strong(10000);
-        GlobalAsset.player = player;
-        manager = new Maze.MapManager(sceneMap, camera, 8);
-
+        
+        
         time = 0;
-        clockLock = false;
     }
 
     // Update is called once per frame
@@ -131,28 +128,35 @@ public class MapManager : MonoBehaviour {
         }
         else if (Input.GetKey(KeyCode.Space))
         {
-            SwitchAuto();
+            if (manager == null)
+                GameStart();
         }
         
         
         Clock();
     }
     
+    private void GameStart()
+    {
+        player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
+        player.Strong(10000);
+        GlobalAsset.player = player;
+        manager = new Maze.MapManager(sceneMap, camera, 8);
+    }
+
 
     float time;
-    bool clockLock;
     public void Clock()
     {
-        if (manager.GameOver) return;
+        if (manager != null && manager.GameOver)
+            return;
+        
         time += Time.deltaTime;
         if (time < clockTime) return;
-        if (clockLock) return;
-        clockLock = true;
         time = 0;
 
 
         Maze.SkillManager.clear();
-        
         
         for(int i=0; i< GlobalAsset.animals.Count; ++i)
         {
@@ -190,12 +194,14 @@ public class MapManager : MonoBehaviour {
             }
             GlobalAsset.creaters[i].Clock();
         }
-        
-        manager.UpdateScene();
-        gameMap.Clock();
-        UpdataUI();
 
-        clockLock = false;
+        gameMap.Clock();
+
+        if(manager != null)
+        {
+            manager.UpdateScene();
+            UpdataUI();
+        }
     }
 
     private Color RandomColor()

@@ -170,7 +170,7 @@ namespace Maze
         {
             GameObject temp = new GameObject();
             temp.transform.position = new Vector3(x, y, 0);
-            temp.AddComponent<SpriteRenderer>().sprite = grid.shape;
+            temp.AddComponent<SpriteRenderer>().sprite = Grid.Sprite;
             temp.GetComponent<SpriteRenderer>().sortingLayerName = "grid";
 
             grids.Add(temp);
@@ -395,7 +395,7 @@ namespace Maze
 
         private bool IsOutOfBuffer(MazeObject obj)
         {
-            if (!obj.position.IsOnPlain(this.Player.plain))
+            if (!obj.position.IsOnPlain(this.Player.Plain))
                 return true;
 
             Point2D position = obj.PositOnScene;

@@ -6,20 +6,31 @@ using UnityEngine;
 
 namespace Maze
 {
+    // 可以放進格子的物件.
+    // 也會顯示在畫面上.
     abstract public class MazeObject
     {
+        static public Map3D World { get; private set; }
+        static public void SetMaze(Map3D world)
+        {
+            MazeObject.World = world;
+        }
+
         private ObjEvent objEvent; // 物件事件，給 Mapmanager 更新綁定物件的資料.
         
-        public Point3D position; // 在地圖上的位置.
+        public Point3D position;    // 在地圖上的位置.
         public Point2D PositOnScene // 在 Player 視角上的位置.
-        { get { return new Point2D(this.position, GlobalAsset.player.plain.Dimention); } }
+        { get { return new Point2D(this.position, GlobalAsset.player.Plain.Dimention); } }
 
 
         public MazeObject(Point3D position)
         {
             this.position = position;
             this.objEvent = ObjEvent.None;
-            // Global.map.InsertAt(this,position) 之後要做的.
+
+            /* 之後要做的.
+            if (!World.GetAt(position).InsertObj(this))
+                Debug.Log(string.Format("{0} this grid is not empty, can insert Object",position));*/
         }
 
         // 以下3個都是提供給 MapManager 讓他創造更新綁定的 GameObject 用的.
@@ -37,7 +48,7 @@ namespace Maze
         public virtual void Destroy()
         {
             this.RegisterEvent(ObjEvent.Destroy);
-            GlobalAsset.map.RemoveAt(this.position);
+            World.GetAt(this.position).RemoveObj();
         }
 
         // 登記事件，提醒 MapManager 對他的綁定物件進行動作.
