@@ -540,8 +540,6 @@ namespace Maze
                 targetGrid.InsertObj(newHome);
                 this.Hometown = newHome;
                 GlobalAsset.creaters.Add(newHome);
-
-                Debug.Log(String.Format("create new home at {0}", newHome.position));
             }
         }
         

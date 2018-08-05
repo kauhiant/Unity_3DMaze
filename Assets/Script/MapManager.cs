@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class MapManager : MonoBehaviour {
 
     public GameObject camera;
+    public GameObject littleMap;
     public GameObject UI_HP;
     public GameObject UI_EP;
     public GameObject UI_Hungry;

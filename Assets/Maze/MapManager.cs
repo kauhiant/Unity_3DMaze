@@ -24,9 +24,11 @@ namespace Maze
 
         private List<GameObject> grids;
         private List<Pair> objs;
+        private List<Pair> objsForLittleMap;
         
         private Map2D map;
         private GameObject camera;
+        private GameObject littleMap;
         private Point2D bufferCenter;
         private int     bufferExtra;
         private bool isMove;
@@ -53,6 +55,7 @@ namespace Maze
 
             this.grids = new List<GameObject>();
             this.objs  = new List<Pair>();
+            this.objsForLittleMap = new List<Pair>();
 
             GameOver = false;
             camera.transform.position = new Vector3(bufferCenter.X.value, bufferCenter.Y.value, -1);
@@ -191,6 +194,8 @@ namespace Maze
                 temp.GetComponent<SpriteRenderer>().sortingLayerName = "creater";
                 temp.GetComponent<SpriteRenderer>().color = obj.GetColor();
                 temp.transform.localScale = obj.GetScale();
+
+                CreateColorAtLittleMap(obj);
             }
 
         }
@@ -450,5 +455,36 @@ namespace Maze
                     ++i;
             }
         }
+
+
+
+        private int mapSize = 64;
+        private float littleMapSize = 10;
+        private float divBase;
+        private float littleMapX = 20;
+        private float littleMapY = 20;
+
+        private void CreateColorAtLittleMap(MazeObject obj)
+        {
+            if (!(obj is Creater)) return;
+
+            divBase = mapSize / littleMapSize;
+
+            Creater creater = (Creater)obj;
+            float x = creater.PositOnScene.X.value / divBase - littleMapX - littleMapSize/2;
+            float y = creater.PositOnScene.Y.value / divBase - littleMapY - littleMapSize/2;
+            float scale = creater.GetLevel()/10f + 1;
+            Color color = creater.GetColor();
+
+            GameObject mark = new GameObject();
+            mark.transform.position = new Vector2(x, y);
+            mark.transform.localScale = new Vector2(scale, scale);
+            mark.AddComponent<SpriteRenderer>().sprite = creater.GetSprite();
+            mark.GetComponent<SpriteRenderer>().color = creater.GetColor();
+
+            Debug.Log(mark.transform.position);
+        }
+
+
     }
 }
