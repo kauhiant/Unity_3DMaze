@@ -43,6 +43,7 @@ namespace Maze
 
             LevelUp();
         }
+        
 
         public override Sprite GetSprite()
         {
