@@ -35,6 +35,7 @@ namespace Maze
 
         private Animal Player { get { return GlobalAsset.player; } }
         private int Width { get { return bufferExtra * 2 + 1; } }
+        private GameObject playerOnLittleMap;
 
         public GameObject PlayerBind { get { return FindMazeObjectFrom(objs,Player).binded; } }
         public bool GameOver
@@ -184,7 +185,7 @@ namespace Maze
         private void CreateObjAt(int x, int y, MazeObject obj)
         {
             GameObject temp = new GameObject();
-            temp.transform.position = new Vector3(x, y, 0);
+            temp.transform.position = new Vector2(x, y);
             temp.AddComponent<SpriteRenderer>().sprite = obj.GetSprite();
             temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
 
@@ -197,6 +198,11 @@ namespace Maze
                 temp.GetComponent<SpriteRenderer>().color = obj.GetColor();
                 temp.transform.localScale = obj.GetScale();
 
+                CreateMarkAtLittleMap(obj);
+            }
+
+            if(obj == Player)
+            {
                 CreateMarkAtLittleMap(obj);
             }
 
@@ -374,7 +380,10 @@ namespace Maze
                 objPair.binded.transform.Translate(vect);
 
                 if (objPair.obj == Player)
+                {
                     this.isMove = true;
+                    PlayerOnLittleMapMove(vect);
+                }
             }
         }
 
@@ -465,28 +474,46 @@ namespace Maze
         private float divBase;
         private float littleMapX = 20;
         private float littleMapY = 20;
+        
+        private void PlayerOnLittleMapMove(Vector2 vector)
+        {
+            playerOnLittleMap.transform.Translate(vector* littleMapSize/ mapSize);
+        }
 
         private void CreateMarkAtLittleMap(MazeObject obj)
         {
-            if (!(obj is Creater)) return;
             if (FindMazeObjectFrom(objsForLittleMap, obj) != null) return;
 
             divBase = mapSize / littleMapSize;
 
-            Creater creater = (Creater)obj;
-            float x = creater.PositOnScene.X.value / divBase - littleMapX - littleMapSize/2;
-            float y = creater.PositOnScene.Y.value / divBase - littleMapY - littleMapSize/2;
-            float scale = creater.GetLevel() / 5f + 1;
-            Color color = creater.GetColor();
+            float x = obj.PositOnScene.X.value / divBase - littleMapX - littleMapSize / 2;
+            float y = obj.PositOnScene.Y.value / divBase - littleMapY - littleMapSize / 2;
+            Color color;
+            float scale = 1;
+
+            if (obj == Player)
+            {
+                Animal player = (Animal)obj;
+                color = player.Color;
+            }
+            else
+            {
+                Creater creater = (Creater)obj;
+                scale = creater.GetLevel() / 5f + 1;
+                color = creater.GetColor();
+            }
+            
 
             GameObject mark = new GameObject();
             mark.transform.position = new Vector2(x, y);
             mark.transform.localScale = new Vector2(scale, scale);
-            mark.AddComponent<SpriteRenderer>().sprite = creater.GetSprite();
-            mark.GetComponent<SpriteRenderer>().color = creater.GetColor();
+            mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.mark;
+            mark.GetComponent<SpriteRenderer>().color = color;
 
-            objsForLittleMap.Add(new Pair(obj, mark));
-            Debug.Log("create a mark");
+            if (obj == Player)
+                playerOnLittleMap = mark;
+            else
+                objsForLittleMap.Add(new Pair(obj, mark));
         }
 
         private void UpdateAllMarkAtLittleMap()
@@ -494,22 +521,26 @@ namespace Maze
             for(int i=0; i<objsForLittleMap.Count; ++i)
             {
                 Pair each = objsForLittleMap[i];
-                Creater creater = (Creater)each.obj;
-                if (creater.PositOnScene.DistanceTo(Player.position) > 5) continue;
+                if (each.obj.PositOnScene.DistanceTo(Player.position) > 5) continue;
 
-                if (creater.IsDead())
+                if(each.obj is Creater)
                 {
-                    objsForLittleMap.Remove(each);
-                    GameObject.Destroy(each.binded);
-                    Debug.Log("destroy a mark");
-                    --i;
+                    Creater creater = (Creater)each.obj;
+
+                    if (creater.IsDead())
+                    {
+                        objsForLittleMap.Remove(each);
+                        GameObject.Destroy(each.binded);
+                        --i;
+                    }
+                    else
+                    {
+                        float scale = creater.GetLevel() / 5f + 1;
+                        each.binded.transform.localScale = new Vector2(scale, scale);
+                    }
                 }
-                else
-                {
-                    float scale = creater.GetLevel() / 5f + 1;
-                    each.binded.transform.localScale = new Vector2(scale, scale);
-                    Debug.Log("update a mark");
-                }
+
+                
             }
         }
 
