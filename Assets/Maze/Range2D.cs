@@ -5,9 +5,14 @@ using System.Text;
 
 namespace Maze
 {
+    // 用來迭代平面地圖的某個範圍.
+    // 從一個點往外擴展一段距離的範圍.
+    // 正方形、單數*單數.
     public class Iterator
     {
-        private int extra;
+        private int extra; // 從中心往外擴展多少距離.
+        private int countX = 0;
+        private int countY = 0;
 
         public Point2D Iter { get; private set; }
         public int Size
@@ -26,8 +31,6 @@ namespace Maze
             this.Iter.MoveFor(Vector2D.Down, extra);
         }
         
-        private int countX = 0;
-        private int countY = 0;
         public bool MoveToNext()
             {
                 if (countX == extra * 2)
@@ -51,13 +54,16 @@ namespace Maze
                 return true;
             }
         
-    }    
+    }
 
+    // 從一個點往外擴展一段距離的範圍.
+    // 正方形、單數*單數.
     public class Range2D
     {
         public Point2D Center { get; private set; }
         public int XWidth { get; private set; }
         public int YWidth { get; private set; }
+
 
         public Range2D(Point2D center, int xWidth, int yWidth)
         {

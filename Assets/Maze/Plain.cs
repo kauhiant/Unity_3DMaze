@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Maze
 {
+    // 例如 平面 (X=1)
+    // dimention = X
+    // value     = 1
     public class Plain
     {
         public Dimention Dimention { get; private set; }
@@ -37,7 +40,8 @@ namespace Maze
                 && this.Value == plain.Value;
         }
         
-
+        // 將 Vector3D 轉成 Vector2D.
+        // 回傳 vector 在這個平面上的 Vector2D.
         public Vector2D Vector3To2(Vector3D vector)
         {
             switch (Dimention)
@@ -78,6 +82,8 @@ namespace Maze
             return Vector2D.Null;
         }
 
+        // 將 Vector2D 轉成 Vector3D.
+        // 回傳 vector 在這個3維空間上的 Vector3D.
         public Vector3D Vector2To3(Vector2D vector)
         {
             switch (Dimention)

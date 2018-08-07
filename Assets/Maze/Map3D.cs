@@ -37,7 +37,8 @@ namespace Maze
         }
         
 
-
+        // 取得該位置的格子.
+        // 沒有格子回傳 null.
         public Grid GetAt(Point3D position)
         {
             if (IsInThisMap(position))
@@ -46,12 +47,14 @@ namespace Maze
             else
                 return null;
         }
-
-        // if ghost want to move
-        // obj of a and b are null
-        // so ghost cannot move
+        
+        // 將 a,b 兩位置上的物件交換.
+        // 也會修正物件的位置.
         public void Swap(Point3D a, Point3D b)
         {
+            if (!IsInThisMap(a) || !IsInThisMap(b))
+                return;
+
             MazeObject temp = GetAt(a).TakeOutObj();
             GetAt(a).InsertObj(GetAt(b).TakeOutObj());
             GetAt(b).InsertObj(temp);
@@ -63,6 +66,8 @@ namespace Maze
                 GetAt(b).Obj.position.SetBy(b);
         }
 
+        // 取得該 layer 的隨機一個位置.
+        // null : layer 超出範圍.
         public Point3D GetRandomPointOn(int layer)
         {
             if (layer < 0 && layer > this.Layers)
@@ -73,9 +78,10 @@ namespace Maze
 
             return new Point3D(x,y,layer);
         }
+        
 
-
-
+        // 每個 clock 會執行的動作.
+        // 將每層各取隨機一點，並對他做動作.
         public void Clock()
         {
             for(int layer=0; layer<this.Layers; ++layer)
@@ -85,12 +91,15 @@ namespace Maze
             }
         }
 
+
+        // 根據機率在該位置創造食物.
+        // 或是創造石頭，或是消除食物.
         public void UpdateGridAt(Point3D position)
         {
             Grid grid = GetAt(position);
             if (grid == null) return;
 
-            if (UnityEngine.Random.value < createFoodRate)
+            if (Random.value < createFoodRate)
             {
                 grid.InsertObj(new Food(position, 100));
             }
@@ -103,9 +112,9 @@ namespace Maze
                     grid.Obj.Destroy();
             }
         }
-        
 
-
+        // 假如 position 是空的，並且它周圍的石頭數量小於 stoneLessThan.
+        // 則在 position 創造一顆石頭.
         private void CreateStoneAtIfStoneLessThan(Point3D position, int stoneLessThan)
         {
             Grid targetGrid = GetAt(position);
@@ -133,7 +142,8 @@ namespace Maze
                 targetGrid.InsertObj(new Stone(position));
 
         }
-
+        
+        // 此迷宮裡是否有該位置.
         private bool IsInThisMap(Point3D position)
         {
             return (position.X.value < WidthX &&

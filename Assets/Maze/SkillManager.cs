@@ -78,8 +78,7 @@ namespace Maze
         }
 
 
-
-        // [給 Animal 或 Creater (施術者) 使用]
+        // [根據技能種類執行不同動作]
         // 在場上顯示技能效果.
         // skill        技能名稱.
         // userPosition 施術者位置.
@@ -110,14 +109,14 @@ namespace Maze
         }
 
 
-        public static void showSkill(Skill skill, Point3D userPosition, Vector3D userVector)
+        // [給 Animal 或 Creater (施術者) 使用]
+        public static void showSkill(Skill skill, Point3D position, Vector3D userVector)
         {
             if (GlobalAsset.player == null) return;
-            showSkill(skill, positionOnScene(userPosition), vectorOnScene(userVector));
+            showSkill(skill, positionOnScene(position), vectorOnScene(userVector));
         }
 
-
-        // GameObject 轉向用.
+        
         private static Vector3 angle(Vector2 vector)
         {
             if (vector.Equals(Vector2.right))
@@ -131,14 +130,12 @@ namespace Maze
             else
                 return Vector3.zero;
         }
-
-        // 這她媽最好看不懂.
+        
         private static Vector2 convert(Point2D point)
         {
             return new Vector2(point.X.value, point.Y.value);
         }
-
-        // 這也是.
+        
         private static Vector2 convert(Vector2D vector)
         {
             switch (vector)

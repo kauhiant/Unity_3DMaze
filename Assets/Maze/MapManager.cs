@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace Maze
 {
-    /// 負責 Maze.MazeObject 和 Unity.GameObject 之間的溝通.
-    /// 如果 Unity 的 camera 可以自動跟隨 PlayerBind ，就不需要這裡的 camera.
+    // 負責 Maze.MazeObject 和 Unity.GameObject 之間的溝通.
+    // 如果 Unity 的 camera 可以自動跟隨 PlayerBind ，就不需要這裡的 camera.
     public class MapManager
     {
         class Pair
@@ -21,23 +21,55 @@ namespace Maze
             }
         }
 
-
+        // GameObjects and MazeObjects
         private List<GameObject> grids;
         private List<Pair> objs;
         private List<Pair> objsForLittleMap;
         
+        // RealMap
         private Map2D map;
-        private GameObject camera;
-        private GameObject littleMap;
+        private int   mapWidth;
+
+        // BufferMap
+        private GameObject camera;   // main camera.
         private Point2D bufferCenter;
         private int     bufferExtra;
+        private int     BufferWidth
+        { get { return bufferExtra * 2 + 1; } }
         private bool isMove;
 
-        private Animal Player { get { return GlobalAsset.player; } }
-        private int Width { get { return bufferExtra * 2 + 1; } }
+        // LittleMap
+        private GameObject littleMap; // camera for little map.
         private GameObject playerOnLittleMap;
+        private float littleMapWidth = 10;// camera(littleMap)的寬度，不知要怎麼用Unity抓.
+        private float littleMapDivBase;
+        private Vector2 LittleMapPosition // littleMap 的位置.
+        {
+            get
+            {
+                return littleMap.transform.position;
+            }
+        }
+        private float   LittleMapX  // littleMap 的 X 位置.
+        {
+            get
+            {
+                return LittleMapPosition.x;
+            }
+        }
+        private float   LittleMapY  // littleMap 的 Y 位置.
+        {
+            get
+            {
+                return LittleMapPosition.y;
+            }
+        }
 
-        public GameObject PlayerBind { get { return FindMazeObjectFrom(objs,Player).binded; } }
+        // Player
+        public Animal Player
+        { get { return GlobalAsset.player; } }
+        public GameObject PlayerBind
+        { get { return FindMazeObjectFrom(objs,Player).binded; } }
         public bool GameOver
         {
             private set { GlobalAsset.gameOver = value; }
@@ -46,27 +78,119 @@ namespace Maze
 
 
         
-        public MapManager(Map2D map, GameObject camera, int extra)
+        public MapManager(Map2D map, GameObject camera, GameObject littleMap, int extra)
         {
+            this.grids = new List<GameObject>();
+            this.objs  = new List<Pair>();
+            this.objsForLittleMap = new List<Pair>();
+
             this.map = map;
+            this.mapWidth = map.Binded.WidthX;
+
             this.camera = camera;
             this.bufferCenter = Player.PositOnScene.Copy();
             this.bufferExtra  = extra;
             this.isMove = false;
 
-            this.grids = new List<GameObject>();
-            this.objs  = new List<Pair>();
-            this.objsForLittleMap = new List<Pair>();
+            this.littleMap = littleMap;
+            this.littleMapDivBase = mapWidth / littleMapWidth;
+
 
             GameOver = false;
             camera.transform.position = new Vector3(bufferCenter.X.value, bufferCenter.Y.value, -1);
             ShowMap();
         }
 
-        /// <summary>
-        /// run on a clock.
-        /// </summary>
-        public void UpdateScene()
+        
+        // 創造 buffer 的 GameObject.
+        // Grids and MazeObjects.
+        private void ShowMap()
+        {
+            Iterator iter = new Iterator(bufferCenter, bufferExtra);
+
+            do
+            {
+                Point2D point = iter.Iter;
+                Grid grid = map.GetAt(point);
+
+                if (grid != null)
+                {
+                    CreateGridAt(point.X.value, point.Y.value, grid);
+
+                    if (grid.Obj != null)
+                        CreateObjAt(point.X.value, point.Y.value, grid.Obj);
+                }
+            } while (iter.MoveToNext());
+        }
+
+        // 將場上的 GameObject 清空.
+        // 場上此管理器創造出來的.
+        private void ClearMap()
+        {
+            while (grids.Count != 0)
+            {
+                GameObject.Destroy(grids[0]);
+                grids.RemoveAt(0);
+            }
+
+            while (objs.Count != 0)
+            {
+                GameObject.Destroy(objs[0].binded);
+                objs.RemoveAt(0);
+            }
+
+            while (objsForLittleMap.Count != 0)
+            {
+                GameObject.Destroy(objsForLittleMap[0].binded);
+                objsForLittleMap.RemoveAt(0);
+            }
+
+            GameObject.Destroy(playerOnLittleMap);
+        }
+
+
+        // 創造 grid 的綁定物件.
+        private void CreateGridAt(int x, int y, Grid grid)
+        {
+            GameObject temp = new GameObject();
+            temp.transform.position = new Vector2(x, y);
+            temp.AddComponent<SpriteRenderer>().sprite = Grid.Sprite;
+            temp.GetComponent<SpriteRenderer>().sortingLayerName = "grid";
+
+            grids.Add(temp);
+        }
+
+        // 創造 MazeObject 的綁定物件.
+        private void CreateObjAt(int x, int y, MazeObject obj)
+        {
+            GameObject temp = new GameObject();
+            temp.transform.position = new Vector2(x, y);
+            temp.AddComponent<SpriteRenderer>().sprite = obj.GetSprite();
+            temp.GetComponent<SpriteRenderer>().color = obj.GetColor();
+            temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
+
+            obj.RegisterEvent(ObjEvent.None);
+            objs.Add(new Pair(obj, temp));
+
+            if (obj is Creater)
+            {
+                temp.GetComponent<SpriteRenderer>().sortingLayerName = "creater";
+                temp.transform.localScale = obj.GetScale();
+
+                CreateMarkAtLittleMap(obj);
+            }
+
+            else if (obj == Player)
+            {
+                CreateMarkAtLittleMap(obj);
+            }
+
+        }
+
+
+
+
+        public void Clock()
         {
             if (GameOver) return;
 
@@ -105,7 +229,7 @@ namespace Maze
                 /// 目前只有 Animal 會一直改變顏色(alpha)，未來不一定.
                 /// 可以把 if 判斷式拿掉，不過可能稍微耗效能.
                 if (objs[i].obj is Animal)
-                    ObjectChangeColor(objs[i]);
+                    BindedChangeColor(objs[i]);
             }
 
             UpdateAllMarkAtLittleMap();
@@ -122,13 +246,13 @@ namespace Maze
             ShowMap();
         }
 
-        /// <summary>
-        /// just change grids.
-        /// </summary>
-        /// <param name="vector"></param>
+
+
+        // 將 buffer 往 vector 移動一格.
+        // camera 也會更著移動.
         private void MoveForward(Vector2D vector)
         {
-            /// remove line.
+            // remove line.
             Dimention dimention = Dimention.Null;
             int value = 0;
             
@@ -155,60 +279,21 @@ namespace Maze
             RemoveLine(dimention, value);
 
 
-            /// move bufferCenter and camera.
+            // move bufferCenter and camera.
             this.bufferCenter.MoveFor(vector, 1);
-            this.camera.transform.Translate(ConvertTo(vector));
+            GameObjectMove(camera, Convert(vector));
 
 
-            /// add line
+            // add line.
             Point2D point = this.bufferCenter.Copy();
             point.MoveFor(vector, bufferExtra);
             vector = VectorConvert.Rotate(vector);
             point.MoveFor(vector, bufferExtra);
             vector = VectorConvert.Invert(vector);
 
-            AddLine(point, vector, Width);
+            AddLine(point, vector, BufferWidth);
         }
         
-
-
-        private void CreateGridAt(int x, int y, Grid grid)
-        {
-            GameObject temp = new GameObject();
-            temp.transform.position = new Vector3(x, y, 0);
-            temp.AddComponent<SpriteRenderer>().sprite = Grid.Sprite;
-            temp.GetComponent<SpriteRenderer>().sortingLayerName = "grid";
-
-            grids.Add(temp);
-        }
-
-        private void CreateObjAt(int x, int y, MazeObject obj)
-        {
-            GameObject temp = new GameObject();
-            temp.transform.position = new Vector2(x, y);
-            temp.AddComponent<SpriteRenderer>().sprite = obj.GetSprite();
-            temp.GetComponent<SpriteRenderer>().sortingLayerName = "object";
-
-            obj.RegisterEvent(ObjEvent.None);
-            objs.Add(new Pair(obj,temp));
-
-            if(obj is Creater)
-            {
-                temp.GetComponent<SpriteRenderer>().sortingLayerName = "creater";
-                temp.GetComponent<SpriteRenderer>().color = obj.GetColor();
-                temp.transform.localScale = obj.GetScale();
-
-                CreateMarkAtLittleMap(obj);
-            }
-
-            if(obj == Player)
-            {
-                CreateMarkAtLittleMap(obj);
-            }
-
-        }
-
-
 
         // obj is on the line(dimention:value) ?
         private bool IsOnLine(GameObject obj, Dimention dimention, int value)
@@ -269,179 +354,9 @@ namespace Maze
 
 
 
-        private void ShowMap()
-        {
-            Iterator iter = new Iterator(bufferCenter, bufferExtra);
-
-            do
-            {
-                Point2D point = iter.Iter;
-                Grid grid = map.GetAt(point);
-
-                if (grid != null)
-                {
-                    CreateGridAt(point.X.value, point.Y.value, grid);
-                    if (grid.Obj != null)
-                        CreateObjAt(point.X.value, point.Y.value, grid.Obj);
-                }
-            } while (iter.MoveToNext());
-        }
-
-        private void ClearMap()
-        {
-            while (grids.Count != 0)
-            {
-                GameObject.Destroy(grids[0]);
-                grids.RemoveAt(0);
-            }
-
-            while (objs.Count != 0)
-            {
-                GameObject.Destroy(objs[0].binded);
-                objs.RemoveAt(0);
-            }
-
-            while(objsForLittleMap.Count != 0)
-            {
-                GameObject.Destroy(objsForLittleMap[0].binded);
-                objsForLittleMap.RemoveAt(0);
-            }
-
-            GameObject.Destroy(playerOnLittleMap);
-        }
-
-
-
-        private Point2D CreatePoint(int x, int y)
-        {
-            Point2D point = this.bufferCenter.Copy();
-            point.X.value = x;
-            point.Y.value = y;
-            return point;
-        }
-
-        private Vector2 ConvertTo(Maze.Vector2D vector)
-        {
-            switch (vector)
-            {
-                case Maze.Vector2D.Up:
-                    return Vector2.up;
-                case Maze.Vector2D.Down:
-                    return Vector2.down;
-                case Maze.Vector2D.Left:
-                    return Vector2.left;
-                case Maze.Vector2D.Right:
-                    return Vector2.right;
-                default:
-                    return Vector2.zero;
-            }
-        }
-
-        private Vector2 ConvertTo(Point2D point)
-        {
-            return new Vector2(point.X.value, point.Y.value);
-        }
-
-        private Point2D ConvertTo(Vector2 vector)
-        {
-            int x = (int)Mathf.Round(vector.x);
-            int y = (int)Mathf.Round(vector.y);
-            return CreatePoint(x, y);
-        }
-
-
-
-        private void UpdateObject(Pair objPair)
-        {
-            switch (objPair.obj.GetEvent())
-            {
-                case Maze.ObjEvent.move:
-                    GameObjectMove(objPair);
-                    break;
-                    
-                case Maze.ObjEvent.shape:
-                    objPair.binded.GetComponent<SpriteRenderer>().sprite = objPair.obj.GetSprite();
-                    break;
-
-                case ObjEvent.Destroy:
-                    GameObject.Destroy(objPair.binded);
-                    objPair.binded = null;
-                    break;
-
-                case ObjEvent.Grow:
-                    objPair.binded.transform.localScale = objPair.obj.GetScale();
-                    break;
-
-                case Maze.ObjEvent.None:
-                    break;
-            }
-        }
-
-        private void GameObjectMove(Pair objPair)
-        {
-            if(objPair.obj is Animal)
-            {
-                Animal animal = (Animal)objPair.obj;
-                Vector2D vector = animal.vectorOnScenen;
-                Vector2 vect = ConvertTo(vector);
-                
-                objPair.binded.transform.Translate(vect);
-
-                if (objPair.obj == Player)
-                {
-                    this.isMove = true;
-                    PlayerOnLittleMapMove(vect);
-                }
-            }
-        }
-
-        private void GameObkectMove(GameObject gameObject, Vector2D vector)
-        {
-            gameObject.transform.Translate(ConvertTo(vector));
-        }
-
-        private void ObjectChangeColor(Pair objPair)
-        {
-            objPair.binded.GetComponent<SpriteRenderer>().color = objPair.obj.GetColor();
-        }
-        
-
-
-        private Pair FindMazeObjectFrom(List<Pair> pairs,MazeObject mazeObject)
-        {
-            foreach(Pair each in pairs)
-            {
-                if (each.obj == mazeObject)
-                    return each;
-            }
-            return null;
-        }
-
-        private bool IsOutOfBuffer(MazeObject obj)
-        {
-            if (!obj.position.IsOnPlain(this.Player.Plain))
-                return true;
-
-            Point2D position = obj.PositOnScene;
-            return (
-                position.X.value < bufferCenter.X.value - bufferExtra ||
-                position.X.value > bufferCenter.X.value + bufferExtra ||
-                position.Y.value < bufferCenter.Y.value - bufferExtra ||
-                position.Y.value > bufferCenter.Y.value + bufferExtra);
-        }
-
-        private bool BufferHaveObj(MazeObject obj)
-        {
-            foreach(Pair each in objs)
-            {
-                if (each.obj == obj)
-                    return true;
-            }
-            return false;
-        }
-
-
-
+        // Clock : 把 buffer 內未被加入的 MazeObject 加入場上.
+        // 因為 MazeObject 會移動、會死亡、會生成，不向 Grid 是固定的.
+        // 所以每段時間都要更新一次.
         private void AddObjInBuffer()
         {
             Iterator iter = new Iterator(bufferCenter, bufferExtra);
@@ -458,6 +373,9 @@ namespace Maze
             } while (iter.MoveToNext());
         }
 
+        // Clock : 把超出 buffer 的 MazeObject 從場上移除.
+        // 因為 MazeObject 會移動、會死亡、會生成，不向 Grid 是固定的.
+        // 所以每段時間都要更新一次.
         private void RemoveObjOutBuffer()
         {
             int i = 0;
@@ -477,26 +395,162 @@ namespace Maze
 
 
 
-        private int mapSize = 64;
-        private float littleMapSize = 10;
-        private float divBase;
-        private float littleMapX = 20;
-        private float littleMapY = 20;
-        
-        private void PlayerOnLittleMapMove(Vector2 vector)
+        // 將 Maze 的方向轉成 Unity 的方向.
+        private Vector2 Convert(Vector2D vector)
         {
-            playerOnLittleMap.transform.Translate(vector* littleMapSize/ mapSize);
+            switch (vector)
+            {
+                case Maze.Vector2D.Up:
+                    return Vector2.up;
+                case Maze.Vector2D.Down:
+                    return Vector2.down;
+                case Maze.Vector2D.Left:
+                    return Vector2.left;
+                case Maze.Vector2D.Right:
+                    return Vector2.right;
+                default:
+                    return Vector2.zero;
+            }
         }
 
+        // 將 Maze 的座標轉成 Unity 的座標.
+        private Vector2 Convert(Point2D point)
+        {
+            return new Vector2(point.X.value, point.Y.value);
+        }
+
+        // 將 Unity 的座標轉成 Maze 的座標.
+        private Point2D Convert(Vector2 vector)
+        {
+            int x = (int)Mathf.Round(vector.x);
+            int y = (int)Mathf.Round(vector.y);
+
+            Point2D point = this.bufferCenter.Copy();
+            point.X.value = x;
+            point.Y.value = y;
+            return point;
+        }
+
+
+
+        // 依據 MazeObject 的註冊事件，更新綁定物件.
+        private void UpdateObject(Pair objPair)
+        {
+            switch (objPair.obj.GetEvent())
+            {
+                case ObjEvent.move:
+                    BindedMove(objPair);
+                    break;
+                    
+                case ObjEvent.shape:
+                    objPair.binded.GetComponent<SpriteRenderer>().sprite = objPair.obj.GetSprite();
+                    break;
+
+                case ObjEvent.Destroy:
+                    GameObject.Destroy(objPair.binded);
+                    objPair.binded = null;
+                    break;
+
+                case ObjEvent.Grow:
+                    objPair.binded.transform.localScale = objPair.obj.GetScale();
+                    break;
+
+                case ObjEvent.None:
+                    break;
+            }
+        }
+
+        // 綁定物件依據 Animal 的方向移動.
+        private void BindedMove(Pair objPair)
+        {
+            if(objPair.obj is Animal)
+            {
+                Animal animal = (Animal)objPair.obj;
+                Vector2 vector = Convert(animal.vectorOnScenen);
+                
+                GameObjectMove(objPair.binded, vector);
+
+                if (objPair.obj == Player)
+                {
+                    this.isMove = true;
+                    PlayerOnLittleMapMove(vector);
+                }
+            }
+        }
+
+        // 綁定物件依據 MazeObject 的顏色改變.
+        private void BindedChangeColor(Pair objPair)
+        {
+            objPair.binded.GetComponent<SpriteRenderer>().color = objPair.obj.GetColor();
+        }
+
+        // [需要平順移動] 
+        // GameObject 移動.
+        private void GameObjectMove(GameObject gameObject, Vector2 vector)
+        {
+            gameObject.transform.Translate(vector);
+        }
+
+        
+
+        // 從 objs 或 objsForLittleMap 中找出綁定物件.
+        // null : 找不到.
+        private Pair FindMazeObjectFrom(List<Pair> pairs,MazeObject mazeObject)
+        {
+            foreach(Pair each in pairs)
+            {
+                if (each.obj == mazeObject)
+                    return each;
+            }
+            return null;
+        }
+
+        // obj 的位置是否在 buffer 外?
+        private bool IsOutOfBuffer(MazeObject obj)
+        {
+            if (!obj.position.IsOnPlain(this.Player.Plain))
+                return true;
+
+            Point2D position = obj.PositOnScene;
+            return (
+                position.X.value < bufferCenter.X.value - bufferExtra ||
+                position.X.value > bufferCenter.X.value + bufferExtra ||
+                position.Y.value < bufferCenter.Y.value - bufferExtra ||
+                position.Y.value > bufferCenter.Y.value + bufferExtra);
+        }
+
+        // obj 是否已存在場上的 buffer ?
+        private bool BufferHaveObj(MazeObject obj)
+        {
+            foreach(Pair each in objs)
+            {
+                if (each.obj == obj)
+                    return true;
+            }
+            return false;
+        }
+
+
+
+
+
+
+        
+        // 小地圖上的玩家移動.
+        private void PlayerOnLittleMapMove(Vector2 vector)
+        {
+            playerOnLittleMap.transform.Translate(vector* littleMapWidth/ mapWidth);
+        }
+
+        // 創造一個 Creater 或 Player 在小地圖.
         private void CreateMarkAtLittleMap(MazeObject obj)
         {
             if (FindMazeObjectFrom(objsForLittleMap, obj) != null) return;
             if (obj.PositOnScene.Plain.Dimention != Dimention.Z && obj != Player) return;
 
-            divBase = mapSize / littleMapSize;
 
-            float x = obj.PositOnScene.X.value / divBase - littleMapX - littleMapSize / 2;
-            float y = obj.PositOnScene.Y.value / divBase - littleMapY - littleMapSize / 2;
+            float x = obj.PositOnScene.X.value / littleMapDivBase + LittleMapX - littleMapWidth / 2;
+            float y = obj.PositOnScene.Y.value / littleMapDivBase + LittleMapY - littleMapWidth / 2;
             Color color;
             float scale = 1;
 
@@ -508,7 +562,7 @@ namespace Maze
             else
             {
                 Creater creater = (Creater)obj;
-                scale = creater.GetLevel() / 5f + 1;
+                scale = creater.Level / 5f + 1;
                 color = creater.GetColor();
             }
             
@@ -534,6 +588,9 @@ namespace Maze
             }
         }
 
+        // 小地圖更新，只會在離玩家5步的距離更新.
+        // 依據 creater.Level 更改 mark.scale.
+        // 若 creater 死了，會移除.
         private void UpdateAllMarkAtLittleMap()
         {
             for(int i=0; i<objsForLittleMap.Count; ++i)
@@ -545,7 +602,7 @@ namespace Maze
                 {
                     Creater creater = (Creater)each.obj;
 
-                    if (creater.IsDead())
+                    if (creater.IsDead)
                     {
                         objsForLittleMap.Remove(each);
                         GameObject.Destroy(each.binded);
@@ -553,7 +610,7 @@ namespace Maze
                     }
                     else
                     {
-                        float scale = creater.GetLevel() / 5f + 1;
+                        float scale = creater.Level / 5f + 1;
                         each.binded.transform.localScale = new Vector2(scale, scale);
                     }
                 }

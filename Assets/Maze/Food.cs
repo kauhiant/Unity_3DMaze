@@ -14,7 +14,7 @@ namespace Maze
             Food.Sprite = sprite;
         }
 
-
+        // 所含養分.
         public int Nutrient { get; private set; }
 
         public Food(Point3D position, int nutrient):base(position)

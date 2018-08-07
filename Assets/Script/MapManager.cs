@@ -84,7 +84,7 @@ public class MapManager : MonoBehaviour {
             for (int i = 0; i < 200; ++i)
             {
                 Maze.Point3D point = gameMap.GetRandomPointOn(layer);
-                Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i % GlobalAsset.creaters.Count], 20);
+                Maze.Animal animal = new Maze.Animal(point, GlobalAsset.creaters[i % GlobalAsset.creaters.Count]);
                 if (gameMap.GetAt(point).InsertObj(animal))
                     GlobalAsset.animals.Add(animal);
             }
@@ -133,7 +133,8 @@ public class MapManager : MonoBehaviour {
         {
             command = Command.Wall;
         }
-        else if (Input.GetKey(KeyCode.Space))
+
+        if (Input.anyKey)
         {
             if (manager == null)
                 GameStart();
@@ -148,7 +149,7 @@ public class MapManager : MonoBehaviour {
         player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
         player.Strong(10000);
         GlobalAsset.player = player;
-        manager = new Maze.MapManager(sceneMap, camera, 8);
+        manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
     }
 
 
@@ -193,7 +194,7 @@ public class MapManager : MonoBehaviour {
 
         for(int i=0; i<GlobalAsset.creaters.Count; ++i)
         {
-            if (GlobalAsset.creaters[i].IsDead())
+            if (GlobalAsset.creaters[i].IsDead)
             {
                 GlobalAsset.creaters.RemoveAt(i);
                 --i;
@@ -206,7 +207,7 @@ public class MapManager : MonoBehaviour {
 
         if(manager != null)
         {
-            manager.UpdateScene();
+            manager.Clock();
             UpdataUI();
         }
     }

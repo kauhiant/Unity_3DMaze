@@ -19,7 +19,8 @@ namespace Maze
         public MazeObject Obj { get; private set; }
 
 
-        // 這個格子沒放東西?
+
+        // 這個格子沒放東西(空的)?
         public bool IsEmpty()
         {
             return this.Obj == null;

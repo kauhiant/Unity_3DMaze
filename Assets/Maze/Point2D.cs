@@ -10,6 +10,9 @@ namespace Maze
     // X         : ( Y,Z )
     // Y         : ( Z,X )
     // Z         : ( X,Y )
+    // 要與一個 Point3D 綁定.
+    // 負責把 3D 轉 2D .
+    // 用 2D 的介面控制.
     public class Point2D
     {
         public Int X { get; private set; }
@@ -17,7 +20,8 @@ namespace Maze
         public Point3D Binded { get; private set; }
         public Dimention Dimention { get; private set; }
 
-        public Plain Plain{
+        public Plain Plain // 此 Point2D 所在的平面
+        {
             get{
                 return new Plain(Binded, Dimention);
             }
@@ -35,12 +39,14 @@ namespace Maze
         }
         
 
+        // 與 Point3D 綁定，以 dimention 設定平面.
         public void Bind(Point3D binded, Dimention dimention)
         {
             this.Binded = binded;
             this.ChangePlain(dimention);
         }
-        
+
+        // 以 dimention 設定平面.
         public void ChangePlain(Dimention dimention)
         {
             this.Dimention = dimention;
@@ -64,6 +70,7 @@ namespace Maze
             }
         }
 
+        // 向 vector 移動 distance.
         public void MoveFor(Vector2D vector, int distance)
         {
             switch (vector)
@@ -85,22 +92,15 @@ namespace Maze
                     break;
             }
         }
-
-        /// <summary>
-        /// is this.binded on the plain ?
-        /// </summary>
-        /// <param name="plain"></param>
-        /// <returns></returns>
+        
+        // 是否在同一平面.
         public bool IsOnPlain(Plain plain)
         {
             return this.Binded.IsOnPlain(plain);
         }
 
-        /// <summary>
-        /// return far distance on Plain
-        /// </summary>
-        /// <param name="point"></param>
-        /// <returns></returns>
+        // 傳回最長直線距離.
+        // 如果不再同一平面，回傳最大值.
         public int DistanceTo(Point3D point)
         {
             if (!point.IsOnPlain(this.Plain))
@@ -114,6 +114,7 @@ namespace Maze
             return (xDist > yDist) ? xDist : yDist;
         }
 
+        // 只看 x,y ，不看 binded.
         public bool Equals(Point2D point)
         {
             return (point.X.value == this.X.value 

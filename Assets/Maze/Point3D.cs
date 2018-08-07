@@ -38,7 +38,7 @@ namespace Maze
             this.Z.value = point.Z.value;
         }
 
-        public void MoveFor(Vector3D vector, int dist) {
+        public void MoveFor(Vector3D vector, int dist=1) {
             switch (vector)
             {
                 case Vector3D.Xn:

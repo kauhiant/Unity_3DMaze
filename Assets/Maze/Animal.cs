@@ -77,7 +77,7 @@ namespace Maze
 
         public Creater Hometown{ get; private set; }
 
-        public Animal(Point3D position, Creater hometown, int power) : base(position)
+        public Animal(Point3D position, Creater hometown) : base(position)
         {
             posit = new Point2D(this.position, Dimention.Z);
             vector = Vector3D.Xp;
@@ -85,9 +85,9 @@ namespace Maze
             ep = new EnergyBar(100);
             hungry = new EnergyBar(200);
             this.Color = hometown.GetColor();
-            this.power = power;
+            this.power = 20;
             this.Hometown = hometown;
-            this.patrolDist = hometown.GetLevel() + 1;
+            this.patrolDist = hometown.Level + 1;
         }
 
         public override Sprite GetSprite()
@@ -100,7 +100,7 @@ namespace Maze
             if (creater.GetColor().Equals(this.Color))
             {
                 this.Hometown = creater;
-                this.patrolDist = creater.GetLevel() +1 ;
+                this.patrolDist = creater.Level +1 ;
             }
         }
 
@@ -410,7 +410,7 @@ namespace Maze
             {
                 Patrol(Hometown);
 
-                if (Hometown.IsDead())
+                if (Hometown.IsDead)
                     Hometown = null;
             }
             else if(friend != null)

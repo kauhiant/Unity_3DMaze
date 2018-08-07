@@ -10,6 +10,7 @@ namespace Maze
     // 也會顯示在畫面上.
     abstract public class MazeObject
     {
+        // 此遊戲的物件都會創造在這個世界.
         static public Map3D World { get; private set; }
         static public void SetMaze(Map3D world)
         {
@@ -23,15 +24,14 @@ namespace Maze
         { get { return new Point2D(this.position, GlobalAsset.player.Plain.Dimention); } }
 
 
+
         public MazeObject(Point3D position)
         {
             this.position = position;
             this.objEvent = ObjEvent.None;
-
-            /* 之後要做的.
-            if (!World.GetAt(position).InsertObj(this))
-                Debug.Log(string.Format("{0} this grid is not empty, can insert Object",position));*/
         }
+
+
 
         // 以下3個都是提供給 MapManager 讓他創造更新綁定的 GameObject 用的.
         public abstract Sprite GetSprite();
