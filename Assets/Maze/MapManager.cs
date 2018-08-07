@@ -300,6 +300,14 @@ namespace Maze
                 GameObject.Destroy(objs[0].binded);
                 objs.RemoveAt(0);
             }
+
+            while(objsForLittleMap.Count != 0)
+            {
+                GameObject.Destroy(objsForLittleMap[0].binded);
+                objsForLittleMap.RemoveAt(0);
+            }
+
+            GameObject.Destroy(playerOnLittleMap);
         }
 
 
@@ -483,6 +491,7 @@ namespace Maze
         private void CreateMarkAtLittleMap(MazeObject obj)
         {
             if (FindMazeObjectFrom(objsForLittleMap, obj) != null) return;
+            if (obj.PositOnScene.Plain.Dimention != Dimention.Z && obj != Player) return;
 
             divBase = mapSize / littleMapSize;
 
@@ -507,13 +516,22 @@ namespace Maze
             GameObject mark = new GameObject();
             mark.transform.position = new Vector2(x, y);
             mark.transform.localScale = new Vector2(scale, scale);
-            mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.mark;
-            mark.GetComponent<SpriteRenderer>().color = color;
 
             if (obj == Player)
+            {
                 playerOnLittleMap = mark;
+                mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.mark;
+                mark.GetComponent<SpriteRenderer>().sortingLayerName = "object";
+                mark.GetComponent<SpriteRenderer>().color = color;
+            }
             else
+            {
                 objsForLittleMap.Add(new Pair(obj, mark));
+                Color alphaColor = new Color(color.r, color.g, color.b, 0.7f);
+                mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.createrMark;
+                mark.GetComponent<SpriteRenderer>().sortingLayerName = "creater";
+                mark.GetComponent<SpriteRenderer>().color = alphaColor;
+            }
         }
 
         private void UpdateAllMarkAtLittleMap()

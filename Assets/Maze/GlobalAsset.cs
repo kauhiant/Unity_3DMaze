@@ -11,8 +11,9 @@ public class GlobalAsset
     static public Sprite straight;
     static public Sprite horizon;
     static public Sprite create;
+
     static public Sprite mark;
-    
+    static public Sprite createrMark;
     
 
     static public Maze.Animal player;

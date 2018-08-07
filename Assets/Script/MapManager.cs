@@ -23,7 +23,9 @@ public class MapManager : MonoBehaviour {
     public Sprite straight;
     public Sprite horizon;
     public Sprite create;
+
     public Sprite mark;
+    public Sprite createrMark;
 
     public Sprite gridSprite;
     public Sprite stoneSprite;
@@ -50,8 +52,10 @@ public class MapManager : MonoBehaviour {
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
         GlobalAsset.create = create;
+
         GlobalAsset.mark = mark;
-        
+        GlobalAsset.createrMark = createrMark;
+
         Maze.Stone.SetSprite(stoneSprite);
         Maze.Creater.SetSprite(createrSprite);
         Maze.Food.SetSprite(foodSprite);
