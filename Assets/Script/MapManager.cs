@@ -140,10 +140,12 @@ public class MapManager : MonoBehaviour {
             command = Command.Wall;
         }
 
-        if (Input.anyKey)
+        if (Input.GetKeyDown(KeyCode.Return))
         {
             if (manager == null)
                 GameStart();
+            else if (player.isDead)
+                GameRestart();
         }
         
         
@@ -162,6 +164,16 @@ public class MapManager : MonoBehaviour {
         manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
     }
 
+    private void GameRestart()
+    {
+        HideTalkBox();
+        player = GlobalAsset.animals[GlobalAsset.animals.Count - 1];
+        player.Strong(100);
+        GlobalAsset.player = player;
+        manager.ChangePlain();
+        command = Command.None;
+    }
+
 
     float timer;
     public void Clock(float deltaTime)
@@ -174,7 +186,7 @@ public class MapManager : MonoBehaviour {
 
         if(player != null && player.isDead)
         {
-            ShowTalkBox("你已經死了");
+            ShowTalkBox("你已經死了\n按Enter鍵轉生");
         }
 
         // 將場上的技能效果清空.
@@ -190,7 +202,7 @@ public class MapManager : MonoBehaviour {
         }
         else
         {
-            ShowTalkBox("按任意建開始");
+            ShowTalkBox("按Enter建開始");
         }
     }
 

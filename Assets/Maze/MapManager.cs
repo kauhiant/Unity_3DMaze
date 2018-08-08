@@ -181,9 +181,10 @@ namespace Maze
 
         }
 
+        
+        
 
-
-
+        // 若 player 不存在 不會執行.
         public void Clock()
         {
             if (Player == null) return;
@@ -227,9 +228,8 @@ namespace Maze
             UpdateAllMarkAtLittleMap();
         }
 
-        /// <summary>
-        /// use this function after player.changePlain.
-        /// </summary>
+        // 當 player 換人或改變視角時，要呼叫此方法.
+        // 不然 buffer 會看到其他地方.
         public void ChangePlain()
         {
             ClearMap();
