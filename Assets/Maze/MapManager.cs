@@ -70,11 +70,6 @@ namespace Maze
         { get { return GlobalAsset.player; } }
         public GameObject PlayerBind
         { get { return FindMazeObjectFrom(objs,Player).binded; } }
-        public bool GameOver
-        {
-            private set { GlobalAsset.gameOver = value; }
-            get { return GlobalAsset.gameOver; }
-        }
 
 
         
@@ -95,8 +90,7 @@ namespace Maze
             this.littleMap = littleMap;
             this.littleMapDivBase = mapWidth / littleMapWidth;
 
-
-            GameOver = false;
+            
             camera.transform.position = new Vector3(bufferCenter.X.value, bufferCenter.Y.value, -1);
             ShowMap();
         }
@@ -192,7 +186,7 @@ namespace Maze
 
         public void Clock()
         {
-            if (GameOver) return;
+            if (Player.isDead) return;
 
             // update player
             UpdateObject(FindMazeObjectFrom(objs,Player));
@@ -217,9 +211,6 @@ namespace Maze
                 // if the obj is destroyed.
                 if (objs[i].binded == null)
                 {
-                    if (objs[i].obj == Player)
-                        GameOver = true;
-
                     objs.RemoveAt(i);
                     --i;
                     continue;
@@ -574,7 +565,7 @@ namespace Maze
             if (obj == Player)
             {
                 playerOnLittleMap = mark;
-                mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.mark;
+                mark.AddComponent<SpriteRenderer>().sprite = GlobalAsset.playerMark;
                 mark.GetComponent<SpriteRenderer>().sortingLayerName = "object";
                 mark.GetComponent<SpriteRenderer>().color = color;
             }

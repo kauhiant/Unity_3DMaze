@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class GlobalAsset
 {
-    static public bool gameOver;
-    
-
     static public Sprite attack;
     static public Sprite straight;
     static public Sprite horizon;
     static public Sprite create;
 
-    static public Sprite mark;
+    static public Sprite playerMark;
     static public Sprite createrMark;
     
 

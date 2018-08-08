@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 907fcd20cc85afc40978148cba2bdc43
-timeCreated: 1533655996
+timeCreated: 1533700169
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
@@ -14,7 +14,7 @@ MonoImporter:
   - straight: {fileID: 21300000, guid: b59dc7e3c54988f4db7d587ea46f8b4c, type: 3}
   - horizon: {fileID: 21300000, guid: 0ebfb304bd64dff48baab143a1645330, type: 3}
   - create: {fileID: 21300000, guid: 23fa0a76f73201b4ab8257c5662a9793, type: 3}
-  - mark: {fileID: 21300000, guid: 8ed395c2c17e28c45b20720995964dfc, type: 3}
+  - playerMark: {fileID: 21300000, guid: 8ed395c2c17e28c45b20720995964dfc, type: 3}
   - createrMark: {fileID: 21300000, guid: 183516c61b9889847b4825b7606af0ca, type: 3}
   - gridSprite: {fileID: 21300000, guid: 52aae0ac390fe2548ac2fb89309b3255, type: 3}
   - stoneSprite: {fileID: 21300000, guid: d541ae07e5fa67a4ea472502807fbbff, type: 3}

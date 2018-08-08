@@ -15,7 +15,7 @@ public class MapManager : MonoBehaviour {
     public float clockTime = 0.3f;
 
     /// <summary>
-    /// 6 : right, down, left, up, in, out.
+    /// index : right, down, left, up, in, out.
     /// </summary>
     public Sprite[] animalShapes = new Sprite[6];
 
@@ -24,7 +24,7 @@ public class MapManager : MonoBehaviour {
     public Sprite horizon;
     public Sprite create;
 
-    public Sprite mark;
+    public Sprite playerMark;
     public Sprite createrMark;
 
     public Sprite gridSprite;
@@ -32,55 +32,59 @@ public class MapManager : MonoBehaviour {
     public Sprite createrSprite;
     public Sprite foodSprite;
     public Sprite wallSprite;
+    
 
     private Maze.Map3D gameMap;
     private Maze.Map2D sceneMap;
     private Maze.Animal player;
-
-    private Command command = Command.None;
-
     private Maze.MapManager manager;
 
     private bool isAuto = false;
+    private Command command = Command.None;
+
+
 
 	// Use this for initialization.
 	void Start () {
 
         Maze.Animal.SetShape(new Maze.Shape(animalShapes));
         Maze.Grid.SetSprite(gridSprite);
-        GlobalAsset.attack = attack;
-        GlobalAsset.straight = straight;
-        GlobalAsset.horizon = horizon;
-        GlobalAsset.create = create;
-
-        GlobalAsset.mark = mark;
-        GlobalAsset.createrMark = createrMark;
-
         Maze.Stone.SetSprite(stoneSprite);
         Maze.Creater.SetSprite(createrSprite);
         Maze.Food.SetSprite(foodSprite);
         Maze.Wall.SetSprite(wallSprite);
 
+        GlobalAsset.attack = attack;
+        GlobalAsset.straight = straight;
+        GlobalAsset.horizon = horizon;
+        GlobalAsset.create = create;
+
+        GlobalAsset.playerMark = playerMark;
+        GlobalAsset.createrMark = createrMark;
+
+
         gameMap = new Maze.Map3D(64, 64, 3);
         sceneMap = new Maze.Map2D(gameMap);
         Maze.MazeObject.SetMaze(gameMap);
 
-
         
-
-        
-        for(int layer=0; layer<3; ++layer)
+        // 在每個平面執行動作.
+        for (int layer=0; layer<Maze.MazeObject.World.Layers; ++layer)
         {
+            // 創造6個不同顏色的村莊.
             for (int i = 0; i < 6; ++i)
             {
                 Maze.Point3D position = gameMap.GetRandomPointOn(layer);
                 Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
+
                 if (gameMap.GetAt(position).InsertObj(creater))
-                {
                     GlobalAsset.creaters.Add(creater);
-                }
+
+                else
+                    --i;
             }
 
+            // 創造小於200的各色生物.
             for (int i = 0; i < 200; ++i)
             {
                 Maze.Point3D point = gameMap.GetRandomPointOn(layer);
@@ -91,7 +95,7 @@ public class MapManager : MonoBehaviour {
         }
         
         
-        time = 0;
+        timer = 0;
     }
 
     // Update is called once per frame
@@ -141,9 +145,12 @@ public class MapManager : MonoBehaviour {
         }
         
         
-        Clock();
+        Clock(Time.deltaTime);
     }
     
+
+    // 開始遊戲，將現存的生物中的其中一隻變成玩家.
+    // 並創造 MapManager 開始畫圖.
     private void GameStart()
     {
         player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
@@ -153,20 +160,38 @@ public class MapManager : MonoBehaviour {
     }
 
 
-    float time;
-    public void Clock()
+    float timer;
+    public void Clock(float deltaTime)
     {
-        if (manager != null && manager.GameOver)
+        if (player != null && player.isDead)
             return;
         
-        time += Time.deltaTime;
-        if (time < clockTime) return;
-        time = 0;
+        // Clock 檢查.(鋸齒波邊緣觸發)
+        timer += deltaTime;
+        if (timer < clockTime) return;
+        timer = 0;
 
 
+        // 將場上的技能效果清空.
         Maze.SkillManager.clear();
+
         
-        for(int i=0; i< GlobalAsset.animals.Count; ++i)
+        MazeClock();
+
+        if(manager != null)
+        {
+            manager.Clock();
+            UpdataUI();
+        }
+    }
+
+    private void MazeClock()
+    {
+        // 地圖 行動.
+        gameMap.Clock();
+
+        // 所有生物 行動.
+        for (int i = 0; i < GlobalAsset.animals.Count; ++i)
         {
             Maze.Animal each = GlobalAsset.animals[i];
 
@@ -188,11 +213,12 @@ public class MapManager : MonoBehaviour {
             else
                 each.Auto();
 
-            
+
             each.Clock();
         }
 
-        for(int i=0; i<GlobalAsset.creaters.Count; ++i)
+        // 所有生成器 行動.
+        for (int i = 0; i < GlobalAsset.creaters.Count; ++i)
         {
             if (GlobalAsset.creaters[i].IsDead)
             {
@@ -203,36 +229,11 @@ public class MapManager : MonoBehaviour {
             GlobalAsset.creaters[i].Clock();
         }
 
-        gameMap.Clock();
-
-        if(manager != null)
-        {
-            manager.Clock();
-            UpdataUI();
-        }
     }
 
-    private Color RandomColor()
-    {
-        switch (UnityEngine.Random.Range(0, 6))
-        {
-            case 0:
-                return Color.white;
-            case 1:
-                return Color.red;
-            case 2:
-                return Color.green; 
-            case 3:
-                return Color.blue;
-            case 4:
-                return Color.cyan;
-            case 5:
-                return Color.yellow;
-            default:
-                return Color.magenta;
-        }
-    }
+    
 
+    // 目前有6個顏色.
     private Color colorIndex(int index)
     {
         switch (index)
@@ -254,7 +255,7 @@ public class MapManager : MonoBehaviour {
         }
     }
     
-
+    // 切換 [自動/手動] 模式.
     private void SwitchAuto()
     {
         if (isAuto)
@@ -268,6 +269,7 @@ public class MapManager : MonoBehaviour {
         }
     }
 
+    // player 根據 玩家command 行動.
     private void PlayerAction()
     {
         switch (command)
@@ -312,6 +314,7 @@ public class MapManager : MonoBehaviour {
         command = Command.None;
     }
 
+    // UI 顯示玩家狀態.
     private void UpdataUI()
     {
         UI_HP.GetComponent<Slider>().value = GlobalAsset.player.hp.BarRate;
@@ -319,6 +322,7 @@ public class MapManager : MonoBehaviour {
         UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
     }
 
+    // 玩家可下的指令.
     enum Command
     {
         Up,Down,Left,Right,Plain,Attack,Straight,Horizon,Wall,None

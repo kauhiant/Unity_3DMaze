@@ -85,6 +85,7 @@ namespace Maze
         // userVector   施術者面向方位.
         private static void showSkill(Skill skill, Point2D userPosition, Vector2D userVector) 
         {
+            // 如果還沒指定玩家，就不會畫圖.
             if (!userPosition.IsOnPlain(GlobalAsset.player.Plain))
                 return;
 
