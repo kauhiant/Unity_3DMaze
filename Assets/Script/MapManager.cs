@@ -11,6 +11,8 @@ public class MapManager : MonoBehaviour {
     public GameObject UI_HP;
     public GameObject UI_EP;
     public GameObject UI_Hungry;
+    public GameObject UI_TalkBox;
+    public Text UI_TalkBox_Text;
 
     public float clockTime = 0.3f;
 
@@ -153,8 +155,9 @@ public class MapManager : MonoBehaviour {
     // 並創造 MapManager 開始畫圖.
     private void GameStart()
     {
+        HideTalkBox();
         player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
-        player.Strong(10000);
+        player.Strong(100);
         GlobalAsset.player = player;
         manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
     }
@@ -163,14 +166,16 @@ public class MapManager : MonoBehaviour {
     float timer;
     public void Clock(float deltaTime)
     {
-        if (player != null && player.isDead)
-            return;
         
         // Clock 檢查.(鋸齒波邊緣觸發)
         timer += deltaTime;
         if (timer < clockTime) return;
         timer = 0;
 
+        if(player != null && player.isDead)
+        {
+            ShowTalkBox("你已經死了");
+        }
 
         // 將場上的技能效果清空.
         Maze.SkillManager.clear();
@@ -182,6 +187,10 @@ public class MapManager : MonoBehaviour {
         {
             manager.Clock();
             UpdataUI();
+        }
+        else
+        {
+            ShowTalkBox("按任意建開始");
         }
     }
 
@@ -320,6 +329,19 @@ public class MapManager : MonoBehaviour {
         UI_HP.GetComponent<Slider>().value = GlobalAsset.player.hp.BarRate;
         UI_EP.GetComponent<Slider>().value = GlobalAsset.player.ep.BarRate;
         UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
+    }
+
+    // UI顯示對話框.
+    private void ShowTalkBox(String message)
+    {
+        UI_TalkBox.SetActive(true);
+        UI_TalkBox_Text.text = message;
+    }
+
+    // UI隱藏對話框.
+    private void HideTalkBox()
+    {
+        UI_TalkBox.SetActive(false);
     }
 
     // 玩家可下的指令.

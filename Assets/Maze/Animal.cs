@@ -168,11 +168,11 @@ namespace Maze
         public void Strong(int value)
         {
             this.hp.MaxExpand(value);
-            this.hp.Set(value);
+            this.hp.Add(value);
             this.ep.MaxExpand(value);
-            this.ep.Set(value);
+            this.ep.Add(value);
             this.hungry.MaxExpand(value);
-            this.hungry.Set(value);
+            this.hungry.Add(value);
         }
 
 

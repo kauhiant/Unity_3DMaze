@@ -186,10 +186,11 @@ namespace Maze
 
         public void Clock()
         {
-            if (Player.isDead) return;
+            if (Player == null) return;
 
             // update player
-            UpdateObject(FindMazeObjectFrom(objs,Player));
+            if(!Player.isDead)
+                UpdateObject(FindMazeObjectFrom(objs,Player));
 
             // if player move
             if (isMove)
