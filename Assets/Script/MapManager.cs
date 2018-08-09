@@ -14,6 +14,8 @@ public class MapManager : MonoBehaviour {
     public GameObject UI_TalkBox;
     public Text UI_TalkBox_Text;
 
+    public AudioSource clockAudio;
+
     public float ClockTime
     {
         set
@@ -199,13 +201,14 @@ public class MapManager : MonoBehaviour {
 
         if(player != null)
         {
-            Debug.Log(GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value));
-
             if (player.isDead)
                 ShowTalkBox("你已經死了\n按Enter鍵轉生");
-
+            
             else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
                 ShowTalkBox("我方勝利");
+
+            else
+                clockAudio.Play();
         }
 
         // 將場上的技能效果清空.
