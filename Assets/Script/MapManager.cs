@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapManager : MonoBehaviour {
-
+public class MapManager : MonoBehaviour
+{
     public GameObject camera;
     public GameObject littleMap;
     public GameObject UI_HP;
@@ -152,7 +152,7 @@ public class MapManager : MonoBehaviour {
             command = Command.Wall;
         }
 
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (GameReady && Input.GetKeyDown(KeyCode.Return))
         {
             if (manager == null)
                 GameStart();
@@ -189,6 +189,13 @@ public class MapManager : MonoBehaviour {
     }
 
 
+    private bool GameReady = false;
+    public void GameReadyStart()
+    {
+        ShowTalkBox("按Enter建開始");
+        GameReady = true;
+    }
+
     float timer;
     public void Clock(float deltaTime)
     {
@@ -221,10 +228,6 @@ public class MapManager : MonoBehaviour {
         {
             manager.Clock();
             UpdataUI();
-        }
-        else
-        {
-            ShowTalkBox("按Enter建開始");
         }
     }
 
