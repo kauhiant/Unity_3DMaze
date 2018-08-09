@@ -14,7 +14,17 @@ public class MapManager : MonoBehaviour {
     public GameObject UI_TalkBox;
     public Text UI_TalkBox_Text;
 
-    public float clockTime = 0.3f;
+    public float ClockTime
+    {
+        set
+        {
+            GlobalAsset.clockTime = value;
+        }
+        get
+        {
+            return GlobalAsset.clockTime;
+        }
+    }
 
     /// <summary>
     /// index : right, down, left, up, in, out.
@@ -147,8 +157,10 @@ public class MapManager : MonoBehaviour {
             else if (player.isDead)
                 GameRestart();
         }
-        
-        
+
+        if (manager != null)
+            manager.Update(Time.deltaTime);
+
         Clock(Time.deltaTime);
     }
     
@@ -181,7 +193,7 @@ public class MapManager : MonoBehaviour {
         
         // Clock 檢查.(鋸齒波邊緣觸發)
         timer += deltaTime;
-        if (timer < clockTime) return;
+        if (timer < ClockTime) return;
         timer = 0;
         
 

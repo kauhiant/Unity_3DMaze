@@ -11,8 +11,8 @@ public class GlobalAsset
 
     static public Sprite playerMark;
     static public Sprite createrMark;
-    
 
+    static public float clockTime=0.3f;
     static public Maze.Animal player;
 
     static public List<Maze.Animal> animals = new List<Maze.Animal>();

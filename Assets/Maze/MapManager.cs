@@ -21,10 +21,47 @@ namespace Maze
             }
         }
 
+        class MovingObj
+        {
+            static public float ClockTime
+            {
+                get
+                {
+                    return GlobalAsset.clockTime;
+                }
+            }
+
+            public GameObject obj;
+            public Vector2 vector;
+            public Vector3 destination; // 為了配合 camera.
+
+            public MovingObj(GameObject obj, Vector2 vector)
+            {
+                this.obj = obj;
+                this.vector = vector;
+                this.destination = (Vector3)obj.transform.position + (Vector3)vector;
+            }
+
+            public void Move(float deltaTime)
+            {
+                if(obj != null)
+                    obj.transform.Translate(vector * deltaTime / ClockTime);
+            }
+
+            public void MoveToDest()
+            {
+                if(obj != null)
+                    obj.transform.position = destination;
+            }
+        }
+
         // GameObjects and MazeObjects
         private List<GameObject> grids;
         private List<Pair> objs;
         private List<Pair> objsForLittleMap;
+
+        // 平順移動(非常需要改進).
+        private List<MovingObj> movingObjs;
         
         // RealMap
         private Map2D map;
@@ -70,7 +107,7 @@ namespace Maze
         { get { return GlobalAsset.player; } }
         public GameObject PlayerBind
         { get { return FindMazeObjectFrom(objs,Player).binded; } }
-
+        
 
         
         public MapManager(Map2D map, GameObject camera, GameObject littleMap, int extra)
@@ -78,6 +115,7 @@ namespace Maze
             this.grids = new List<GameObject>();
             this.objs  = new List<Pair>();
             this.objsForLittleMap = new List<Pair>();
+            this.movingObjs = new List<MovingObj>();
 
             this.map = map;
             this.mapWidth = map.Binded.WidthX;
@@ -182,12 +220,23 @@ namespace Maze
         }
 
         
-        
+        // 在MonoBehaviour 的 Update() 呼叫.
+        // [用來平順移動]
+        public void Update(float deltaTime)
+        {
+            foreach(MovingObj each in movingObjs)
+            {
+                each.Move(deltaTime);
+            }
+        }
 
         // 若 player 不存在 不會執行.
         public void Clock()
         {
             if (Player == null) return;
+
+            // 所有移動中物件移到目標點.
+            ObjsMoveToDest();
 
             // update player
             if(!Player.isDead)
@@ -476,13 +525,25 @@ namespace Maze
             objPair.binded.GetComponent<SpriteRenderer>().color = objPair.obj.GetColor();
         }
 
+
         // [需要平順移動] 
         // GameObject 移動.
         private void GameObjectMove(GameObject gameObject, Vector2 vector)
         {
-            gameObject.transform.Translate(vector);
+            //gameObject.transform.Translate(vector);
+            movingObjs.Add(new MovingObj(gameObject, vector));
         }
 
+        // [平順移動]
+        // 所有移動中物件都移到目標點.
+        private void ObjsMoveToDest()
+        {
+            while(movingObjs.Count != 0)
+            {
+                movingObjs[0].MoveToDest();
+                movingObjs.RemoveAt(0);
+            }
+        }
         
 
         // 從 objs 或 objsForLittleMap 中找出綁定物件.
