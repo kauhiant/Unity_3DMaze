@@ -183,10 +183,17 @@ public class MapManager : MonoBehaviour {
         timer += deltaTime;
         if (timer < clockTime) return;
         timer = 0;
+        
 
-        if(player != null && player.isDead)
+        if(player != null)
         {
-            ShowTalkBox("你已經死了\n按Enter鍵轉生");
+            Debug.Log(GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value));
+
+            if (player.isDead)
+                ShowTalkBox("你已經死了\n按Enter鍵轉生");
+
+            else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
+                ShowTalkBox("我方勝利");
         }
 
         // 將場上的技能效果清空.

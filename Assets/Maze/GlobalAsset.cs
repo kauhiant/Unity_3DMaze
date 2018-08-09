@@ -17,4 +17,23 @@ public class GlobalAsset
 
     static public List<Maze.Animal> animals = new List<Maze.Animal>();
     static public List<Maze.Creater> creaters = new List<Maze.Creater>();
+
+    static public float RateOfColorOn(Color color, int layer)
+    {
+        int count = 0;
+        int total = 0;
+        foreach(Maze.Creater each in creaters)
+        {
+            if (each.position.Z.value == layer)
+            {
+                total += each.Level;
+
+                if (each.Color.Equals(color))
+                    count += each.Level;
+            }
+
+        }
+
+        return (float)count / (float)total;
+    }
 }
