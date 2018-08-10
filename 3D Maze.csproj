@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\HintBox.cs" />
     <Compile Include="Assets\Maze\Animal.cs" />
     <Compile Include="Assets\Maze\Attackable.cs" />
     <Compile Include="Assets\Maze\Creater.cs" />
@@ -97,7 +98,14 @@
     <Compile Include="Assets\Maze\SkillManager.cs" />
     <Compile Include="Assets\Maze\Stone.cs" />
     <Compile Include="Assets\Maze\Wall.cs" />
+    <Compile Include="Assets\Script\DragObject.cs" />
+    <Compile Include="Assets\Script\HotKey_Input.cs" />
     <Compile Include="Assets\Script\MapManager.cs" />
+    <Compile Include="Assets\Script\button_script.cs" />
+    <Compile Include="Assets\Script\skill.cs" />
+    <Compile Include="Assets\Script\slot.cs" />
+    <Compile Include="Assets\TalkBox.cs" />
+    <Compile Include="Assets\interface.cs" />
     <Compile Include="Assets\開始素材\Script\Interactive.cs" />
     <Compile Include="Assets\開始素材\Script\page_control.cs" />
     <Compile Include="Assets\開始素材\Script\talk_block_interactive.cs" />

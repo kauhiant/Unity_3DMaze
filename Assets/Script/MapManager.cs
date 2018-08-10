@@ -8,11 +8,14 @@ public class MapManager : MonoBehaviour
 {
     public GameObject camera;
     public GameObject littleMap;
+    public GameObject UI_statusBars;
     public GameObject UI_HP;
     public GameObject UI_EP;
     public GameObject UI_Hungry;
-    public GameObject UI_TalkBox;
-    public Text UI_TalkBox_Text;
+    public GameObject UI_Skill;
+
+    public HintBox hintBox;
+    public TalkBox talkBox;
 
     public AudioSource clockAudio;
 
@@ -131,23 +134,23 @@ public class MapManager : MonoBehaviour
         {
             command = Command.Right;
         }
-        else if (Input.GetKey(KeyCode.C))
+        else if (Input.GetKey(KeyCode.T))
         {
             command = Command.Plain;
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.Q))
         {
             command = Command.Attack;
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.W))
         {
             command = Command.Straight;
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.E))
         {
             command = Command.Horizon;
         }
-        else if (Input.GetKey(KeyCode.F))
+        else if (Input.GetKey(KeyCode.R))
         {
             command = Command.Wall;
         }
@@ -176,6 +179,9 @@ public class MapManager : MonoBehaviour
         player.Strong(100);
         GlobalAsset.player = player;
         manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
+
+        UI_statusBars.SetActive(true);
+        UI_Skill.SetActive(true);
     }
 
     private void GameRestart()
@@ -371,14 +377,14 @@ public class MapManager : MonoBehaviour
     // UI顯示對話框.
     private void ShowTalkBox(String message)
     {
-        UI_TalkBox.SetActive(true);
-        UI_TalkBox_Text.text = message;
+        talkBox.Show(message);
+        UI_Skill.SetActive(false);
     }
 
     // UI隱藏對話框.
     private void HideTalkBox()
     {
-        UI_TalkBox.SetActive(false);
+        talkBox.Hide();
     }
 
     // 玩家可下的指令.
