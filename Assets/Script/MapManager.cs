@@ -190,7 +190,7 @@ public class MapManager : MonoBehaviour
         player = GlobalAsset.animals[GlobalAsset.animals.Count - 1];
         player.Strong(100);
         GlobalAsset.player = player;
-        manager.ChangePlain();
+        manager.ChangePlayer();
         command = Command.None;
     }
 
@@ -256,12 +256,7 @@ public class MapManager : MonoBehaviour
 
 
             if (each == player)
-            {
-                if (isAuto)
-                    each.Auto();
-                else
-                    PlayerAction();
-            }
+                PlayerAction();
             else
                 each.Auto();
 
@@ -344,7 +339,6 @@ public class MapManager : MonoBehaviour
 
             case Command.Plain:
                 player.ChangePlain();
-                manager.ChangePlain();
                 break;
 
             case Command.Attack:

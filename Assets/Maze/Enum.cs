@@ -27,7 +27,7 @@ namespace Maze
 
     public enum ObjEvent
     {
-        move,shape,Destroy,Grow,None
+        move,shape,plain,Destroy,Grow,None
     }
 
     public enum Skill

@@ -222,9 +222,12 @@ namespace Maze
         
         // 在MonoBehaviour 的 Update() 呼叫.
         // [用來平順移動]
+        // player 不存在，不會執行.
         public void Update(float deltaTime)
         {
-            foreach(MovingObj each in movingObjs)
+            if (Player == null) return;
+
+            foreach (MovingObj each in movingObjs)
             {
                 each.Move(deltaTime);
             }
@@ -277,9 +280,21 @@ namespace Maze
             UpdateAllMarkAtLittleMap();
         }
 
-        // 當 player 換人或改變視角時，要呼叫此方法.
+        // 當 player 換人時，要呼叫此方法.
+        // 不然上一個玩家的視角會殘留.
+        public void ChangePlayer()
+        {
+            ClearMap();
+            this.bufferCenter = Player.PositOnScene.Copy();
+            camera.transform.position = new Vector3(bufferCenter.X.value, bufferCenter.Y.value, -1);
+            ShowMap();
+        }
+
+
+
+        // 當 player 改變視角時，要呼叫此方法.
         // 不然 buffer 會看到其他地方.
-        public void ChangePlain()
+        private void ChangePlain()
         {
             ClearMap();
             this.bufferCenter = Player.PositOnScene.Copy();
@@ -494,6 +509,10 @@ namespace Maze
 
                 case ObjEvent.Grow:
                     objPair.binded.transform.localScale = objPair.obj.GetScale();
+                    break;
+
+                case ObjEvent.plain:
+                    ChangePlain();
                     break;
 
                 case ObjEvent.None:

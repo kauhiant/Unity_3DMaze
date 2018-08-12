@@ -187,6 +187,7 @@ namespace Maze
         public void ChangePlain()
         {
             ChangePlain(this.forwardDimen);
+            RegisterEvent(ObjEvent.plain);
         }
 
         public void Attack()
