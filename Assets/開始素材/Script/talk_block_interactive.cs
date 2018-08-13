@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class talk_block_interactive : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler{
 
@@ -17,6 +18,6 @@ public class talk_block_interactive : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public void start_button()
     {
-        Application.LoadLevel(1);
+        SceneManager.LoadScene(1);
     }
 }

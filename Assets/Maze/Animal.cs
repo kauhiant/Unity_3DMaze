@@ -165,8 +165,9 @@ namespace Maze
         }
 
 
-        public void Strong(int value)
+        public void Strong(int value, int power = 0)
         {
+            this.power += power;
             this.hp.MaxExpand(value);
             this.hp.Add(value);
             this.ep.MaxExpand(value);

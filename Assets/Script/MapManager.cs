@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MapManager : MonoBehaviour
 {
@@ -56,8 +57,8 @@ public class MapManager : MonoBehaviour
     private Maze.Map2D sceneMap;
     private Maze.Animal player;
     private Maze.MapManager manager;
-
-    private bool isAuto = false;
+    
+    private bool isWin  = false;
     private Command command = Command.None;
 
 
@@ -81,7 +82,7 @@ public class MapManager : MonoBehaviour
         GlobalAsset.createrMark = createrMark;
 
 
-        gameMap = new Maze.Map3D(64, 64, 3);
+        gameMap = new Maze.Map3D(32, 32, 3);
         sceneMap = new Maze.Map2D(gameMap);
         Maze.MazeObject.SetMaze(gameMap);
 
@@ -162,6 +163,8 @@ public class MapManager : MonoBehaviour
                 GameStart();
             else if (player.isDead)
                 GameRestart();
+            else if (isWin)
+                SceneManager.LoadScene(0);
         }
 
         if (manager != null)
@@ -202,7 +205,7 @@ public class MapManager : MonoBehaviour
     private void AssignPlayer(Maze.Animal animal)
     {
         player = animal;
-        player.Strong(100);
+        player.Strong(100,50);
         GlobalAsset.player = player;
         rateBar.setColor(player.Color);
     }
@@ -221,6 +224,11 @@ public class MapManager : MonoBehaviour
         
         // Clock 檢查.(鋸齒波邊緣觸發)
         timer += deltaTime;
+
+        if(timer > ClockTime/2)
+            // 將場上的技能效果清空.
+            Maze.SkillManager.clear();
+
         if (timer < ClockTime) return;
         timer = 0;
         
@@ -231,14 +239,15 @@ public class MapManager : MonoBehaviour
                 ShowTalkBox("你已經死了\n按Enter鍵轉生");
             
             else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
+            {
                 ShowTalkBox("我方勝利");
+                isWin = true;
+            }
 
             else
                 clockAudio.Play();
         }
 
-        // 將場上的技能效果清空.
-        Maze.SkillManager.clear();
 
         
         MazeClock();
@@ -315,19 +324,6 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    // 切換 [自動/手動] 模式.
-    private void SwitchAuto()
-    {
-        if (isAuto)
-        {
-            isAuto = !isAuto;
-            command = Command.None;
-        }
-        else
-        {
-            isAuto = !isAuto;
-        }
-    }
 
     // player 根據 玩家command 行動.
     private void PlayerAction()
