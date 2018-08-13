@@ -164,7 +164,7 @@ public class MapManager : MonoBehaviour
             else if (player.isDead)
                 GameRestart();
             else if (isWin)
-                SceneManager.LoadScene(0);
+                gotoStartScene();
         }
 
         if (manager != null)
@@ -210,6 +210,12 @@ public class MapManager : MonoBehaviour
         rateBar.setColor(player.Color);
     }
 
+    private void gotoStartScene()
+    {
+        GlobalAsset.Reset();
+        SceneManager.LoadScene(0);
+    }
+
 
     private bool GameReady = false;
     public void GameReadyStart()
@@ -240,7 +246,7 @@ public class MapManager : MonoBehaviour
             
             else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
             {
-                ShowTalkBox("我方勝利");
+                ShowTalkBox("我方勝利\n按Enter鍵回主選單");
                 isWin = true;
             }
 

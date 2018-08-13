@@ -18,6 +18,17 @@ public class GlobalAsset
     static public List<Maze.Animal> animals = new List<Maze.Animal>();
     static public List<Maze.Creater> creaters = new List<Maze.Creater>();
 
+    static public void Reset()
+    {
+        player = null;
+        animals.Clear();
+        creaters.Clear();
+    }
+
+    static public void setClockTime(float clockTime)
+    {
+        GlobalAsset.clockTime = clockTime;
+    }
 
 
     static public float RateOfColorOn(Color color, int layer)
