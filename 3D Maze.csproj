@@ -98,6 +98,7 @@
     <Compile Include="Assets\Maze\SkillManager.cs" />
     <Compile Include="Assets\Maze\Stone.cs" />
     <Compile Include="Assets\Maze\Wall.cs" />
+    <Compile Include="Assets\RateBar.cs" />
     <Compile Include="Assets\Script\DragObject.cs" />
     <Compile Include="Assets\Script\HotKey_Input.cs" />
     <Compile Include="Assets\Script\MapManager.cs" />

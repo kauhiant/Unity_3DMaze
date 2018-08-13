@@ -14,6 +14,7 @@ public class MapManager : MonoBehaviour
     public GameObject UI_Hungry;
     public GameObject UI_Skill;
 
+    public RateBar rateBar;
     public HintBox hintBox;
     public TalkBox talkBox;
 
@@ -175,23 +176,28 @@ public class MapManager : MonoBehaviour
     private void GameStart()
     {
         HideTalkBox();
-        player = GlobalAsset.animals[GlobalAsset.animals.Count-1];
-        player.Strong(100);
-        GlobalAsset.player = player;
+        AssignPlayer(GlobalAsset.animals[GlobalAsset.animals.Count - 1]);
         manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
 
         UI_statusBars.SetActive(true);
         UI_Skill.SetActive(true);
+        rateBar.setActive(true);
     }
 
     private void GameRestart()
     {
         HideTalkBox();
-        player = GlobalAsset.animals[GlobalAsset.animals.Count - 1];
-        player.Strong(100);
-        GlobalAsset.player = player;
+        AssignPlayer(GlobalAsset.animals[GlobalAsset.animals.Count - 1]);
         manager.ChangePlayer();
         command = Command.None;
+    }
+
+    private void AssignPlayer(Maze.Animal animal)
+    {
+        player = animal;
+        player.Strong(100);
+        GlobalAsset.player = player;
+        rateBar.setColor(player.Color);
     }
 
 
@@ -366,6 +372,8 @@ public class MapManager : MonoBehaviour
         UI_HP.GetComponent<Slider>().value = GlobalAsset.player.hp.BarRate;
         UI_EP.GetComponent<Slider>().value = GlobalAsset.player.ep.BarRate;
         UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
+
+        rateBar.setRate(GlobalAsset.RateOfColorOn(player.Color,player.position.Z.value));
     }
 
     // UI顯示對話框.
