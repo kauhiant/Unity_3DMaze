@@ -113,9 +113,9 @@ public class MapManager : MonoBehaviour
             }
         }
         
-        
         timer = 0;
     }
+    
 
     // Update is called once per frame
 	void FixedUpdate ()
@@ -205,7 +205,7 @@ public class MapManager : MonoBehaviour
     private void AssignPlayer(Maze.Animal animal)
     {
         player = animal;
-        player.Strong(100,50);
+        player.Strong(10000,100);
         GlobalAsset.player = player;
         rateBar.setColor(player.Color);
     }
@@ -237,7 +237,6 @@ public class MapManager : MonoBehaviour
 
         if (timer < ClockTime) return;
         timer = 0;
-        
 
         if(player != null)
         {

@@ -51,6 +51,11 @@ namespace Maze
         private float rateOfCreateAnimal;
         private float rateOfCreateFood;
 
+        // 平均村民數.
+        private int clocks = 0;
+        private int animalsCount = 0;// 村民數.
+        private float averageOfAnimals = 3; // 平均村民數.
+
         // 生產食物或村民前要保留一些能量，以免剩餘能量太少.
         private int ReserveEnergy
         {
@@ -83,7 +88,8 @@ namespace Maze
         public Animal Clock()
         {
             if (IsDead) return null;
-            energy.Add(-1);
+            reduceForClock();
+
 
             Iterator iter = new Iterator(this.positionOnPlain, this.Level+1);
 
@@ -96,6 +102,7 @@ namespace Maze
                 createFoodIndex = UnityEngine.Random.Range(0, iter.Size);
             
             Animal animal = null;
+            animalsCount = 0; // count by UpdateByObj().
 
             do
             {
@@ -112,7 +119,13 @@ namespace Maze
                     CreateFoodAt(point.Binded.Copy(), 1);
 
             } while (iter.MoveToNext());
-            
+
+            averageOfAnimals = (averageOfAnimals * clocks + animalsCount) / (clocks + 1); // 應該是float.
+
+            ++clocks;
+            if (clocks > 100)
+                clocks = 0; // 避免數字太大溢位.
+
             if (energy.IsFull)
                 LevelUp();
             else if (IsDead)
@@ -183,7 +196,10 @@ namespace Maze
             {
                 Animal animal = (Animal)obj;
                 if (animal.Hometown == this)
+                {
                     energy.Add(1);
+                    ++animalsCount;
+                }
                 else if (!animal.Color.Equals(this.Color))
                     energy.Add(-1);
                 else
@@ -218,5 +234,24 @@ namespace Maze
             return true;
         }
         
+        // 每個clock扣多少能量.
+        // 依據平均村民數做決定.
+        private void reduceForClock()
+        {
+            int reduce;
+
+            if (averageOfAnimals < 0.125f)
+                reduce = 16;
+            else if (averageOfAnimals < 0.25f)
+                reduce = 8;
+            else if (averageOfAnimals < 0.5f)
+                reduce = 4;
+            else if (averageOfAnimals < 1f)
+                reduce = 2;
+            else
+                reduce = 1;
+            
+            energy.Add(-reduce);
+        }
     }
 }
