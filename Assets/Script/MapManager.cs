@@ -176,7 +176,7 @@ public class MapManager : MonoBehaviour
     private void GameStart()
     {
         HideTalkBox();
-        AssignPlayer(GlobalAsset.animals[GlobalAsset.animals.Count - 1]);
+        AssignPlayer(GlobalAsset.lastestAnimal());
         manager = new Maze.MapManager(sceneMap, camera, littleMap, 8);
 
         UI_statusBars.SetActive(true);
@@ -187,7 +187,14 @@ public class MapManager : MonoBehaviour
     private void GameRestart()
     {
         HideTalkBox();
-        AssignPlayer(GlobalAsset.animals[GlobalAsset.animals.Count - 1]);
+
+        Maze.Animal animal = GlobalAsset.lastestAnimalOnLayerColor(player.position.Z.value, player.Color);
+        if (animal == null)
+            animal = GlobalAsset.lastestAnimalOnLayer(player.position.Z.value);
+        if (animal == null)
+            animal = GlobalAsset.lastestAnimal();
+
+        AssignPlayer(animal);
         manager.ChangePlayer();
         command = Command.None;
     }

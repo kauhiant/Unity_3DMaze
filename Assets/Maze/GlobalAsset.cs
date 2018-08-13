@@ -18,6 +18,8 @@ public class GlobalAsset
     static public List<Maze.Animal> animals = new List<Maze.Animal>();
     static public List<Maze.Creater> creaters = new List<Maze.Creater>();
 
+
+
     static public float RateOfColorOn(Color color, int layer)
     {
         int count = 0;
@@ -35,5 +37,43 @@ public class GlobalAsset
         }
 
         return (float)count / (float)total;
+    }
+
+    static public Maze.Animal lastestAnimal()
+    {
+        if (animals.Count == 0) return null;
+        return animals[GlobalAsset.animals.Count - 1];
+    }
+
+    static public Maze.Animal lastestAnimalOnLayer(int layer)
+    {
+        Maze.Animal animal = null;
+        int index = animals.Count - 1;
+        while(index >= 0)
+        {
+            if(animals[index].position.Z.value == layer)
+            {
+                animal = animals[index];
+                break;
+            }
+            --index;
+        }
+        return animal;
+    }
+
+    static public Maze.Animal lastestAnimalOnLayerColor(int layer, Color color)
+    {
+        Maze.Animal animal = null;
+        int index = animals.Count - 1;
+        while (index >= 0)
+        {
+            if (animals[index].position.Z.value == layer && animals[index].Color.Equals(color))
+            {
+                animal = animals[index];
+                break;
+            }
+            --index;
+        }
+        return animal;
     }
 }
