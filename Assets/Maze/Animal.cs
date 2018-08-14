@@ -16,39 +16,52 @@ namespace Maze
 
 
         // for auto action
-        enum Command
+        public enum Command
         {
-            Up, Down, Left, Right, Plain, Attack, Straight, Horizon, Wall, None
+            Up, Down, Left, Right, Plain, Attack, Straight, Horizon, Wall, Together, None
         }
         private Command command = Command.None;
+        public Creater Hometown { get; private set; }
         private Animal friend = null;
+        private float leaveHomeRate = 0.03f;
         private int patrolDist = 0;
         private int followDist = 0;
-        private float leaveHomeRate = 0.03f;
 
 
         private Point2D posit;
         private Vector2D Vect
         { get { return this.Plain.Vector3To2(vector); } }
-        public Color Color { get; private set; }
 
         public Vector3D vector;
         public EnergyBar hp;
         public EnergyBar ep;
         public EnergyBar hungry;
-        public int power;
-
-        public bool isDead
-        { get { return this.hp.Value == 0; } }
+        public int Power
+        {
+            get;
+            private set;
+        }
+        public int Armor
+        {
+            get;
+            private set;
+        }
+        private float ReduceHurtRate
+        {
+            get
+            {
+                float ret = 1.0f - Armor / 50f;
+                if (ret < 0.1f)
+                    ret = 0.1f;
+                return ret;
+            }
+        }
 
         public Plain Plain
         { get { return posit.Plain; } }
-
-        public Vector2D vectorOnScenen
+        public Vector2D VectorOnScenen
         { get { return GlobalAsset.player.posit.Plain.Vector3To2(vector); } }
-
-
-        public Dimention forwardDimen {
+        public Dimention ForwardDimen {
             get {
                 switch (vector) {
                     case Vector3D.Xn:
@@ -69,41 +82,24 @@ namespace Maze
             }
         }
 
+        public bool IsDead
+        {
+            get
+            {
+                return this.hp.Value == 0;
+            }
+        }
+        public Color Color { get; private set; }
+
         public override Color GetColor()
         {
             float a = hp.Value / (hp.Max * 2f) + 0.5f;
             return new Color(Color.r, Color.g, Color.b, a);
         }
-
-        public Creater Hometown{ get; private set; }
-
-        public Animal(Point3D position, Creater hometown) : base(position)
-        {
-            posit = new Point2D(this.position, Dimention.Z);
-            vector = Vector3D.Xp;
-            hp = new EnergyBar(200);
-            ep = new EnergyBar(100);
-            hungry = new EnergyBar(200);
-            this.Color = hometown.GetColor();
-            this.power = 20;
-            this.Hometown = hometown;
-            this.patrolDist = hometown.Level + 1;
-        }
-
         public override Sprite GetSprite()
         {
-            return Animal.Shape.GetAt(this.vectorOnScenen);
+            return Animal.Shape.GetAt(this.VectorOnScenen);
         }
-
-        public void ChangeHomeTown(Creater creater)
-        {
-            if (creater.GetColor().Equals(this.Color))
-            {
-                this.Hometown = creater;
-                this.patrolDist = creater.Level +1 ;
-            }
-        }
-
         public override void Destroy()
         {
             base.Destroy();
@@ -112,6 +108,40 @@ namespace Maze
                 grid.InsertObj(new Food(this.position, (int)((hp.Max + ep.Max) * hungry.BarRate)));
         }
 
+
+        public Animal(Point3D position, Creater hometown) : base(position)
+        {
+            posit = new Point2D(this.position, Dimention.Z);
+            vector = Vector3D.Xp;
+
+            hp = new EnergyBar(200);
+            ep = new EnergyBar(100);
+            hungry = new EnergyBar(200);
+            Power = 20;
+            Armor = 0;
+
+            Color = hometown.GetColor();
+            ChangeHomeTown(hometown);
+        }
+
+        
+        public void ChangeHomeTown(Creater creater)
+        {
+            if (creater.GetColor().Equals(this.Color))
+            {
+                this.Hometown = creater;
+                this.patrolDist = creater.Range ;
+            }
+        }
+
+        public void FollowFriend(Animal animal)
+        {
+            if (animal.Color.Equals(this.Color))
+            {
+                friend = animal;
+                followDist = 3;
+            }
+        }
         
 
         /// <summary>
@@ -125,7 +155,7 @@ namespace Maze
         
         public void Clock()
         {
-            if (isDead) return;
+            if (IsDead) return;
 
             hungry.Add(-1);
             if (hungry.BarRate < 0.3f)
@@ -165,9 +195,11 @@ namespace Maze
         }
 
 
-        public void Strong(int value, int power = 0)
+        public void Strong(int value, int power = 0,int armor=0)
         {
-            this.power += power;
+            this.Power += power;
+            this.Armor += armor;
+
             this.hp.MaxExpand(value);
             this.hp.Add(value);
             this.ep.MaxExpand(value);
@@ -187,7 +219,7 @@ namespace Maze
         
         public void ChangePlain()
         {
-            ChangePlain(this.forwardDimen);
+            ChangePlain(this.ForwardDimen);
             RegisterEvent(ObjEvent.plain);
         }
 
@@ -206,16 +238,10 @@ namespace Maze
             if (targetGrid == null) return;
             if (targetGrid.Obj == null) return;
 
-            if (targetGrid.Obj is Animal)
+            if (targetGrid.Obj is Attackable)
             {
-                Animal enemy = (Animal)(targetGrid.Obj);
-                if (!enemy.Color.Equals(this.Color))
-                    enemy.BeAttack(this);
-            }
-            else if(targetGrid.Obj is Wall)
-            {
-                Wall wall = (Wall)targetGrid.Obj;
-                wall.BeAttack(this);
+                Attackable enemy = (Attackable)(targetGrid.Obj);
+                enemy.BeAttack(this);
             }
         }
 
@@ -236,15 +262,9 @@ namespace Maze
                 if (targetGrid == null) return;
                 if (targetGrid.Obj == null) continue;
 
-                if(targetGrid.Obj is Animal){
-                    Animal target = (Animal)targetGrid.Obj;
-                    if(!target.Color.Equals(this.Color))
-                        target.BeAttack(this);
-                }
-                else if (targetGrid.Obj is Wall)
-                {
-                    Wall wall = (Wall)targetGrid.Obj;
-                    wall.BeAttack(this);
+                if(targetGrid.Obj is Attackable){
+                    Attackable target = (Attackable)targetGrid.Obj;
+                    target.BeAttack(this);
                 }
             }
         }
@@ -276,16 +296,10 @@ namespace Maze
                 if (targetGrid == null) continue;
                 if (targetGrid.Obj == null) continue;
 
-                if (targetGrid.Obj is Animal)
+                if (targetGrid.Obj is Attackable)
                 {
-                    Animal target = (Animal)targetGrid.Obj;
-                    if (!target.Color.Equals(this.Color))
-                        target.BeAttack(this);
-                }
-                else if (targetGrid.Obj is Wall)
-                {
-                    Wall wall = (Wall)targetGrid.Obj;
-                    wall.BeAttack(this);
+                    Attackable target = (Attackable)targetGrid.Obj;
+                    target.BeAttack(this);
                 }
             }
 
@@ -305,19 +319,46 @@ namespace Maze
 
             if (targetGrid.IsEmpty())
             {
-                targetGrid.InsertObj(new Wall(targetPosition, 100));
+                targetGrid.InsertObj(new Wall(targetPosition, Power * 5));
             }
+        }
+
+        public void Together()
+        {
+            Iterator iter = new Iterator(this.PositOnScene, 2);
+            do
+            {
+                Point2D point = iter.Iter;
+                Grid grid = World.GetAt(point.Binded);
+
+                if (grid == null || grid.Obj == null)
+                    continue;
+
+                if(grid.Obj is Animal)
+                {
+                    Animal animal = (Animal)grid.Obj;
+                    if (animal.Color.Equals(this.Color))
+                        animal.FollowFriend(this);
+                }
+
+            } while (iter.MoveToNext());
+
         }
 
 
 
-        public void BeAttack(Animal enemy)
+        void Attackable.BeAttack(Animal enemy)
         {
-            this.hp.Add(-enemy.power);
+            if (enemy.Color.Equals(this.Color)) return;
+
+            int hurt = enemy.Power;
+            hurt = (int)(hurt * ReduceHurtRate);
+            this.hp.Add(-hurt);
 
             if (this.hp.IsZero)
-            {
+            { // 收頭變強.
                 Destroy();
+                enemy.Strong(10, 1, 1);
             }
         }
         
@@ -668,6 +709,13 @@ namespace Maze
                 return Command.Straight;
 
             return Command.None;
+        }
+
+        private Vector2D FindRoute(Point2D target, int maxStep = 10)
+        {
+            // likely Deep First Serch
+            Stack<Vector2D> vectors = new Stack<Vector2D>();
+            return Vector2D.Null;
         }
     }
 }

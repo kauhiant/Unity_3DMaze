@@ -12,6 +12,9 @@ public class GlobalAsset
     static public Sprite playerMark;
     static public Sprite createrMark;
 
+    static public AudioSource attackAudio;
+    static public AudioSource otherAttackAudio;
+
     static public float clockTime=0.3f;
     static public Maze.Animal player;
 

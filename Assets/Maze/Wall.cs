@@ -23,7 +23,7 @@ namespace Maze
 
         public void BeAttack(Animal animal)
         {
-            hp -= animal.power;
+            hp -= animal.Power;
             if (hp < 0)
                 Destroy();
         }

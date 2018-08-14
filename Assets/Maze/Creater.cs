@@ -44,6 +44,13 @@ namespace Maze
                 return energy.IsZero;
             }
         }
+        public int Range // 管理範圍.干涉範圍.
+        {
+            get
+            {
+                return Level + 1;
+            }
+        }
 
         private Point2D positionOnPlain;
         private EnergyBar energy;
@@ -61,10 +68,9 @@ namespace Maze
         {
             get
             {
-                return costOfAnimal * (Level + 1);
+                return costOfAnimal * (Range);
             }
         }
-        
 
         public Creater(Point3D position, Color color) : base(position)
         {
@@ -91,7 +97,7 @@ namespace Maze
             reduceForClock();
 
 
-            Iterator iter = new Iterator(this.positionOnPlain, this.Level+1);
+            Iterator iter = new Iterator(this.positionOnPlain, this.Range);
 
             int createAnimalIndex = -1;
             if (UnityEngine.Random.value < rateOfCreateAnimal)

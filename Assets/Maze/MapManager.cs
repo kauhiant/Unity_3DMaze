@@ -242,14 +242,14 @@ namespace Maze
             ObjsMoveToDest();
 
             // update player
-            if(!Player.isDead)
+            if(!Player.IsDead)
                 UpdateObject(FindMazeObjectFrom(objs,Player));
 
             // if player move
             if (isMove)
             {
                 // change grids.
-                MoveForward(Player.vectorOnScenen);
+                MoveForward(Player.VectorOnScenen);
                 isMove = false;
             }
 
@@ -526,7 +526,7 @@ namespace Maze
             if(objPair.obj is Animal)
             {
                 Animal animal = (Animal)objPair.obj;
-                Vector2 vector = Convert(animal.vectorOnScenen);
+                Vector2 vector = Convert(animal.VectorOnScenen);
                 
                 GameObjectMove(objPair.binded, vector);
 

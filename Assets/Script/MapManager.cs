@@ -20,6 +20,8 @@ public class MapManager : MonoBehaviour
     public TalkBox talkBox;
 
     public AudioSource clockAudio;
+    public AudioSource punchAudio;
+    public AudioSource otherSkillAudio;
 
     public float ClockTime
     {
@@ -80,6 +82,9 @@ public class MapManager : MonoBehaviour
 
         GlobalAsset.playerMark = playerMark;
         GlobalAsset.createrMark = createrMark;
+
+        GlobalAsset.attackAudio = punchAudio;
+        GlobalAsset.otherAttackAudio = otherSkillAudio;
 
 
         gameMap = new Maze.Map3D(32, 32, 3);
@@ -161,7 +166,7 @@ public class MapManager : MonoBehaviour
         {
             if (manager == null)
                 GameStart();
-            else if (player.isDead)
+            else if (player.IsDead)
                 GameRestart();
             else if (isWin)
                 gotoStartScene();
@@ -205,7 +210,7 @@ public class MapManager : MonoBehaviour
     private void AssignPlayer(Maze.Animal animal)
     {
         player = animal;
-        player.Strong(10000,100);
+        //player.Strong(10000,100);
         GlobalAsset.player = player;
         rateBar.setColor(player.Color);
     }
@@ -240,7 +245,7 @@ public class MapManager : MonoBehaviour
 
         if(player != null)
         {
-            if (player.isDead)
+            if (player.IsDead)
                 ShowTalkBox("你已經死了\n按Enter鍵轉生");
             
             else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
@@ -274,7 +279,7 @@ public class MapManager : MonoBehaviour
         {
             Maze.Animal each = GlobalAsset.animals[i];
 
-            if (each.isDead)
+            if (each.IsDead)
             {
                 GlobalAsset.animals.RemoveAt(i);
                 --i;
@@ -357,14 +362,17 @@ public class MapManager : MonoBehaviour
 
             case Command.Attack:
                 player.Attack();
+                punchAudio.Play();
                 break;
 
             case Command.Straight:
                 player.Straight();
+                otherSkillAudio.Play();
                 break;
 
             case Command.Horizon:
                 player.Horizon();
+                otherSkillAudio.Play();
                 break;
 
             case Command.Wall:
