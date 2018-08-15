@@ -15,7 +15,7 @@ public class MapManager : MonoBehaviour
     public GameObject UI_Hungry;
     public GameObject UI_Skill;
 
-    public RateBar rateBar;
+    public RateBar2 rateBar;
     public HintBox hintBox;
     public TalkBox talkBox;
 
@@ -99,7 +99,7 @@ public class MapManager : MonoBehaviour
             for (int i = 0; i < 6; ++i)
             {
                 Maze.Point3D position = gameMap.GetRandomPointOn(layer);
-                Maze.Creater creater = new Maze.Creater(position, colorIndex(i));
+                Maze.Creater creater = new Maze.Creater(position, GlobalAsset.colors[i]);
 
                 if (gameMap.GetAt(position).InsertObj(creater))
                     GlobalAsset.creaters.Add(creater);
@@ -189,7 +189,7 @@ public class MapManager : MonoBehaviour
 
         UI_statusBars.SetActive(true);
         UI_Skill.SetActive(true);
-        rateBar.setActive(true);
+        rateBar.SetActive(true);
     }
 
     // 轉生.
@@ -215,7 +215,6 @@ public class MapManager : MonoBehaviour
         player = animal;
         //player.Strong(10000,100);
         GlobalAsset.player = player;
-        rateBar.setColor(player.Color);
     }
 
     private void gotoStartScene()
@@ -319,28 +318,6 @@ public class MapManager : MonoBehaviour
     }
 
     
-
-    // 目前有6個顏色.
-    private Color colorIndex(int index)
-    {
-        switch (index)
-        {
-            case 0:
-                return Color.white;
-            case 1:
-                return Color.red;
-            case 2:
-                return Color.green;
-            case 3:
-                return Color.blue;
-            case 4:
-                return Color.cyan;
-            case 5:
-                return Color.yellow;
-            default:
-                return Color.magenta;
-        }
-    }
     
 
     // player 根據 玩家command 行動.
@@ -397,7 +374,7 @@ public class MapManager : MonoBehaviour
         UI_EP.GetComponent<Slider>().value = GlobalAsset.player.ep.BarRate;
         UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
 
-        rateBar.setRate(GlobalAsset.RateOfColorOn(player.Color,player.position.Z.value));
+        rateBar.SetBar(GlobalAsset.PowerOfColorOn(player.position.Z.value));
     }
 
     // UI顯示對話框.

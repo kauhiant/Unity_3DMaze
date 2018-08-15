@@ -15,7 +15,7 @@ public class GlobalAsset
     static public AudioSource attackAudio;
     static public AudioSource otherAttackAudio;
 
-    static public float clockTime=0.3f;
+    static public float clockTime = 0.3f;
     static public Maze.Animal player;
 
     static public List<Maze.Animal> animals = new List<Maze.Animal>();
@@ -32,6 +32,10 @@ public class GlobalAsset
     {
         GlobalAsset.clockTime = clockTime;
     }
+    
+
+    static public Color[] colors = // 目前固定的7種顏色.
+        {Color.white, Color.red,  Color.green, Color.blue, Color.cyan, Color.yellow, Color.magenta};
 
 
     static public float RateOfColorOn(Color color, int layer)
@@ -51,6 +55,24 @@ public class GlobalAsset
         }
 
         return (float)count / (float)total;
+    }
+
+    static public int[] PowerOfColorOn(int layer)
+    {
+        int[] count = new int[7];
+        foreach (Maze.Creater each in creaters)
+        {
+            if (each.position.Z.value == layer)
+            {
+                for (int i = 0; i < colors.Length; ++i)
+                {
+                    if (each.Color.Equals(colors[i]))
+                        count[i] += each.Level;
+                }
+            }
+        }
+
+        return count;
     }
 
     static public Maze.Animal lastestAnimal()

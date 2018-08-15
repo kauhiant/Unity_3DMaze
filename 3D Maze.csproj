@@ -102,6 +102,7 @@
     <Compile Include="Assets\Script\DragObject.cs" />
     <Compile Include="Assets\Script\HotKey_Input.cs" />
     <Compile Include="Assets\Script\MapManager.cs" />
+    <Compile Include="Assets\Script\RateBar2.cs" />
     <Compile Include="Assets\Script\button_script.cs" />
     <Compile Include="Assets\Script\skill.cs" />
     <Compile Include="Assets\Script\slot.cs" />
