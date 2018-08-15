@@ -192,6 +192,7 @@ public class MapManager : MonoBehaviour
         rateBar.setActive(true);
     }
 
+    // 轉生.
     private void GameRestart()
     {
         HideTalkBox();
@@ -205,8 +206,10 @@ public class MapManager : MonoBehaviour
         AssignPlayer(animal);
         manager.ChangePlayer();
         command = Command.None;
+        UI_Skill.SetActive(true);
     }
 
+    // 指定 animal 給玩家操作.
     private void AssignPlayer(Maze.Animal animal)
     {
         player = animal;
@@ -252,6 +255,11 @@ public class MapManager : MonoBehaviour
             {
                 ShowTalkBox("我方勝利\n按Enter鍵回主選單");
                 isWin = true;
+            }
+            else if (isWin && GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) != 1f)
+            {
+                HideTalkBox();
+                isWin = false;
             }
 
             else
