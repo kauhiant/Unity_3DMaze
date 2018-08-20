@@ -26,6 +26,8 @@ namespace Maze
         private float leaveHomeRate = 0.03f;
         private int patrolDist = 0;
         private int followDist = 0;
+        private Stack<Vector2D> route;
+        private int surveyExtra = 3;
 
 
         private Point2D posit;
@@ -389,6 +391,20 @@ namespace Maze
 
             World.Swap(position, temp);
             RegisterEvent(ObjEvent.move);
+
+            // 當照著路線走時，會把走過的標記移除.
+           if(route != null && route.Count > 0)
+            {
+                if (route.Peek() == this.Vect) // 照著路線走.
+                {
+                    route.Pop();
+                }
+                else // 偏離路線，原本的路線已經沒用了.
+                {
+                    route = null;
+                }
+                    
+            }
         }
 
         private void ChangePlain(Dimention dimen)
@@ -410,9 +426,9 @@ namespace Maze
         // 並選擇採取什麼模式.
         private void Survey()
         {
-            Iterator iter = new Iterator(this.posit, 3);
+            Iterator iter = new Iterator(this.posit, surveyExtra);
             Animal animal = null;
-
+            
             do
             {
                 Point2D point = iter.Iter;
@@ -421,11 +437,11 @@ namespace Maze
                 if (grid == null || grid.Obj == null)
                     continue;
 
-                /*if(grid.Obj is Food)
+                if(grid.Obj is Food)
                 {
                     FeedOn((Food)grid.Obj);
                     return;
-                }*/
+                }
 
                 if (grid.Obj is Animal)
                 {
@@ -623,7 +639,16 @@ namespace Maze
         // 跑去吃某個食物.(未完成)
         private void FeedOn(Food food)
         {
-            Wander();
+            if (route != null)
+                FollowRoute();
+
+            route = new BFS_Map(this.posit, new Point2D(food.position, Dimention.Z), surveyExtra).FindRoute();
+            if (route == null)
+                Wander();
+            else
+                FollowRoute();
+
+          //  Wander();
         }
 
         // 跟隨某個同伴.
@@ -656,6 +681,23 @@ namespace Maze
         {
             Vector2D target = RandomVector(10);
             command = Convert(target);
+        }
+
+        // 照著路線走.
+        private void FollowRoute()
+        {
+            if (route == null || route.Count == 0)
+            {
+                Wander();
+                return;
+            }
+
+            Vector2D targetVector = route.Peek();
+            command = Convert(targetVector);
+
+            // 如果成功移動的話，route.Pop().
+            // 會在Move()判斷.
+                
         }
 
 

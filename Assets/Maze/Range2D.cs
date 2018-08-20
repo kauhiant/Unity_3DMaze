@@ -31,6 +31,12 @@ namespace Maze
             this.Iter.MoveFor(Vector2D.Down, extra);
         }
         
+
+        /*
+         * 6 7 8
+         * 3 4 5
+         * 0 1 2
+         */
         public bool MoveToNext()
             {
                 if (countX == extra * 2)
