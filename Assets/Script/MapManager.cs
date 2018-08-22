@@ -143,7 +143,7 @@ public class MapManager : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.T))
         {
-            command = Command.Plain;
+            command = Command.Together;
         }
         else if (Input.GetKey(KeyCode.Q))
         {
@@ -363,6 +363,10 @@ public class MapManager : MonoBehaviour
             case Command.Wall:
                 player.Build();
                 break;
+
+            case Command.Together:
+                player.Together();
+                break;
         }
         command = Command.None;
     }
@@ -393,6 +397,6 @@ public class MapManager : MonoBehaviour
     // 玩家可下的指令.
     enum Command
     {
-        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,Wall,None
+        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,Wall,Together,None
     }
 }

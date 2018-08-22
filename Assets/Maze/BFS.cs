@@ -144,7 +144,7 @@ namespace Maze
                 }
             }
 
-            if (!canArrive)
+            if (!canArrive || routeTree.Count == 0)
                 return null;
 
             var route = new Stack<Vector2D>();

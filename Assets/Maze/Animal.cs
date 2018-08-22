@@ -327,7 +327,7 @@ namespace Maze
 
         public void Together()
         {
-            Iterator iter = new Iterator(this.PositOnScene, 2);
+            Iterator iter = new Iterator(this.PositOnScene, 3);
             do
             {
                 Point2D point = iter.Iter;
@@ -437,7 +437,7 @@ namespace Maze
                 if (grid == null || grid.Obj == null)
                     continue;
 
-                if(grid.Obj is Food)
+                if(grid.Obj is Food && this.hungry.BarRate < 0.5f)
                 {
                     FeedOn((Food)grid.Obj);
                     return;
@@ -447,6 +447,7 @@ namespace Maze
                 {
                     if (((Animal)(grid.Obj)).Color.Equals(this.Color))
                         animal = (Animal)grid.Obj;
+
                     else if(ep.BarRate > 0.3f)
                     {
                         Battle((Animal)grid.Obj);
@@ -465,22 +466,16 @@ namespace Maze
             } while (iter.MoveToNext());
 
 
-            if (Hometown != null)
+            if(friend != null)
+            {
+                Follow();
+            }
+            else if (Hometown != null)
             {
                 Patrol(Hometown);
 
                 if (Hometown.IsDead)
                     Hometown = null;
-            }
-            else if(friend != null)
-            {
-                Follow();
-            }
-            else if(animal != null)
-            {
-                this.friend = animal;
-                followDist = 3;
-                Follow();
             }
             else
             {
@@ -527,6 +522,10 @@ namespace Maze
 
                 case Command.Wall:
                     Build();
+                    break;
+
+                case Command.Together:
+                    Together();
                     break;
             }
             command = Command.None;
@@ -636,7 +635,7 @@ namespace Maze
                 Wander();
         }
 
-        // 跑去吃某個食物.(未完成)
+        // 跑去吃某個食物.
         private void FeedOn(Food food)
         {
             if (route != null)
@@ -654,33 +653,43 @@ namespace Maze
         // 跟隨某個同伴.
         private void Follow()
         {
-            Point2D temp = this.posit.Copy();
-            Vector2D target = RandomVector(10);
-
-            for (int i = 0; i < 4; ++i)
+            if (friend.IsDead)
             {
-                temp.MoveFor(target, 1);
-                if (temp.DistanceTo(friend.position) > followDist)
-                {
-                    temp.MoveFor(target, -1);
-                    target = VectorConvert.Rotate(target);
-                }
-                else
-                {
-                    command = Convert(target);
-                    return;
-                }
+                friend = null;
+                Wander();
+                return;
             }
 
-            command = Command.None;
-            followDist = this.posit.DistanceTo(friend.position);
+            if (this.posit.DistanceTo(friend.position) < followDist)
+                Wander();
+            else
+            {
+                route = new BFS_Map(this.posit, new Point2D(friend.position, Dimention.Z), followDist + 3).FindRoute();
+                FollowRoute();
+            }
+            
         }
 
         // 漫無目的亂走.
         private void Wander()
         {
-            Vector2D target = RandomVector(10);
-            command = Convert(target);
+            Vector2D targetVector = RandomVector(10);
+
+            for(int i = 0; i < 4; ++i)
+            {
+                Point2D target = this.posit.Copy();
+                target.MoveFor(targetVector, 1);
+                Grid targetGrid = World.GetAt(target.Binded);
+
+                if (targetGrid != null && ( targetGrid.IsEmpty() || targetGrid.Obj is Food) )
+                    break;
+                else
+                    targetVector = VectorConvert.Rotate(targetVector);
+
+            }
+            
+
+            command = Convert(targetVector);
         }
 
         // 照著路線走.
@@ -752,12 +761,8 @@ namespace Maze
 
             return Command.None;
         }
+        
 
-        private Vector2D FindRoute(Point2D target, int maxStep = 10)
-        {
-            // likely Deep First Serch
-            Stack<Vector2D> vectors = new Stack<Vector2D>();
-            return Vector2D.Null;
-        }
+
     }
 }
