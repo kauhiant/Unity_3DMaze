@@ -8,12 +8,8 @@ namespace Maze
     // 這個格子也會有自己的外觀，用來顯示在畫面上.
     public class Grid
     {
-        // 這個格子顯示在畫面上出來的圖片.
-        static public Sprite Sprite { get; private set; }
-        static public void SetSprite(Sprite sprite)
-        {
-            Grid.Sprite = sprite;
-        }
+        public Sprite Sprite { get; set; }
+
 
         // 在這個格子上的物件.
         public MazeObject Obj { get; private set; }

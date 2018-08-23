@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class MapManager : MonoBehaviour
 {
     public GameObject camera;
+    public GameObject playerHintVector;
     public GameObject littleMap;
     public GameObject UI_statusBars;
     public GameObject UI_HP;
@@ -48,7 +49,7 @@ public class MapManager : MonoBehaviour
     public Sprite playerMark;
     public Sprite createrMark;
 
-    public Sprite gridSprite;
+    public Sprite[] gridSprites;
     public Sprite stoneSprite;
     public Sprite createrSprite;
     public Sprite foodSprite;
@@ -69,12 +70,12 @@ public class MapManager : MonoBehaviour
 	void Start () {
 
         Maze.Animal.SetShape(new Maze.Shape(animalShapes));
-        Maze.Grid.SetSprite(gridSprite);
         Maze.Stone.SetSprite(stoneSprite);
         Maze.Creater.SetSprite(createrSprite);
         Maze.Food.SetSprite(foodSprite);
         Maze.Wall.SetSprite(wallSprite);
 
+        GlobalAsset.gridSprites = gridSprites;
         GlobalAsset.attack = attack;
         GlobalAsset.straight = straight;
         GlobalAsset.horizon = horizon;
@@ -86,8 +87,8 @@ public class MapManager : MonoBehaviour
         GlobalAsset.attackAudio = punchAudio;
         GlobalAsset.otherAttackAudio = otherSkillAudio;
 
-
-        gameMap = new Maze.Map3D(32, 32, 3);
+        // 放幾個gridSprite就生成幾層世界.
+        gameMap = new Maze.Map3D(32, 32, gridSprites.Length);
         sceneMap = new Maze.Map2D(gameMap);
         Maze.MazeObject.SetMaze(gameMap);
 
@@ -143,7 +144,7 @@ public class MapManager : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.T))
         {
-            command = Command.Together;
+            command = Command.Plain;
         }
         else if (Input.GetKey(KeyCode.Q))
         {
@@ -215,6 +216,7 @@ public class MapManager : MonoBehaviour
         player = animal;
         //player.Strong(10000,100);
         GlobalAsset.player = player;
+        playerHintVector.SetActive(true);
     }
 
     private void gotoStartScene()
@@ -248,7 +250,10 @@ public class MapManager : MonoBehaviour
         if(player != null)
         {
             if (player.IsDead)
+            {
                 ShowTalkBox("你已經死了\n按Enter鍵轉生");
+                playerHintVector.SetActive(false);
+            }
             
             else if (GlobalAsset.RateOfColorOn(player.Color, player.position.Z.value) == 1f)
             {

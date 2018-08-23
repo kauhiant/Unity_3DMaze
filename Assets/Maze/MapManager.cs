@@ -186,7 +186,7 @@ namespace Maze
         {
             GameObject temp = new GameObject();
             temp.transform.position = new Vector2(x, y);
-            temp.AddComponent<SpriteRenderer>().sprite = Grid.Sprite;
+            temp.AddComponent<SpriteRenderer>().sprite = grid.Sprite;
             temp.GetComponent<SpriteRenderer>().sortingLayerName = "grid";
 
             grids.Add(temp);

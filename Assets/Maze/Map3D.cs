@@ -29,6 +29,7 @@ namespace Maze
                     for(int k=0; k<layers; ++k)
                     {
                         map[i][j][k] = new Grid();
+                        map[i][j][k].Sprite = GlobalAsset.gridSprites[k];
                     }
                 }
             }

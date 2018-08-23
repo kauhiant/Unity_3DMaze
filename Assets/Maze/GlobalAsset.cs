@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GlobalAsset
 {
+    static public Sprite[] gridSprites;
+
     static public Sprite attack;
     static public Sprite straight;
     static public Sprite horizon;
