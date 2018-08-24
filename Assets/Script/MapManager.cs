@@ -62,7 +62,6 @@ public class MapManager : MonoBehaviour
     private Maze.MapManager manager;
     
     private bool isWin  = false;
-    private Command command = Command.None;
 
 
 
@@ -124,45 +123,8 @@ public class MapManager : MonoBehaviour
     
 
     // Update is called once per frame
-	void FixedUpdate ()
+	void Update ()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            command = Command.Up;
-        }
-        else if (Input.GetKey(KeyCode.DownArrow))
-        {
-            command = Command.Down;
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            command = Command.Left;
-        }
-        else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            command = Command.Right;
-        }
-        else if (Input.GetKey(KeyCode.T))
-        {
-            command = Command.Plain;
-        }
-        else if (Input.GetKey(KeyCode.Q))
-        {
-            command = Command.Attack;
-        }
-        else if (Input.GetKey(KeyCode.W))
-        {
-            command = Command.Straight;
-        }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            command = Command.Horizon;
-        }
-        else if (Input.GetKey(KeyCode.R))
-        {
-            command = Command.Wall;
-        }
-
         if (GameReady && Input.GetKeyDown(KeyCode.Return))
         {
             if (manager == null)
@@ -206,7 +168,6 @@ public class MapManager : MonoBehaviour
 
         AssignPlayer(animal);
         manager.ChangePlayer();
-        command = Command.None;
         UI_Skill.SetActive(true);
     }
 
@@ -299,12 +260,12 @@ public class MapManager : MonoBehaviour
             }
 
 
-            if (each == player)
-                PlayerAction();
-            else
-                each.Auto();
-
-
+            if (each != player)
+            {
+                each.AutoSurvey();
+            }
+                
+            each.Action();
             each.Clock();
         }
 
@@ -321,64 +282,13 @@ public class MapManager : MonoBehaviour
         }
 
     }
-
     
-    
-
-    // player 根據 玩家command 行動.
-    private void PlayerAction()
-    {
-        switch (command)
-        {
-            case Command.Up:
-                player.MoveFor(Maze.Vector2D.Up);
-                break;
-
-            case Command.Down:
-                player.MoveFor(Maze.Vector2D.Down);
-                break;
-
-            case Command.Left:
-                player.MoveFor(Maze.Vector2D.Left);
-                break;
-
-            case Command.Right:
-                player.MoveFor(Maze.Vector2D.Right);
-                break;
-
-            case Command.Plain:
-                player.ChangePlain();
-                break;
-
-            case Command.Attack:
-                player.Attack();
-                punchAudio.Play();
-                break;
-
-            case Command.Straight:
-                player.Straight();
-                otherSkillAudio.Play();
-                break;
-
-            case Command.Horizon:
-                player.Horizon();
-                otherSkillAudio.Play();
-                break;
-
-            case Command.Wall:
-                player.Build();
-                break;
-
-            case Command.Together:
-                player.Together();
-                break;
-        }
-        command = Command.None;
-    }
-
     // UI 顯示玩家狀態.
     private void UpdataUI()
     {
+        if (GlobalAsset.player == null)
+            return;
+
         UI_HP.GetComponent<Slider>().value = GlobalAsset.player.hp.BarRate;
         UI_EP.GetComponent<Slider>().value = GlobalAsset.player.ep.BarRate;
         UI_Hungry.GetComponent<Slider>().value = GlobalAsset.player.hungry.BarRate;
@@ -399,9 +309,5 @@ public class MapManager : MonoBehaviour
         talkBox.Hide();
     }
 
-    // 玩家可下的指令.
-    enum Command
-    {
-        Up,Down,Left,Right,Plain,Attack,Straight,Horizon,Wall,Together,None
-    }
+    
 }

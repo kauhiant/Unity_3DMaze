@@ -20,7 +20,8 @@ namespace Maze
         {
             Up, Down, Left, Right, Plain, Attack, Straight, Horizon, Wall, Together, None
         }
-        private Command command = Command.None;
+        public Command command = Command.None;
+
         public Creater Hometown { get; private set; }
         private Animal friend = null;
         private float leaveHomeRate = 0.03f;
@@ -149,12 +150,58 @@ namespace Maze
         /// <summary>
         /// use it after Clock()
         /// </summary>
-        public void Auto()
+        public void AutoSurvey()
         {
             Survey();
-            Action();
         }
-        
+
+        public void Action()
+        {
+            switch (command)
+            {
+                case Command.Up:
+                    MoveFor(Maze.Vector2D.Up);
+                    break;
+
+                case Command.Down:
+                    MoveFor(Maze.Vector2D.Down);
+                    break;
+
+                case Command.Left:
+                    MoveFor(Maze.Vector2D.Left);
+                    break;
+
+                case Command.Right:
+                    MoveFor(Maze.Vector2D.Right);
+                    break;
+
+                case Command.Plain:
+                    ChangePlain();
+                    break;
+
+                case Command.Attack:
+                    Attack();
+                    break;
+
+                case Command.Straight:
+                    Straight();
+                    break;
+
+                case Command.Horizon:
+                    Horizon();
+                    break;
+
+                case Command.Wall:
+                    Build();
+                    break;
+
+                case Command.Together:
+                    Together();
+                    break;
+            }
+            command = Command.None;
+        }
+
         public void Clock()
         {
             if (IsDead) return;
@@ -484,52 +531,6 @@ namespace Maze
             
         }
 
-        private void Action()
-        {
-            switch (command)
-            {
-                case Command.Up:
-                    MoveFor(Maze.Vector2D.Up);
-                    break;
-
-                case Command.Down:
-                    MoveFor(Maze.Vector2D.Down);
-                    break;
-
-                case Command.Left:
-                    MoveFor(Maze.Vector2D.Left);
-                    break;
-
-                case Command.Right:
-                    MoveFor(Maze.Vector2D.Right);
-                    break;
-
-                case Command.Plain:
-                    ChangePlain();
-                    break;
-
-                case Command.Attack:
-                    Attack();
-                    break;
-
-                case Command.Straight:
-                    Straight();
-                    break;
-
-                case Command.Horizon:
-                    Horizon();
-                    break;
-
-                case Command.Wall:
-                    Build();
-                    break;
-
-                case Command.Together:
-                    Together();
-                    break;
-            }
-            command = Command.None;
-        }
         
 
         // 招集附近的流浪夥伴一起蓋新家.
