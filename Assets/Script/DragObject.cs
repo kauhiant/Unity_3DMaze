@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class DragObject : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler {   //事件觸發 分別是 開始抓住物件 拖曳物件 放開物件
     public static GameObject itemBeginDragged;          
     public static bool successful = false;      //是否成功放到下方技能欄
+    
 
     public void OnBeginDrag(PointerEventData eventData)
     {

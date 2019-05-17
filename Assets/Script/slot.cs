@@ -6,7 +6,9 @@ using UnityEngine.UI;
 
 public class slot : MonoBehaviour ,IDropHandler{
     public GameObject under_skill;      //用來確認是否放在下方技能欄
+
     
+
     public void OnDrop(PointerEventData eventData)      //拖拉結束觸發
     { 
         if (gameObject.transform.parent.gameObject==under_skill)    //判斷是否在下方技能欄

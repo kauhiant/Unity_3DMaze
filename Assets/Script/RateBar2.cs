@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class RateBar2 : MonoBehaviour {
     public GameObject slider;
     public GameObject[] front;
-    public float[] value;   //這可以刪掉 deBug用
+    
 
     public void SetBar(int[] value)
     {

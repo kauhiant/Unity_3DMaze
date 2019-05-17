@@ -10,6 +10,7 @@ public class ShowSkillHint : MonoBehaviour,IPointerEnterHandler,IPointerExitHand
     public HintBox hintBox;
     public SkillButton skill;
     
+
     public void OnPointerEnter(PointerEventData eventData)      //當滑鼠"移到"物件上面
     {
         hintBox.ShowMessage(skill.detail, skill.name);

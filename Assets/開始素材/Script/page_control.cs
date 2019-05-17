@@ -4,15 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class page_control : MonoBehaviour {
-    string[] story = {"又是一個炎熱的夏天，我一如往常地坐在電腦桌前，玩著最流行的遊戲-艾爾之光，" ,
-                      "突然間，外面下起了雷陣雨，一道閃電不偏不移的打到了我家，變電箱串出了數道火光，我可憐的電腦也因此不能用了，只好打電話請人來幫忙維修，" ,
-                      "在等待時間，看著暫時不能運轉得冷氣機，汗臭味慢慢地瀰漫整個房間，我不知不覺的睡著了。" ,
-                      "突然聽到有人在呼叫我的名字 : { 正皓 正皓 醒醒啊 }" ,
-                      "我睡眼矇矓的看著他，下一刻，發現整個都不對勁，熟悉的床，熟悉的電腦，熟悉的房間，都不見了，只看到一張草蓆，和叫我起來的村長。" };
+    string[] story = {"維度，或稱維數是什麼樣的概念呢？該用物理還是哲學的方式來解釋呢？" ,
+                      "但就以現在而言，我們拿我們看到的面向來看吧" ,
+                      "0是點、1是線、2是面、3為世界，那4維呢？還是空間嗎？抑或是時間？我們無從知曉" ,
+                      "而現在，我們來個小遊戲，以資料結構而言是三維，但只呈現二維的部分，你會覺得這是幾維呢？" ,
+                      "還請按下GO的按鈕來體驗看看" };
     int now_page;
 
     public GameObject story_manager;
-    public MapManager controller;
+    public GameController controller;
 
     public Sprite[] image;
     public Image story_piicture;
@@ -22,6 +22,7 @@ public class page_control : MonoBehaviour {
     public GameObject previous_page_button;
     public GameObject next_page_button;
     public GameObject start_button;
+    
 
     // Use this for initialization
     void Start () {

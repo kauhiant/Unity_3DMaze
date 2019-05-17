@@ -6,6 +6,8 @@ using UnityEngine.EventSystems;
 public class Interactive : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler {
     public GameObject talk_block;
 
+    
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         talk_block.SetActive(true);

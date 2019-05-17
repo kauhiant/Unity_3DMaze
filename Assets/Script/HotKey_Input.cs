@@ -7,8 +7,10 @@ public class HotKey_Input : MonoBehaviour {
     public GameObject skill_text_block; //技能說明文字
     public GameObject[] under_skill;
     bool skill_status=false;  //預設關閉
-	// Use this for initialization
-	void Start () {
+    
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	

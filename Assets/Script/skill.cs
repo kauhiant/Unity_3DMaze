@@ -13,8 +13,10 @@ public class skill : MonoBehaviour {    //技能冷卻
     float now_cold_time;        //現在的冷卻時間
     public bool setuse=false;   //用來觸發使用
 
-	// Use this for initialization
-	void Start () { 
+   
+
+    // Use this for initialization
+    void Start () { 
 
 	}
 	
